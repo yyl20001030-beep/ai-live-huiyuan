@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Version: v3.1.0 | CRM Phase 1 Homepage Refactoring + Scheme Annotations -->
+    <!-- 本次修改范围：
+         1. 增加方案注释系统 (右侧浮层)
+         2. 增加今日经营状态 Demo 切换 (今日经营标题旁小按钮)
+         3. 增加首页下一组 (首页列表超3个自动显示)
+         4. 增加已确定顾客类型 (高转化关注/自主购买型/低活跃/潜力观察)
+         除此之外不做任何功能性改动。 
+    -->
+    <title>会员专享 CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #E63950; /* Warm Rose Red */
+            --primary-dark: #C0263B;
+            --primary-light: #FFF0F2;
+            --bg-color: #F5F6F8;
+            --text-main: #1C1C1E;
+            --text-sub: #8E8E93;
+        }
+        
+        body {
+            background-color: #d1d5db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Wrap container to align App and Annotation Panel */
+        #main-wrapper {
+            display: flex;
+            gap: 24px;
+            max-width: 1200px;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Mobile Container Simulation */
+        #app-container {
+            width: 390px;
+            height: 844px;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        /* Presentation Annotation Panel */
+        #annotation-panel {
+            width: 420px;
+            height: 844px;
+            background: #FFFFFF;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+            padding: 28px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .annotation-title { font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 8px; margin-top: 16px;}
+        .annotation-title:first-child { margin-top: 0; }
+        .annotation-list { list-style-type: disc; padding-left: 20px; margin-bottom: 12px; color: #4b5563; font-size: 13px; line-height: 1.6; }
+        .annotation-list li { margin-bottom: 4px; }
+        .annotation-text { color: #4b5563; font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+        /* Hide Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* SPA Page Transitions */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .page.active {
+            transform: translateX(0);
+        }
+
+        .page.main-tab {
+            z-index: 5;
+            transform: translateX(0);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .page.main-tab.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 90px;
+        }
+        
+        .sub-page .content-area {
+            padding-bottom: 30px;
+        }
+
+        /* UI Components */
+        .card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.025);
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-weight: 500;
+            text-align: center;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:active { opacity: 0.85; }
+        
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-weight: 500;
+            background: transparent;
+        }
+
+        .tag {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .tag-red { background: var(--primary-light); color: var(--primary); }
+        .tag-blue { background: #F0F5FF; color: #2F54EB; }
+        .tag-orange { background: #FFF7E6; color: #FA8C16; }
+        .tag-green { background: #E6F7FF; color: #1890FF; }
+        .tag-gray { background: #F5F5F5; color: #595959; }
+        .tag-purple { background: #F9F0FF; color: #722ED1; }
+
+        .progress-bar {
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Bottom Tab Bar */
+        #tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid #EEF0F2;
+            display: flex;
+            justify-content: space-around;
+            padding-top: 8px;
+            padding-bottom: 24px;
+            z-index: 50;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-sub);
+            font-size: 11px;
+            gap: 3px;
+            width: 33.33%;
+            cursor: pointer;
+        }
+        .tab-item i { font-size: 24px; }
+        .tab-item.active { color: var(--primary); font-weight: 600; }
+
+        /* Toast & Modal */
+        #toast {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.82);
+            color: white;
+            padding: 12px 22px;
+            border-radius: 20px;
+            z-index: 100;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 80%;
+        }
+        
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 90;
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-content {
+            background: white;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 40px;
+            transform: translateY(100%);
+            transition: transform 0.28s ease-out;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+
+        /* Top Header */
+        .top-header {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: white;
+            position: relative;
+            z-index: 20;
+        }
+        .top-header.bg-transparent { background: transparent; }
+        .header-title { font-size: 17px; font-weight: 600; color: #1f2937; }
+    </style>
+</head>
+<body>
+
+<div id="main-wrapper">
+    <div id="app-container">
+
+        <!-- ============================================== -->
+        <!-- TAB 1: 首页 -->
+        <!-- ============================================== -->
+        <div id="tab-home" class="page main-tab active hide-scrollbar">
+            <!-- Top Header -->
+            <div class="top-header bg-transparent pt-3">
+                <div class="text-xl font-bold text-gray-900 flex items-center gap-1.5">
+                    <i class="ph-fill ph-crown text-red-500"></i> 会员专享
+                </div>
+                <div class="relative cursor-pointer" onclick="switchTab('tab-notice')">
+                    <i class="ph ph-bell text-2xl text-gray-700"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">3</span>
+                </div>
+            </div>
+            
+            <div class="content-area px-4 pt-2">
+                <!-- Header Greeting -->
+                <div class="mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800">早上好</h1>
+                    <p class="text-gray-500 text-xs mt-1">今天也来看看团队有哪些需要关注的地方</p>
+                </div>
+
+                <!-- MODULE 1: 今日经营 -->
+                <div class="card bg-gradient-to-br from-[#FFF0F2] via-white to-red-50/30 border border-red-100 shadow-sm mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-fill ph-calendar-check text-[var(--primary)] text-xl"></i>
+                            <span class="font-bold text-gray-800 text-sm">今日经营</span>
+                            <!-- 新增：用于快速演示状态切换的控制器 -->
+                            <span class="bg-red-100 text-[var(--primary)] px-2 py-0.5 rounded text-[10px] cursor-pointer font-medium active:opacity-70 ml-1 shadow-sm border border-red-200" onclick="toggleDemoState()">演示: 切换状态</span>
+                        </div>
+                        <span class="text-xs text-gray-500" id="today-ops-header-text">今天有 <span class="text-[var(--primary)] font-bold text-sm global-todo-total">18</span> 项待处理</span>
+                    </div>
+                    
+                    <!-- Dynamic rendering target for Today's Ops -->
+                    <div id="today-ops-content">
+                        <!-- Will be filled by renderTodayOps() -->
+                    </div>
+                </div>
+
+                <!-- MODULE 2: 我的下级 -->
+                <div class="card mb-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-800">我的下级</h2>
+                            <p class="text-[10px] text-gray-400">直属下级概览与成长状态</p>
+                        </div>
+                        <button class="text-xs text-[var(--primary)] font-medium flex items-center gap-0.5" onclick="navTo('page-team-list')">
+                            查看全部 <i class="ph ph-caret-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2 bg-gray-50 p-2.5 rounded-xl text-center mb-3">
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">直属下级</div>
+                            <div class="text-sm font-bold text-gray-800">18人</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">目标达成</div>
+                            <div class="text-sm font-bold text-green-600">12人</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">待关注</div>
+                            <div class="text-sm font-bold text-red-500">3人</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">成长中</div>
+                            <div class="text-sm font-bold text-amber-500">3人</div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Subordinates List -->
+                    <div class="space-y-2.5" id="home-subordinates-preview">
+                        <!-- Dynamic Insertion -->
+                    </div>
+                </div>
+
+                <!-- MODULE 3: 团队经营报告 -->
+                <div class="card mb-4 border border-gray-100 bg-white">
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
+                                团队经营报告
+                            </h2>
+                            <div class="text-[11px] text-gray-400 mt-0.5">
+                                经营范围：<span class="text-gray-700 font-medium">我 + 18名直属下级</span>
+                            </div>
+                        </div>
+                        <span class="tag tag-red">2026年9月</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 my-3 text-center">
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">分享天数</div>
+                            <div class="text-base font-bold text-gray-900">26 <span class="text-[10px] font-normal text-gray-400">天</span></div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">浏览顾客</div>
+                            <div class="text-base font-bold text-gray-900">125 <span class="text-[10px] font-normal text-gray-400">人</span></div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">转化率</div>
+                            <div class="text-base font-bold text-gray-900">28%</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-600">团队业绩</span>
+                                <span class="font-bold text-gray-900">¥63,420 / <span class="text-gray-400 font-normal">目标 ¥60,000</span></span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+                            <div class="text-[10px] text-green-600 font-medium mt-1">达成率 105.7% (已达标)</div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-600">下单客户</span>
+                                <span class="font-bold text-gray-900">87人 / <span class="text-gray-400 font-normal">目标 100人</span></span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+                            <div class="text-[10px] text-red-500 font-medium mt-1 flex justify-between">
+                                <span>还差 13 人达成目标</span>
+                                <span>完成率 87%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-outline w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-team-report')">
+                        查看完整团队经营报告 <i class="ph ph-caret-right"></i>
+                    </button>
+                </div>
+
+                <!-- MODULE 4: 顾客跟进 -->
+                <div class="card mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-800">顾客跟进</h2>
+                            <p class="text-[10px] text-gray-400">锁定转化卡点，精准促单跟进</p>
+                        </div>
+                        <button class="text-xs text-[var(--primary)] font-medium flex items-center gap-0.5" onclick="navTo('page-browse-list')">
+                            查看全部 <i class="ph ph-caret-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 mb-3">
+                        <div class="bg-red-50/60 p-3 rounded-xl border border-red-100 cursor-pointer" onclick="navTo('page-browse-list')">
+                            <div class="text-[11px] text-gray-600 mb-1">浏览/加购未下单</div>
+                            <div class="text-lg font-bold text-red-600"><span class="global-todo-browse">10</span> <span class="text-xs font-normal text-gray-500">人</span></div>
+                        </div>
+                        <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100 cursor-pointer" onclick="navTo('page-order-list')">
+                            <div class="text-[11px] text-gray-600 mb-1">订单待回访</div>
+                            <div class="text-lg font-bold text-blue-600"><span class="global-todo-order">5</span> <span class="text-xs font-normal text-gray-500">人</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Customer List -->
+                    <div class="space-y-2" id="home-customers-preview">
+                        <!-- Injected dynamic preview items -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 2: 公告 (UNTOUCHED ORIGINAL) -->
+        <!-- ============================================== -->
+        <div id="tab-notice" class="page main-tab hide-scrollbar bg-white">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <div class="header-title w-full text-center">系统公告与动态</div>
+            </div>
+
+            <!-- Announcement Filter Tabs -->
+            <div class="flex overflow-x-auto hide-scrollbar gap-5 px-4 py-3 border-b border-gray-100 text-sm whitespace-nowrap" id="notice-filters">
+                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn" data-type="all">全部</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="platform">平台通知</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="activity">经营活动</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="rule">规则更新</div>
+            </div>
+
+            <div class="content-area bg-gray-50 px-4 pt-3" id="notice-list-container">
+                <!-- Dynamic Notice Items Injected Here -->
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 3: 我的 (100% STRICTLY UNTOUCHED ORIGINAL) -->
+        <!-- ============================================== -->
+        <div id="tab-me" class="page main-tab hide-scrollbar bg-[#F7F8FA]">
+            <div class="content-area pb-24 px-4 pt-4 relative">
+                
+                <!-- Message Icon Top Right -->
+                <div class="absolute top-4 right-4 z-20 cursor-pointer" onclick="showToast('查看消息')">
+                    <div class="relative">
+                        <i class="ph ph-chat-centered-dots text-[28px] text-gray-800"></i>
+                        <span class="absolute -top-1 -right-2 bg-[#EA3343] text-white text-[9px] w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold border-[1.5px] border-[#F7F8FA] leading-none">6</span>
+                    </div>
+                </div>
+
+                <!-- Header User Area -->
+                <div class="flex items-center gap-4 mt-4 mb-3">
+                    <img src="https://placehold.co/120x120/E5E7EB/A3A8B8?text=头像" class="w-[68px] h-[68px] rounded-full object-cover">
+                    <div class="flex flex-col justify-center gap-1.5">
+                        <div class="text-[17px] font-bold text-[#222]">高晴晴</div>
+                        <div class="flex items-center gap-3 text-[11px]">
+                            <div class="flex items-center"><span class="text-[#EA3343] font-bold italic mr-1 text-[12px]">ID</span><span class="text-gray-500 tracking-wide">3518317</span></div>
+                            <div class="flex items-center"><span class="text-[#EA3343] font-bold italic mr-1 text-[12px]">Code</span><span class="text-gray-500 tracking-wide">AAXG041681</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Center Title -->
+                <div class="flex justify-center items-center gap-3 mt-8 mb-5">
+                    <div class="h-[1.5px] w-5 bg-gradient-to-r from-transparent to-[#F57C82]"></div>
+                    <div class="text-[#333] font-bold text-[15px] tracking-[0.15em]">业务中心</div>
+                    <div class="h-[1.5px] w-5 bg-gradient-to-l from-transparent to-[#F57C82]"></div>
+                </div>
+
+                <!-- Business Center Cards -->
+                <div class="grid grid-cols-2 gap-3.5 mb-2">
+                    <div class="rounded-[20px] bg-gradient-to-br from-[#6A9BF6] to-[#7169E8] p-4 text-white relative overflow-hidden h-[95px] flex flex-col justify-center shadow-[0_6px_12px_rgba(106,155,246,0.25)] cursor-pointer" onclick="showToast('我的业绩')">
+                        <div class="absolute top-2.5 right-2.5 w-[22px] h-[22px] bg-[#EA3343] rounded-full border-[1.5px] border-white flex items-center justify-center text-[10px] font-bold shadow-sm z-10">赚</div>
+                        <i class="ph ph-trend-up text-[28px] mb-1.5 opacity-90 font-light"></i>
+                        <div class="font-bold text-[15px] leading-tight mb-0.5">我的业绩</div>
+                        <div class="text-[10px] text-white/85">实时数据</div>
+                    </div>
+                    <div class="rounded-[20px] bg-gradient-to-br from-[#FF6A88] to-[#FF4B5A] p-4 text-white relative overflow-hidden h-[95px] flex flex-col justify-center shadow-[0_6px_12px_rgba(255,106,136,0.25)] cursor-pointer" onclick="showToast('我的客户')">
+                        <i class="ph ph-users text-[28px] mb-1.5 opacity-90 font-light"></i>
+                        <div class="font-bold text-[15px] leading-tight mb-0.5">我的客户</div>
+                        <div class="text-[10px] text-white/85">(直属下级)</div>
+                    </div>
+                </div>
+
+                <!-- Common Tools Title -->
+                <div class="flex justify-center items-center gap-3 mt-8 mb-6">
+                    <div class="h-[1.5px] w-5 bg-gradient-to-r from-transparent to-[#F57C82]"></div>
+                    <div class="text-[#333] font-bold text-[15px] tracking-[0.15em]">常用工具</div>
+                    <div class="h-[1.5px] w-5 bg-gradient-to-l from-transparent to-[#F57C82]"></div>
+                </div>
+
+                <!-- Common Tools Grid -->
+                <div class="grid grid-cols-3 gap-y-6 mb-7">
+                    <!-- Row 1 -->
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的分销')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#34C783] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-squares-four text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">我的分销</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('业绩奖金')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF8C38] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-chart-bar text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">业绩奖金</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的服务费')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#4D92FF] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-shield-check text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">我的服务费</span>
+                    </div>
+                    
+                    <!-- Row 2 -->
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('锁单查询')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF6559] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-magnifying-glass text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">锁单查询</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的二维码')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#898DF5] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-qr-code text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">我的二维码</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('爆款专柜')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF4C59] flex items-center justify-center text-white mb-2 shadow-sm relative">
+                            <div class="absolute inset-0 flex items-center justify-center"><i class="ph-fill ph-drop text-[26px]"></i></div>
+                            <div class="w-1.5 h-1.5 bg-white rounded-full absolute mt-3"></div>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">爆款专柜</span>
+                    </div>
+                    
+                    <!-- Row 3 -->
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('邀客佣金看涨')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FFA723] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-briefcase text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">邀客佣金看涨</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('退折商品专区')">
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#F16AD6] flex items-center justify-center text-white mb-2 shadow-sm">
+                            <i class="ph-bold ph-plus-circle text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">退折商品专区</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('我的粉丝')">
+                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#6F7AF7] flex items-center justify-center text-white mb-2 shadow-sm relative">
+                            <i class="ph-bold ph-users text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">我的粉丝</span>
+                    </div>
+                    
+                    <!-- Row 4 -->
+                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('直播奖金')">
+                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF4263] flex items-center justify-center text-white mb-2 shadow-sm relative">
+                            <i class="ph-bold ph-broadcast text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">直播奖金</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('全品类奖金')">
+                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
+                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF9A26] flex items-center justify-center text-white mb-2 shadow-sm relative">
+                            <i class="ph-bold ph-shopping-bag text-[26px]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#444] font-medium">全品类奖金</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="bg-white rounded-[16px] p-3.5 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer" onclick="showToast('推送热销商品')">
+                        <i class="ph-fill ph-star absolute -bottom-3 -right-2 text-[60px] text-[#FFF3E0] z-0 -rotate-12"></i>
+                        <div class="relative z-10">
+                            <div class="font-bold text-[14px] text-[#222] mb-1">推送热销商品</div>
+                            <div class="text-[9px] text-[#999] leading-snug mb-3">将首页今日热销商品<br>送给下级</div>
+                            <button class="bg-[#F0F5FF] text-[#4A85F6] text-[11px] font-medium px-4 py-1 rounded-full">推送</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-[16px] p-3.5 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer" onclick="showToast('推送记录')">
+                        <i class="ph-fill ph-file-text absolute -bottom-3 -right-2 text-[60px] text-[#F3F4F6] z-0 -rotate-12"></i>
+                        <div class="relative z-10">
+                            <div class="font-bold text-[14px] text-[#222] mb-1">推送记录</div>
+                            <div class="text-[9px] text-[#999] leading-snug mb-3">查看过往热销商品推送<br>记录</div>
+                            <button class="bg-transparent text-[#666] text-[11px] font-medium px-4 py-1 rounded-full border border-gray-200">查看记录</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[16px] px-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-7">
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('APP二维码下载')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#EA3343] bg-red-50/50"><i class="ph-bold ph-app-window text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">APP二维码下载</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('新消息通知')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#3B82F6] bg-blue-50/50"><i class="ph-bold ph-chat-circle text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">新消息通知</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('用户协议')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#3B82F6] bg-blue-50/50"><i class="ph-bold ph-file-text text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">用户协议</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('注册使用协议')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#8B5CF6] bg-purple-50/50"><i class="ph-bold ph-pencil-simple text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">注册使用协议</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('隐私政策')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#10B981] bg-green-50/50"><i class="ph-bold ph-shield-check text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">隐私政策</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                    <div class="flex items-center justify-between py-4 cursor-pointer" onclick="showToast('关于版本')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#F59E0B] bg-orange-50/50"><i class="ph-bold ph-info text-[16px]"></i></div>
+                            <span class="text-[#333] text-[14px]">关于版本</span>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                    </div>
+                </div>
+
+                <!-- Logout Button -->
+                <button class="w-full bg-[#EA3343] text-white py-3 rounded-full font-medium text-[16px] mb-8 shadow-sm active:bg-[#D32F3C] transition-colors" onclick="showToast('退出登录')">
+                    退出
+                </button>
+                
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- SUB PAGES -->
+        <!-- ============================================== -->
+
+        <!-- Sub Page: Today's To-Dos -->
+        <div id="page-todo-list" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">今日经营待办</div>
+                <div class="w-7"></div>
+            </div>
+            
+            <div class="content-area px-4 pt-3">
+                <div class="card mb-4 bg-white border border-gray-100">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <div class="text-xs text-gray-400">今日任务总数</div>
+                            <div class="text-2xl font-bold text-gray-800 global-todo-total">18</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-400">已跟进完成</div>
+                            <div class="text-xl font-bold text-[var(--primary)] global-todo-done">0</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                        <span>跟进完成率</span>
+                        <span class="global-todo-percent">0%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill global-todo-bar" style="width: 0%"></div></div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="card flex items-center justify-between p-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center text-red-600">
+                                <i class="ph-fill ph-users-three text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm flex items-center gap-1.5">下级待关注 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold">3人</span></div>
+                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">下单客户不足或业绩有缺口</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary text-xs py-1.5 px-3" onclick="navToTeamFilter('待关注')">去查看</button>
+                    </div>
+
+                    <div class="card flex items-center justify-between p-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="ph-fill ph-shopping-cart text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm flex items-center gap-1.5">顾客待跟进 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold global-todo-browse-tag">10人</span></div>
+                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">近期高频浏览/加购但未下单</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary text-xs py-1.5 px-3" onclick="navTo('page-browse-list')">去跟进</button>
+                    </div>
+
+                    <div class="card flex items-center justify-between p-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-green-100 flex items-center justify-center text-green-600">
+                                <i class="ph-fill ph-phone-call text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm flex items-center gap-1.5">订单待回访 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold global-todo-order-tag">5人</span></div>
+                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">回访产品使用体验，承接复购</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary text-xs py-1.5 px-3" onclick="navTo('page-order-list')">去回访</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub Page: 我的下级 (My Subordinates List) -->
+        <div id="page-team-list" class="page sub-page bg-white">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">我的下级</div>
+                <div class="w-7"></div>
+            </div>
+            
+            <!-- Stats summary -->
+            <div class="flex justify-around py-3.5 border-b border-gray-100 px-4 bg-gray-50">
+                <div class="text-center"><div class="text-base font-bold text-gray-800">18</div><div class="text-[10px] text-gray-500">直属下级</div></div>
+                <div class="text-center"><div class="text-base font-bold text-green-600">12</div><div class="text-[10px] text-gray-500">目标达成</div></div>
+                <div class="text-center"><div class="text-base font-bold text-red-500">3</div><div class="text-[10px] text-gray-500">待关注</div></div>
+                <div class="text-center"><div class="text-base font-bold text-amber-500">3</div><div class="text-[10px] text-gray-500">成长中</div></div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex overflow-x-auto hide-scrollbar gap-4 px-4 py-3 border-b border-gray-100 text-xs whitespace-nowrap" id="team-filters">
+                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] filter-btn" data-filter="全部">全部</div>
+                <div class="text-gray-500 pb-1 filter-btn" data-filter="待关注">待关注</div>
+                <div class="text-gray-500 pb-1 filter-btn" data-filter="成长中">成长中</div>
+                <div class="text-gray-500 pb-1 filter-btn" data-filter="目标达成">目标达成</div>
+            </div>
+
+            <div class="content-area bg-gray-50 px-4 pt-3" id="team-list">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Sub Page: 下级详情 (Subordinate Detail) -->
+        <div id="page-subordinate-detail" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">下级详情</div>
+                <div class="w-7"></div>
+            </div>
+            <div class="content-area px-4 pt-4" id="subordinate-detail-content">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
+        <!-- Sub Page: 团队经营报告 (Team Performance Report) -->
+        <div id="page-team-report" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">团队经营报告</div>
+                <div class="w-7"></div>
+            </div>
+            <div class="content-area px-4 pt-3">
+                <!-- Overview Info Card -->
+                <div class="card bg-gradient-to-br from-red-50 to-white border border-red-100 p-4 mb-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="text-xs text-gray-500">统计周期</div>
+                            <div class="text-sm font-bold text-gray-800">2026.09.01 - 2026.09.30</div>
+                        </div>
+                        <span class="tag tag-red">当前周期</span>
+                    </div>
+                    <div class="text-xs text-gray-600 border-t border-red-100/60 pt-2 mt-2">
+                        经营范围：<span class="font-bold text-gray-800">我 + 18名直属下级</span>
+                    </div>
+                </div>
+
+                <!-- Core Performance Indicators -->
+                <div class="card mb-3">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3">团队经营表现</h3>
+                    
+                    <div class="grid grid-cols-3 gap-2 bg-gray-50 p-3 rounded-xl mb-4 text-center">
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">分享天数</div>
+                            <div class="text-lg font-bold text-gray-900">26 <span class="text-xs font-normal text-gray-500">天</span></div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">浏览顾客</div>
+                            <div class="text-lg font-bold text-gray-900">125 <span class="text-xs font-normal text-gray-500">人</span></div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">转化率</div>
+                            <div class="text-lg font-bold text-gray-900">28%</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-3 rounded-xl">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-xs font-bold text-gray-800">团队业绩</span>
+                                <span class="text-xs font-bold text-[var(--primary)]">¥63,420</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-gray-500 mb-1.5">
+                                <span>目标业绩 ¥60,000</span>
+                                <span class="text-green-600 font-medium">达成率 105.7%</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-xl">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-xs font-bold text-gray-800">下单客户</span>
+                                <span class="text-xs font-bold text-gray-900">87 人</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-gray-500 mb-1.5">
+                                <span>目标客户 100 人</span>
+                                <span class="text-red-500 font-medium">还差 13 人</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Bottleneck Module -->
+                <div class="card border-l-4 border-amber-500 bg-amber-50/30 p-4 mb-4">
+                    <div class="flex items-center gap-1.5 text-amber-700 font-bold text-xs mb-2">
+                        <i class="ph-fill ph-warning-circle text-base"></i> 当前经营卡点：下单客户数未达标
+                    </div>
+                    <div class="text-xs text-gray-700 bg-white p-3 rounded-xl border border-amber-100 leading-relaxed mb-3">
+                        本周期团队业绩已经达到目标，但下单客户数量仍存在缺口（已完成 87人 / 目标 100人，还差 13人）。建议优先关注近期有浏览/加购行为但尚未下单的顾客。
+                    </div>
+                    <button class="btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5" onclick="navTo('page-browse-list')">
+                        查看相关顾客 <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub Page: Customers Browse / Cart List (顾客跟进) -->
+        <div id="page-browse-list" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">顾客跟进</div>
+                <div class="w-7"></div>
+            </div>
+            <div class="flex gap-4 px-4 py-2.5 bg-white text-xs border-b border-gray-100 text-gray-500">
+                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)]">浏览/加购未下单</div>
+                <div class="cursor-pointer" onclick="navTo('page-order-list')">订单待回访</div>
+            </div>
+            <div class="content-area px-4 pt-3" id="browse-list-content">
+                <!-- Dynamic Customer Cards -->
+            </div>
+        </div>
+
+        <!-- Sub Page: Customer Detail -->
+        <div id="page-customer-detail" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 bg-transparent border-none absolute w-full z-30">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-800" onclick="goBack()"></i>
+                <div class="w-7"></div>
+            </div>
+            <div class="content-area pb-24" id="customer-detail-content">
+                <!-- Dynamic Customer Detail Content -->
+            </div>
+            
+            <!-- Fixed Action Buttons Bar -->
+            <div class="absolute bottom-0 left-0 w-full p-4 bg-white border-t border-gray-100 z-20 flex gap-3">
+                 <button class="w-full btn-primary py-3 rounded-xl text-xs font-semibold" id="btn-mark-customer-done">标记已跟进</button>
+            </div>
+        </div>
+
+        <!-- Sub Page: Order Follow-up List -->
+        <div id="page-order-list" class="page sub-page bg-gray-50">
+            <div class="top-header pt-3 border-b border-gray-100">
+                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <div class="header-title">订单待回访</div>
+                <div class="w-7"></div>
+            </div>
+            <div class="px-4 py-2.5 bg-white text-xs flex justify-between text-gray-500 border-b border-gray-100">
+                <span>待跟进回访 <span class="text-red-500 font-bold global-todo-order">5</span> 人</span>
+                <span>本月已完成 12 人</span>
+            </div>
+            <div class="content-area px-4 pt-3" id="order-list-content">
+                 <!-- Dynamic Orders -->
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- BOTTOM TAB BAR (3 TABS ONLY) -->
+        <!-- ============================================== -->
+        <nav id="tab-bar">
+            <div class="tab-item active" data-target="tab-home">
+                <i class="ph-fill ph-house"></i>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" data-target="tab-notice">
+                <i class="ph ph-megaphone"></i>
+                <span>公告</span>
+            </div>
+            <div class="tab-item" data-target="tab-me">
+                <i class="ph ph-user"></i>
+                <span>我的</span>
+            </div>
+        </nav>
+
+
+        <!-- ============================================== -->
+        <!-- MODALS & TOASTS -->
+        <!-- ============================================== -->
+
+        <!-- Order Follow-up Modal -->
+        <div id="order-modal" class="modal-overlay">
+            <div class="modal-content pb-8">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-base text-gray-800">订单体验回访</h3>
+                    <i class="ph ph-x text-xl text-gray-400 p-1 cursor-pointer" onclick="closeModal()"></i>
+                </div>
+                <div class="text-xs text-gray-600 mb-3">
+                    <p class="font-bold mb-1.5 text-gray-800">本次回访核心目的：</p>
+                    <ul class="list-disc pl-4 space-y-0.5 text-gray-500">
+                        <li>了解产品使用体验与效果</li>
+                        <li>解决顾客使用疑问</li>
+                        <li>引导二次复购与分享</li>
+                    </ul>
+                </div>
+                <div class="bg-pink-50 border border-pink-100 rounded-xl p-3.5 mb-4 text-xs text-gray-700 leading-relaxed" id="order-modal-text">
+                    “亲爱的，您之前选购的臻享面膜使用效果怎么样？如果有任何用法疑问都可以随时跟我说哦～”
+                </div>
+                <div class="flex gap-3">
+                    <button class="flex-1 btn-outline py-2.5 rounded-xl text-xs" onclick="showToast('已复制回访话术')">复制话术</button>
+                    <button class="flex-1 btn-primary py-2.5 rounded-xl text-xs" onclick="markOrderFollowupDone()">标记回访完成</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notice Detail Modal -->
+        <div id="notice-detail-modal" class="modal-overlay">
+            <div class="modal-content pb-8 max-h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-base text-gray-800" id="notice-modal-title">公告详情</h3>
+                    <i class="ph ph-x text-xl text-gray-400 p-1 cursor-pointer" onclick="closeModal()"></i>
+                </div>
+                <div class="text-[10px] text-gray-400 mb-3" id="notice-modal-time">2026-09-28 10:00</div>
+                <div class="overflow-y-auto text-xs text-gray-600 leading-relaxed space-y-2" id="notice-modal-content">
+                    <!-- Content injected via JS -->
+                </div>
+                <button class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold mt-4" onclick="closeModal()">我已知晓</button>
+            </div>
+        </div>
+
+        <div id="toast"></div>
+    </div>
+
+    <!-- Scheme Annotation Panel (For Presentation) -->
+    <div id="annotation-panel">
+        <div style="font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--primary-light); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="ph-fill ph-book-open"></i> 方案说明 (跟随页面自动切换)
+        </div>
+        <div id="annotation-content">
+            <!-- Dynamic Annotation Content Injected Here -->
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- JAVASCRIPT LOGIC -->
+<!-- ============================================== -->
+<script>
+    // --- Mock Data Store ---
+    const MOCK = {
+        global: {
+            tasksTotal: 18,
+            tasksDone: 0,
+            browseCount: 10,
+            orderCount: 5,
+            subAttentionCount: 3
+        },
+        // Direct Subordinates (直属下级)
+        subordinates: [
+            { 
+                id: 1, 
+                name: '小王', 
+                level: '高级成员', 
+                statusTag: '待关注', 
+                tagClass: 'tag-red', 
+                img: 'pink', 
+                sales: 6342, 
+                salesGoal: 6000, 
+                customers: 7, 
+                customersGoal: 20, 
+                statusMsg: '下单客户不足 (还差13人)',
+                activeTime: '今天 10:24'
+            },
+            { 
+                id: 2, 
+                name: '张三', 
+                level: '中级成员', 
+                statusTag: '待关注', 
+                tagClass: 'tag-red', 
+                img: 'blue', 
+                sales: 2100, 
+                salesGoal: 5000, 
+                customers: 4, 
+                customersGoal: 15, 
+                statusMsg: '业绩与下单客户均需跟进',
+                activeTime: '今天 09:12'
+            },
+            { 
+                id: 3, 
+                name: '李四', 
+                level: '初级成员', 
+                statusTag: '待关注', 
+                tagClass: 'tag-red', 
+                img: 'gray', 
+                sales: 800, 
+                salesGoal: 3000, 
+                customers: 2, 
+                customersGoal: 10, 
+                statusMsg: '活跃度较低，建议主动联系',
+                activeTime: '昨天 15:30'
+            },
+            { 
+                id: 4, 
+                name: '王五', 
+                level: '高级成员', 
+                statusTag: '目标达成', 
+                tagClass: 'tag-green', 
+                img: 'purple', 
+                sales: 9840, 
+                salesGoal: 8000, 
+                customers: 22, 
+                customersGoal: 20, 
+                statusMsg: '全套指标已达标',
+                activeTime: '刚刚'
+            },
+            { 
+                id: 5, 
+                name: '赵六', 
+                level: '中级成员', 
+                statusTag: '成长中', 
+                tagClass: 'tag-orange', 
+                img: 'orange', 
+                sales: 4200, 
+                salesGoal: 5000, 
+                customers: 11, 
+                customersGoal: 12, 
+                statusMsg: '接近目标，可定向帮扶',
+                activeTime: '1小时前'
+            },
+            { 
+                id: 6, 
+                name: '小林', 
+                level: '初级成员', 
+                statusTag: '成长中', 
+                tagClass: 'tag-orange', 
+                img: 'teal', 
+                sales: 2800, 
+                salesGoal: 3000, 
+                customers: 8, 
+                customersGoal: 10, 
+                statusMsg: '分享活跃上升中',
+                activeTime: '3小时前'
+            }
+        ],
+        // Follow-up Customers (顾客跟进) - Modified for requested tags
+        customers: [
+            { id: 101, name: '小美', behavior: '浏览了「臻享补水面膜」', time: '2小时前', product: '臻享补水面膜', history: 3, lastBuy: '12天前', status: 'pending', tags: ['高转化关注'], tagClass: 'tag-red' },
+            { id: 102, name: '张姐', behavior: '加购了「抗初老精华液」', time: '3小时前', product: '抗初老精华液', history: 5, lastBuy: '20天前', status: 'pending', tags: ['潜力观察'], tagClass: 'tag-orange' },
+            { id: 103, name: '陈太太', behavior: '浏览了「爆款防晒霜」3次', time: '5小时前', product: '爆款防晒霜', history: 1, lastBuy: '1个月前', status: 'pending', tags: ['低活跃'], tagClass: 'tag-gray' },
+            { id: 104, name: '刘女士', behavior: '加购了「氨基酸洁面乳」', time: '昨天', product: '氨基酸洁面乳', history: 12, lastBuy: '15天前', status: 'pending', tags: ['自主购买型'], tagClass: 'tag-blue' },
+            { id: 105, name: '赵总', behavior: '浏览了「高端护肤套装」', time: '昨天', product: '高端护肤套装', history: 2, lastBuy: '2个月前', status: 'pending', tags: ['潜力观察'], tagClass: 'tag-orange' }
+        ],
+        // Orders Follow-up
+        orders: [
+            { id: 201, name: '王太太', product: '臻享面膜套装', time: '3天前', status: 'pending' },
+            { id: 202, name: '李女士', product: '防晒霜', time: '5天前', status: 'pending' },
+            { id: 203, name: '周小姐', product: '紧致精华', time: '7天前', status: 'pending' }
+        ],
+        // Announcements
+        notices: [
+            { id: 1, type: 'activity', tag: '经营活动', tagClass: 'tag-red', title: '【9月冲刺】团队经营奖励月度结算通知', time: '今天 09:00', summary: '本月团队业绩与下单客户数达标店长将获得额外扶持资源。', content: '各位店长：<br>9月经营冲刺活动已进入尾声！请根据首页「团队经营报告」查找缺口，重点跟进浏览/加购客户。' },
+            { id: 2, type: 'platform', tag: '平台通知', tagClass: 'tag-blue', title: '会员专享 CRM 一期首页重构上线', time: '2026-09-28', summary: '全新首页聚焦今日经营、我的下级、团队经营报告和顾客跟进。', content: '会员专享 CRM 升级说明：<br>1. 首页直观呈现今日经营待办；<br>2. 统一直属下级与团队经营报告概念；<br>3. 强化以问题卡点驱动顾客跟进的经营闭环。' },
+            { id: 3, type: 'rule', tag: '规则更新', tagClass: 'tag-orange', title: '关于团队经营数据周期的统一规则说明', time: '2026-09-20', summary: '分享天数、浏览顾客、转化率、团队业绩均统一为月度周期。', content: '为确保店长精准诊断问题，CRM 报告中所有的分享和转化指标均已调整为自然月周期。' }
+        ]
+    };
+
+    // --- Scheme Annotations Data (For Presentation) ---
+    const ANNOTATIONS = {
+        'tab-home': {
+            name: '首页 / CRM经营入口',
+            flow: ['进入 App 首页', '查看今日经营', '发现当前需要关注的问题', '查看需要关注的下级', '查看团队经营卡点', '进入相关顾客', '完成跟进'],
+            logic: [
+                '首页不是传统数据看板，而是问题发现入口。',
+                '系统根据当前下级经营状态、顾客跟进任务、订单回访任务计算首页数据。',
+                '“下级待关注”属于实时经营问题，不会因为用户查看过就消失。',
+                '“顾客待跟进”和“订单待回访”属于可完成任务，完成后数量会减少。',
+                '首页最终形成“发现问题 → 定位对象 → 理解原因 → 执行动作”的 CRM 闭环。'
+            ]
+        },
+        'page-todo-list': {
+            name: '今日经营待办',
+            flow: ['点击首页“去处理今日待办”进入', '查看今日各项跟进任务总数与完成进度', '点击具体分类（下级/顾客/订单）进入相应详细列表'],
+            logic: [
+                '聚合三类核心任务（下级、顾客、订单）。',
+                '顶部的进度条根据今日已完成任务动态计算。这里的完成度是驱动用户执行的正向心理暗示。',
+                '属于每日清空的短期任务，帮助用户聚焦当下。'
+            ]
+        },
+        'page-team-list': {
+            name: '我的下级列表',
+            flow: ['从首页“我的下级”进入', '通过顶部标签切换不同状态人群（全部 / 待关注 / 成长中 / 目标达成）', '点击具体的下级卡片进入下级详情'],
+            logic: [
+                '系统根据下级的个人业绩和下单客户数与月度目标的差值进行分类计算。',
+                '下级排序的具体数学权重待业务确认，当前原型使用 Mock 数据演示。',
+                '核心目的是让店长快速找到“谁在拖后腿”（待关注）和“谁差临门一脚”（成长中）。'
+            ]
+        },
+        'page-subordinate-detail': {
+            name: '下级详情',
+            flow: ['从下级列表进入该页面', '查看该下级的当前周期核心指标达成情况', '查看系统给出的状态诊断', '结合诊断结果进行针对性的线下指导与跟进'],
+            logic: [
+                '聚合单体下级的指标进度，降低上级的信息获取成本。',
+                '提供显性化的“状态诊断”建议，帮助上级（当前店长）找到帮扶切入点。',
+                '暂未实现线上聊天闭环，依靠诊断辅助其在微信等渠道进行沟通。'
+            ]
+        },
+        'page-team-report': {
+            name: '团队经营报告',
+            flow: ['从首页“团队经营报告”模块进入', '查看本周期各项经营指标与目标差距', '发现底部高亮的“当前经营卡点”', '点击底部按钮进入相关顾客跟进列表'],
+            logic: [
+                '分享天数、转化率最终计算公式待业务确认，目前统一为自然月度周期。',
+                '不仅仅是看数据，更重要的是系统根据指标达成情况自动识别“当前经营卡点”（例如本原型演示的“业绩达标但下单客户数未达标”）。',
+                '利用卡点结论，直接驱动用户去跟进高潜力的流量（浏览未下单）。'
+            ]
+        },
+        'page-browse-list': {
+            name: '顾客跟进 (浏览/加购)',
+            flow: ['从首页或团队报告进入顾客列表', '查看近期有浏览/加购行为的顾客', '识别顾客的类型标签', '点击“去跟进”进入顾客详情'],
+            logic: [
+                '系统根据顾客登录、浏览、订单等可观察行为进行规则分类（高转化关注 / 自主购买型 / 低活跃 / 潜力观察），用于确定跟进优先级，不代表用户一定会购买。',
+                '这里是强规则驱动，不做复杂的 AI 预测概率。',
+                '顾客意向规则的具体数值阈值待业务确认，当前原型使用 Mock 数据演示。'
+            ]
+        },
+        'page-customer-detail': {
+            name: '顾客详情',
+            flow: ['进入指定顾客详情', '查看顾客系统标签及历史购买概况', '查看系统的跟进建议与最近行为时间线', '执行线下/微信沟通后，点击底部“标记已跟进”'],
+            logic: [
+                '将零散的用户行为（几点看了什么）串联成时间线，增强店长跟进的抓手。',
+                '基于行为推导跟进建议。',
+                '用户点击“标记已跟进”后，数据状态发生变化，任务数减少，形成最小业务闭环。'
+            ]
+        },
+        'page-order-list': {
+            name: '订单待回访',
+            flow: ['从首页或分类Tab进入订单待回访', '查看近期待关怀的订单列表', '点击“去回访”调出回访话术弹窗', '复制话术并标记回访完成'],
+            logic: [
+                '专门针对售后服务及复购场景设计的任务流。',
+                '系统自动筛选签收后到达合适回访节点的订单。',
+                '提供标准回访话术模板，降低店长的行动门槛，标记完成后，今日任务数对应扣减。'
+            ]
+        },
+        'tab-notice': {
+            name: '公告页面',
+            flow: ['点击底部“公告”Tab进入', '根据分类标签筛选系统或活动通知', '点击查阅详细图文'],
+            logic: [
+                '用于平台自上而下的政策、活动、规则更新触达。',
+                '当前属于基础业务支撑模块，本次一期原型不涉及大规模改造。'
+            ]
+        },
+        'tab-me': {
+            name: '我的页面',
+            flow: ['点击底部“我的”Tab进入', '查看个人名片、业务中心与常用工具入口'],
+            logic: [
+                '标准的个人中心页，承载所有的非日常高频 CRM 动作工具集。',
+                '作为底层资产与工具架存在，保持原有框架设计，本次 CRM 一期主推经营逻辑，故不对“我的”页面进行改动。'
+            ]
+        }
+    };
+
+    function updateAnnotation(pageId) {
+        const panel = document.getElementById('annotation-content');
+        const data = ANNOTATIONS[pageId] || ANNOTATIONS['tab-home'];
+        
+        let flowHtml = data.flow.map(item => `<li>${item}</li>`).join('');
+        let logicHtml = data.logic.map(item => `<li>${item}</li>`).join('');
+
+        panel.innerHTML = `
+            <div class="annotation-title">页面定位：${data.name}</div>
+            
+            <div class="annotation-title">【用户操作流程】</div>
+            <ul class="annotation-list">
+                ${flowHtml}
+            </ul>
+
+            <div class="annotation-title">【系统实现逻辑】</div>
+            <ul class="annotation-list">
+                ${logicHtml}
+            </ul>
+        `;
+    }
+
+    // --- State Management ---
+    let currentState = {
+        activeTab: 'tab-home',
+        history: [],
+        currentCustomerId: null,
+        currentOrderId: null
+    };
+
+    // View States
+    let demoTodayState = 'has_data'; // 'has_data' | 'no_data'
+    let homeSubIndex = 0;
+    let homeCustIndex = 0;
+
+    // Store completed items
+    window.completedCustomers = [];
+    window.completedOrders = [];
+
+    // --- UI Elements ---
+    const toastEl = document.getElementById('toast');
+    const orderModal = document.getElementById('order-modal');
+    const noticeDetailModal = document.getElementById('notice-detail-modal');
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+        initTabs();
+        initNoticeFilters();
+        renderHomepagePreviews();
+        updateGlobalNumbersUI();
+        updateAnnotation('tab-home');
+    });
+
+    // Toggle Demo State for Today's Operations
+    function toggleDemoState() {
+        demoTodayState = demoTodayState === 'has_data' ? 'no_data' : 'has_data';
+        renderTodayOps();
+        showToast('演示状态已切换');
+    }
+
+    // Dynamic Rendering for Today's Ops based on Demo State
+    function renderTodayOps() {
+        const container = document.getElementById('today-ops-content');
+        const headerText = document.getElementById('today-ops-header-text');
+
+        if (demoTodayState === 'has_data') {
+            headerText.style.display = 'block';
+            container.innerHTML = `
+                <div class="grid grid-cols-3 gap-2 bg-white/80 backdrop-blur rounded-xl p-3 mb-3 border border-red-100/50 text-center">
+                    <div class="cursor-pointer" onclick="navTo('page-todo-list')">
+                        <div class="text-xs text-gray-500 mb-0.5">下级待关注</div>
+                        <div class="text-base font-bold text-gray-900"><span class="global-sub-attention">${MOCK.global.subAttentionCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
+                    </div>
+                    <div class="border-x border-gray-100 cursor-pointer" onclick="navTo('page-browse-list')">
+                        <div class="text-xs text-gray-500 mb-0.5">顾客待跟进</div>
+                        <div class="text-base font-bold text-gray-900"><span class="global-todo-browse">${MOCK.global.browseCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
+                    </div>
+                    <div class="cursor-pointer" onclick="navTo('page-order-list')">
+                        <div class="text-xs text-gray-500 mb-0.5">订单待回访</div>
+                        <div class="text-base font-bold text-gray-900"><span class="global-todo-order">${MOCK.global.orderCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
+                    </div>
+                </div>
+                <button class="btn-primary w-full shadow-md shadow-red-200/50 py-2.5 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-todo-list')">
+                    去处理今日待办 <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            `;
+        } else {
+            // Empty State (no_data)
+            headerText.style.display = 'none'; // hide the "今天有 X 项处理"
+            
+            if (window.completedCustomers.length > 0 || window.completedOrders.length > 0) {
+                container.innerHTML = `
+                    <div class="bg-white/80 backdrop-blur rounded-xl p-6 mb-1 border border-red-100/50 text-center">
+                        <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
+                        <div class="text-sm font-bold text-gray-800 mb-1">最近已经完成的跟进记录</div>
+                        <div class="text-[10px] text-gray-500 mb-4">今日待关注任务已全部处理完毕</div>
+                        <button class="btn-outline w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="showToast('查看近期已跟进历史')">
+                            查看曾经已办 <i class="ph ph-caret-right"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="bg-white/80 backdrop-blur rounded-xl p-6 mb-1 border border-red-100/50 text-center">
+                        <img src="https://placehold.co/80x80/F5F6F8/A3A8B8?text=无任务" class="w-16 h-16 rounded-full mx-auto mb-3">
+                        <div class="text-sm font-bold text-gray-800 mb-1">今日暂无待关注事项</div>
+                        <div class="text-[10px] text-gray-500 mb-4">团队经营状态良好，继续保持</div>
+                        <button class="btn-primary w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-team-list')">
+                            去拓展更多下级 <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Global Number Synchronizer
+    function updateGlobalNumbersUI() {
+        const total = MOCK.global.browseCount + MOCK.global.orderCount + MOCK.global.subAttentionCount;
+        MOCK.global.tasksTotal = total;
+        
+        const percent = Math.round((MOCK.global.tasksDone / (MOCK.global.tasksTotal + MOCK.global.tasksDone || 1)) * 100);
+        
+        document.querySelectorAll('.global-todo-total').forEach(el => el.innerText = total);
+        document.querySelectorAll('.global-todo-done').forEach(el => el.innerText = MOCK.global.tasksDone);
+        document.querySelectorAll('.global-todo-percent').forEach(el => el.innerText = percent + '%');
+        document.querySelectorAll('.global-todo-bar').forEach(el => el.style.width = percent + '%');
+        
+        document.querySelectorAll('.global-todo-browse').forEach(el => el.innerText = MOCK.global.browseCount);
+        document.querySelectorAll('.global-todo-order').forEach(el => el.innerText = MOCK.global.orderCount);
+        document.querySelectorAll('.global-sub-attention').forEach(el => el.innerText = MOCK.global.subAttentionCount);
+        
+        document.querySelectorAll('.global-todo-browse-tag').forEach(el => {
+            el.innerText = MOCK.global.browseCount + '人';
+            if(MOCK.global.browseCount === 0) {
+                el.className = "bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold";
+            }
+        });
+        document.querySelectorAll('.global-todo-order-tag').forEach(el => {
+            el.innerText = MOCK.global.orderCount + '人';
+            if(MOCK.global.orderCount === 0) {
+                el.className = "bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold";
+            }
+        });
+    }
+
+    // --- SPA Navigation & Tab Handler ---
+    function initTabs() {
+        document.querySelectorAll('#tab-bar .tab-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const target = item.getAttribute('data-target');
+                switchTab(target);
+            });
+        });
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.sub-page').forEach(el => el.classList.remove('active'));
+        currentState.history = [];
+        
+        document.querySelectorAll('.page.main-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        const activeItem = document.querySelector(`.tab-item[data-target="${tabId}"]`);
+        if(activeItem) activeItem.classList.add('active');
+        
+        currentState.activeTab = tabId;
+        if(tabId === 'tab-notice') renderNotices('all');
+        
+        // Update Scheme Annotation
+        updateAnnotation(tabId);
+    }
+
+    function navTo(pageId, dataId = null) {
+        const activeMain = document.querySelector('.page.main-tab.active')?.id || currentState.activeTab;
+        currentState.history.push(activeMain);
+        
+        if (pageId === 'page-team-list') renderSubordinatesList();
+        if (pageId === 'page-subordinate-detail') renderSubordinateDetail(dataId);
+        if (pageId === 'page-browse-list') renderBrowseList();
+        if (pageId === 'page-customer-detail') renderCustomerDetail(dataId);
+        if (pageId === 'page-order-list') renderOrderList();
+
+        document.getElementById(pageId).classList.add('active');
+        
+        // Update Scheme Annotation
+        updateAnnotation(pageId);
+    }
+
+    function goBack() {
+        const activeSubPages = document.querySelectorAll('.sub-page.active');
+        if (activeSubPages.length > 0) {
+            activeSubPages[activeSubPages.length - 1].classList.remove('active');
+            currentState.history.pop();
+            
+            // Sync Annotation to the current visible page
+            const remainingActive = document.querySelectorAll('.sub-page.active');
+            if (remainingActive.length > 0) {
+                updateAnnotation(remainingActive[remainingActive.length - 1].id);
+            } else {
+                updateAnnotation(currentState.activeTab);
+            }
+        }
+    }
+
+    function showToast(msg) {
+        toastEl.innerText = msg;
+        toastEl.style.opacity = '1';
+        toastEl.style.pointerEvents = 'auto';
+        setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.pointerEvents = 'none';
+        }, 1800);
+    }
+
+    function closeModal() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+    }
+
+    // --- Homepage Dynamic Rendering ---
+    function renderHomepagePreviews() {
+        renderTodayOps();
+
+        // Subordinates preview (Batched)
+        const subContainer = document.getElementById('home-subordinates-preview');
+        const allSubs = MOCK.subordinates;
+        const subStart = homeSubIndex * 3;
+        const previewSubs = allSubs.slice(subStart, subStart + 3);
+        
+        let subHtml = previewSubs.map(s => `
+            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
+                <div class="flex items-center gap-2.5">
+                    <img src="https://placehold.co/80x80/${s.img}/white?text=${s.name.charAt(0)}" class="w-9 h-9 rounded-full">
+                    <div>
+                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                            ${s.name} <span class="tag ${s.tagClass} scale-90 origin-left">${s.statusTag}</span>
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">${s.statusMsg}</div>
+                    </div>
+                </div>
+                <button class="btn-outline text-[11px] py-1 px-2.5" onclick="navTo('page-subordinate-detail', ${s.id})">查看</button>
+            </div>
+        `).join('');
+
+        if (allSubs.length > 3) {
+            subHtml += `<div class="text-center pt-1"><button class="text-[11px] text-gray-500 font-medium py-1.5 px-4 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 mx-auto" onclick="nextHomeSubBatch()">换一组 <i class="ph-bold ph-arrows-clockwise"></i></button></div>`;
+        }
+        subContainer.innerHTML = subHtml;
+
+        // Customers preview (Batched)
+        const custContainer = document.getElementById('home-customers-preview');
+        const activeCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
+        const custStart = homeCustIndex * 3;
+        const previewCusts = activeCusts.slice(custStart, custStart + 3);
+        
+        if (activeCusts.length === 0) {
+            custContainer.innerHTML = '<div class="text-center text-xs text-gray-400 py-3">今日跟进任务已全部完成！</div>';
+        } else {
+            let custHtml = previewCusts.map(c => `
+                <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
+                    <div>
+                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1">
+                            ${c.name} <span class="text-[10px] text-gray-400 font-normal">(${c.time})</span>
+                        </div>
+                        <div class="text-[10px] text-gray-500 mt-0.5">${c.behavior}</div>
+                    </div>
+                    <button class="btn-primary text-[11px] py-1 px-3" onclick="navTo('page-customer-detail', ${c.id})">去跟进</button>
+                </div>
+            `).join('');
+
+            if (activeCusts.length > 3) {
+                custHtml += `<div class="text-center pt-1"><button class="text-[11px] text-gray-500 font-medium py-1.5 px-4 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 mx-auto" onclick="nextHomeCustBatch()">换一组 <i class="ph-bold ph-arrows-clockwise"></i></button></div>`;
+            }
+            custContainer.innerHTML = custHtml;
+        }
+    }
+
+    function nextHomeSubBatch() {
+        const total = MOCK.subordinates.length;
+        homeSubIndex++;
+        if (homeSubIndex * 3 >= total) homeSubIndex = 0;
+        renderHomepagePreviews();
+    }
+
+    function nextHomeCustBatch() {
+        const activeCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
+        homeCustIndex++;
+        if (homeCustIndex * 3 >= activeCusts.length) homeCustIndex = 0;
+        renderHomepagePreviews();
+    }
+
+    // --- Subordinate List & Detail Logic ---
+    function navToTeamFilter(filterStr) {
+        navTo('page-team-list');
+        const filterBtns = document.querySelectorAll('#team-filters .filter-btn');
+        filterBtns.forEach(b => {
+            if(b.dataset.filter === filterStr) {
+                b.click();
+            }
+        });
+    }
+
+    function renderSubordinatesList(filter = '全部') {
+        const container = document.getElementById('team-list');
+        const filterBtns = document.querySelectorAll('#team-filters .filter-btn');
+        filterBtns.forEach(btn => {
+            if(btn.dataset.filter === filter) {
+                btn.className = "text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] filter-btn";
+            } else {
+                btn.className = "text-gray-500 pb-1 filter-btn";
+            }
+            btn.onclick = () => renderSubordinatesList(btn.dataset.filter);
+        });
+
+        const filtered = filter === '全部' ? MOCK.subordinates : MOCK.subordinates.filter(s => s.statusTag === filter);
+
+        if(filtered.length === 0) {
+            container.innerHTML = '<div class="text-center text-gray-400 py-10 text-xs">暂无符合条件的直属下级</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(s => `
+            <div class="card p-3.5 mb-2.5 flex items-center justify-between cursor-pointer" onclick="navTo('page-subordinate-detail', ${s.id})">
+                <div class="flex items-center gap-3">
+                    <img src="https://placehold.co/80x80/${s.img}/white?text=${s.name.charAt(0)}" class="w-10 h-10 rounded-full">
+                    <div>
+                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                            ${s.name} <span class="tag ${s.tagClass}">${s.statusTag}</span>
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-1">
+                            业绩 ¥${s.sales}/${s.salesGoal} | 下单客户 ${s.customers}/${s.customersGoal}人
+                        </div>
+                        <div class="text-[10px] text-red-500 font-medium mt-0.5">${s.statusMsg}</div>
+                    </div>
+                </div>
+                <div class="flex items-center text-gray-300">
+                    <i class="ph ph-caret-right text-base"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderSubordinateDetail(id) {
+        const s = MOCK.subordinates.find(x => x.id === id) || MOCK.subordinates[0];
+        const container = document.getElementById('subordinate-detail-content');
+        
+        container.innerHTML = `
+            <div class="card flex items-center gap-3.5 mb-3">
+                <img src="https://placehold.co/90x90/${s.img}/white?text=${s.name.charAt(0)}" class="w-12 h-12 rounded-full">
+                <div>
+                    <div class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        ${s.name} <span class="tag ${s.tagClass}">${s.statusTag}</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-0.5">当前等级：${s.level} | 最近活跃：${s.activeTime}</div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <h3 class="text-xs font-bold text-gray-800 mb-3">本周期经营指标 (2026.09)</h3>
+                
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-gray-600">个人业绩</span>
+                            <span class="font-bold text-gray-800">¥${s.sales} / <span class="text-gray-400 font-normal">目标 ¥${s.salesGoal}</span></span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (s.sales/s.salesGoal)*100)}%"></div></div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-gray-600">下单客户数</span>
+                            <span class="font-bold text-gray-800">${s.customers} 人 / <span class="text-gray-400 font-normal">目标 ${s.customersGoal} 人</span></span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (s.customers/s.customersGoal)*100)}%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border border-red-100 bg-red-50/30">
+                <div class="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1">
+                    <i class="ph-fill ph-info text-[var(--primary)]"></i> 当前状态诊断
+                </div>
+                <div class="text-xs text-gray-600 leading-relaxed">
+                    ${s.statusMsg}。建议帮助该直属下级梳理其近期浏览但未下单的潜客，指导其开展一对一微信跟进。
+                </div>
+            </div>
+        `;
+    }
+
+    // --- Customer Browse & Detail Logic ---
+    function renderBrowseList() {
+        const container = document.getElementById('browse-list-content');
+        
+        const pendingCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
+        
+        if (pendingCusts.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
+                    <div class="text-sm font-bold text-gray-800">暂无待跟进顾客</div>
+                    <div class="text-xs text-gray-400 mt-1">今日浏览/加购跟进任务已全部处理完毕</div>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = pendingCusts.map(c => `
+            <div class="card p-3.5 mb-2.5">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center gap-2">
+                        <img src="https://placehold.co/70x70/E2E8F0/475569?text=顾客" class="w-9 h-9 rounded-full">
+                        <div>
+                            <div class="font-bold text-xs flex gap-1 items-center text-gray-800">${c.name}</div>
+                            <div class="flex gap-1 mt-0.5">${c.tags.map(t=>`<span class="tag ${c.tagClass} scale-85 origin-left">${t}</span>`).join('')}</div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-gray-400">${c.time}</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-2 text-xs text-gray-700 mb-2.5 border-l-2 border-[var(--primary)]">
+                    <span class="font-medium">最新行为：</span>${c.behavior}
+                </div>
+                <div class="flex justify-between items-center pt-1">
+                    <div class="text-[10px] text-gray-400">历史购买 ${c.history} 次</div>
+                    <button class="btn-primary text-xs py-1 px-3" onclick="navTo('page-customer-detail', ${c.id})">去跟进</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderCustomerDetail(id) {
+        const c = MOCK.customers.find(x => x.id === id) || MOCK.customers[0];
+        currentState.currentCustomerId = id;
+        const container = document.getElementById('customer-detail-content');
+        
+        const isDone = window.completedCustomers.includes(id);
+
+        container.innerHTML = `
+            <div class="bg-[var(--primary)] h-28 absolute top-0 left-0 w-full rounded-b-[28px] -z-10"></div>
+            
+            <div class="px-4 pt-8">
+                <div class="card shadow-sm mt-3 relative pt-9 text-center">
+                    <img src="https://placehold.co/90x90/E2E8F0/475569?text=顾客" class="w-14 h-14 rounded-full border-2 border-white absolute -top-7 left-1/2 transform -translate-x-1/2 shadow-sm">
+                    <h2 class="text-base font-bold text-gray-800">${c.name}</h2>
+                    <div class="flex justify-center gap-1 mt-1 mb-3">
+                         ${c.tags.map(t=>`<span class="tag ${c.tagClass} text-[10px]">${t}</span>`).join('')}
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 py-2.5 border-t border-gray-100 text-center">
+                        <div><div class="text-[10px] text-gray-400">历史订单</div><div class="font-bold text-xs text-gray-800">${c.history} 单</div></div>
+                        <div><div class="text-[10px] text-gray-400">最近购买</div><div class="font-bold text-xs text-gray-800">${c.lastBuy}</div></div>
+                        <div><div class="text-[10px] text-gray-400">意向特征</div><div class="font-bold text-xs text-[var(--primary)]">${c.tags[0]}</div></div>
+                    </div>
+                </div>
+
+                <div class="card bg-gradient-to-r from-red-50 to-white mt-3 border border-red-100 p-3">
+                    <div class="text-xs leading-relaxed">
+                        <span class="font-bold text-gray-800">系统建议：</span>
+                        <span class="text-gray-600">系统根据顾客登录、浏览、订单等可观察行为进行分类。该顾客近期有「${c.product}」的相关行为，可结合优惠或体验活动主动微信沟通。</span>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-gray-800 mt-4 mb-2 text-xs px-1">最近行为时间线</h3>
+                <div class="card px-4 py-3">
+                    <div class="relative border-l border-gray-200 ml-2 space-y-4 py-1">
+                        <div class="relative pl-5">
+                            <div class="absolute w-2.5 h-2.5 bg-[var(--primary)] rounded-full -left-[5.5px] top-1"></div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">${c.time}</div>
+                            <div class="text-xs text-gray-800 font-semibold">${c.behavior}</div>
+                        </div>
+                        <div class="relative pl-5">
+                            <div class="absolute w-2 h-2 bg-gray-300 rounded-full -left-[4px] top-1"></div>
+                            <div class="text-[10px] text-gray-400 mb-0.5">昨天 18:20</div>
+                            <div class="text-xs text-gray-600">浏览「推荐商品列表」</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const markBtn = document.getElementById('btn-mark-customer-done');
+        if (isDone) {
+            markBtn.innerText = "已完成跟进";
+            markBtn.className = "w-full btn-outline py-3 rounded-xl bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed text-xs font-semibold";
+            markBtn.onclick = null;
+        } else {
+            markBtn.innerText = "标记已跟进";
+            markBtn.className = "w-full btn-primary py-3 rounded-xl text-xs font-semibold";
+            markBtn.onclick = () => handleMarkCustomerDone(id);
+        }
+    }
+
+    function handleMarkCustomerDone(id) {
+        if (!window.completedCustomers.includes(id)) {
+            window.completedCustomers.push(id);
+            if (MOCK.global.browseCount > 0) MOCK.global.browseCount--;
+            MOCK.global.tasksDone++;
+            
+            showToast('已标记为已跟进');
+            updateGlobalNumbersUI();
+            renderHomepagePreviews();
+            renderCustomerDetail(id);
+        }
+    }
+
+    // --- Order Follow-up Logic ---
+    function renderOrderList() {
+        const container = document.getElementById('order-list-content');
+        const pendingOrders = MOCK.orders.filter(o => !window.completedOrders.includes(o.id));
+        
+        if (pendingOrders.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
+                    <div class="text-sm font-bold text-gray-800">暂无待回访订单</div>
+                    <div class="text-xs text-gray-400 mt-1">所有订单回访任务均已完成</div>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = pendingOrders.map(o => `
+            <div class="card p-3.5 mb-2.5 flex items-center justify-between">
+                <div>
+                    <div class="text-xs font-bold text-gray-800 mb-1">${o.name} - ${o.product}</div>
+                    <div class="text-[10px] text-gray-400">下单时间：${o.time}</div>
+                </div>
+                <button class="btn-primary text-xs py-1 px-3" onclick="openOrderModal(${o.id})">去回访</button>
+            </div>
+        `).join('');
+    }
+
+    function openOrderModal(orderId) {
+        currentState.currentOrderId = orderId;
+        orderModal.classList.add('show');
+    }
+
+    function markOrderFollowupDone() {
+        const id = currentState.currentOrderId;
+        if (id && !window.completedOrders.includes(id)) {
+            window.completedOrders.push(id);
+            if (MOCK.global.orderCount > 0) MOCK.global.orderCount--;
+            MOCK.global.tasksDone++;
+            
+            closeModal();
+            showToast('订单回访已完成');
+            updateGlobalNumbersUI();
+            renderHomepagePreviews();
+            renderOrderList();
+        }
+    }
+
+    // --- Notice Tab Logic ---
+    function initNoticeFilters() {
+        document.querySelectorAll('#notice-filters .notice-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#notice-filters .notice-filter-btn').forEach(b => {
+                    b.className = "text-gray-500 pb-1 notice-filter-btn";
+                });
+                btn.className = "text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn";
+                renderNotices(btn.dataset.type);
+            });
+        });
+    }
+
+    function renderNotices(type) {
+        const container = document.getElementById('notice-list-container');
+        const list = type === 'all' ? MOCK.notices : MOCK.notices.filter(n => n.type === type);
+        
+        container.innerHTML = list.map(n => `
+            <div class="card p-4 mb-3 cursor-pointer" onclick="openNoticeModal(${n.id})">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="tag ${n.tagClass}">${n.tag}</span>
+                    <span class="text-[10px] text-gray-400">${n.time}</span>
+                </div>
+                <h3 class="text-xs font-bold text-gray-800 mb-1.5 leading-snug">${n.title}</h3>
+                <p class="text-[11px] text-gray-500 leading-relaxed">${n.summary}</p>
+            </div>
+        `).join('');
+    }
+
+    function openNoticeModal(id) {
+        const n = MOCK.notices.find(x => x.id === id);
+        if(!n) return;
+        
+        document.getElementById('notice-modal-title').innerText = n.title;
+        document.getElementById('notice-modal-time').innerText = n.time;
+        document.getElementById('notice-modal-content').innerHTML = n.content;
+        
+        noticeDetailModal.classList.add('show');
+    }
+</script>
+</body>
+</html>
