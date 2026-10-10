@@ -3,44 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Version: v3.1.0 | CRM Phase 1 Homepage Refactoring + Scheme Annotations -->
-    <!-- 本次修改范围：
-         1. 增加方案注释系统 (右侧浮层)
-         2. 增加今日经营状态 Demo 切换 (今日经营标题旁小按钮)
-         3. 增加首页下一组 (首页列表超3个自动显示)
-         4. 增加已确定顾客类型 (高转化关注/自主购买型/低活跃/潜力观察)
-         除此之外不做任何功能性改动。 
-    -->
+    <!-- Version: v3.7.0 | 重构右侧功能说明侧边栏为「业务说明 / 研发细则」双 Tab 文档系统 -->
     <title>会员专享 CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            --primary: #E63950; /* Warm Rose Red */
+            --primary: #E63950;
             --primary-dark: #C0263B;
             --primary-light: #FFF0F2;
-            --bg-color: #F5F6F8;
-            --text-main: #1C1C1E;
-            --text-sub: #8E8E93;
+            --primary-border: #FCD8DE;
+            --bg-color: #F6F7F9;
+            --text-main: #1A1C1E;
+            --text-sub: #5E636E;
+            --text-muted: #8F95A0;
+            --border-light: #ECEEF2;
         }
         
         body {
-            background-color: #d1d5db;
+            background-color: #CBD5E1;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             overflow: hidden;
             user-select: none;
         }
 
-        /* Wrap container to align App and Annotation Panel */
         #main-wrapper {
             display: flex;
-            gap: 24px;
-            max-width: 1200px;
+            gap: 28px;
+            max-width: 1260px;
             width: 100%;
             height: 100%;
             align-items: center;
@@ -48,880 +45,814 @@
             padding: 20px;
         }
 
-        /* Mobile Container Simulation */
         #app-container {
             width: 390px;
             height: 844px;
             background-color: var(--bg-color);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-            border-radius: 40px;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.4), 0 0 1px 1px rgba(255, 255, 255, 0.3);
+            border-radius: 44px;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
         }
 
-        /* Presentation Annotation Panel */
+        /* 侧边栏文档面板专用样式 */
         #annotation-panel {
-            width: 420px;
+            width: 440px;
             height: 844px;
             background: #FFFFFF;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
-            padding: 28px;
-            overflow-y: auto;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+            padding: 24px;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            position: relative;
+            overflow: hidden;
         }
-        .annotation-title { font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 8px; margin-top: 16px;}
-        .annotation-title:first-child { margin-top: 0; }
-        .annotation-list { list-style-type: disc; padding-left: 20px; margin-bottom: 12px; color: #4b5563; font-size: 13px; line-height: 1.6; }
-        .annotation-list li { margin-bottom: 4px; }
-        .annotation-text { color: #4b5563; font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
 
-        /* Hide Scrollbar */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+        .doc-tab-btn {
+            position: relative;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748B;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .doc-tab-btn.active {
+            color: #E63950;
+            background: #FFF0F2;
+            font-weight: 700;
         }
+
+        .doc-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 6px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .doc-scroll-area::-webkit-scrollbar {
+            width: 5px;
+        }
+        .doc-scroll-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .doc-scroll-area::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 999px;
+        }
+        .doc-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E1;
+        }
+
+        .doc-sec-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.01em;
+        }
+        .doc-sec-title:first-child {
+            margin-top: 2px;
+        }
+        .doc-sec-title::before {
+            content: '';
+            display: inline-block;
+            width: 3.5px;
+            height: 13px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .doc-sub-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #334155;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .doc-p {
+            font-size: 12px;
+            line-height: 1.68;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .doc-list {
+            list-style-type: disc;
+            padding-left: 17px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            line-height: 1.68;
+            color: #475569;
+        }
+        .doc-list li {
+            margin-bottom: 4px;
+        }
+
+        .doc-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .doc-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* SPA Page Transitions */
         .page {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg-color);
             transform: translateX(100%);
-            transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex; flex-direction: column; z-index: 10;
         }
+        .page.active { transform: translateX(0); }
+        .page.main-tab { z-index: 5; transform: translateX(0); opacity: 0; pointer-events: none; transition: opacity 0.22s ease; }
+        .page.main-tab.active { opacity: 1; pointer-events: auto; }
 
-        .page.active {
-            transform: translateX(0);
-        }
+        .content-area { flex: 1; overflow-y: auto; padding-bottom: 96px; -webkit-overflow-scrolling: touch; }
+        .sub-page .content-area { padding-bottom: 34px; }
 
-        .page.main-tab {
-            z-index: 5;
-            transform: translateX(0);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .page.main-tab.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 90px;
-        }
-        
-        .sub-page .content-area {
-            padding-bottom: 30px;
-        }
-
-        /* UI Components */
         .card {
-            background: #FFFFFF;
-            border-radius: 16px;
+            background: #FFFFFF; 
+            border-radius: 18px; 
             padding: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.025);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.025); 
             margin-bottom: 12px;
+            border: 1px solid rgba(241, 243, 247, 0.9);
         }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border-radius: 999px;
-            padding: 8px 16px;
-            font-weight: 500;
-            text-align: center;
-            transition: opacity 0.2s;
+        .btn-primary { 
+            background: linear-gradient(135deg, #EB475E 0%, #D82841 100%); 
+            color: white; 
+            border-radius: 999px; 
+            padding: 8px 16px; 
+            font-weight: 600; 
+            text-align: center; 
+            transition: all 0.16s ease; 
+            box-shadow: 0 3px 8px -1px rgba(230, 57, 80, 0.3);
         }
-        .btn-primary:active { opacity: 0.85; }
+        .btn-primary:active { transform: scale(0.97); opacity: 0.92; }
         
-        .btn-outline {
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            border-radius: 999px;
-            padding: 6px 12px;
-            font-weight: 500;
-            background: transparent;
+        .btn-outline { 
+            border: 1px solid rgba(230, 57, 80, 0.6); 
+            color: var(--primary); 
+            border-radius: 999px; 
+            padding: 6px 14px; 
+            font-weight: 600; 
+            background: #FFFFFF; 
+            transition: all 0.16s ease;
         }
+        .btn-outline:active { background: var(--primary-light); }
 
-        .tag {
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-        .tag-red { background: var(--primary-light); color: var(--primary); }
-        .tag-blue { background: #F0F5FF; color: #2F54EB; }
-        .tag-orange { background: #FFF7E6; color: #FA8C16; }
-        .tag-green { background: #E6F7FF; color: #1890FF; }
-        .tag-gray { background: #F5F5F5; color: #595959; }
-        .tag-purple { background: #F9F0FF; color: #722ED1; }
-
-        .progress-bar {
-            height: 6px;
-            background: #E5E7EB;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
+        .press-active { transition: transform 0.14s ease, opacity 0.14s ease; }
+        .press-active:active { transform: scale(0.975); opacity: 0.88; }
 
         /* Bottom Tab Bar */
         #tab-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 83px;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid #EEF0F2;
-            display: flex;
-            justify-content: space-around;
-            padding-top: 8px;
-            padding-bottom: 24px;
-            z-index: 50;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 84px;
+            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px);
+            border-top: 1px solid #ECEEF2; display: flex; justify-content: space-around;
+            padding-top: 7px; padding-bottom: 25px; z-index: 50;
         }
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-sub);
-            font-size: 11px;
-            gap: 3px;
-            width: 33.33%;
-            cursor: pointer;
+        .tab-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            color: #8E95A3; font-size: 10.5px; gap: 3px; width: 33.33%; 
+            cursor: pointer; transition: color 0.15s ease;
         }
-        .tab-item i { font-size: 24px; }
-        .tab-item.active { color: var(--primary); font-weight: 600; }
+        .tab-item i { font-size: 25px; line-height: 1; transition: transform 0.18s ease; }
+        .tab-item:active i { transform: scale(0.9); }
+        .tab-item.active { color: var(--primary); font-weight: 700; }
 
-        /* Toast & Modal */
+        /* Toast & Modals */
         #toast {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.82);
-            color: white;
-            padding: 12px 22px;
-            border-radius: 20px;
-            z-index: 100;
-            font-size: 13px;
-            font-weight: 500;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 80%;
+            position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(23, 23, 26, 0.88); backdrop-filter: blur(12px);
+            color: white; padding: 11px 22px; border-radius: 999px; z-index: 100; 
+            font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; 
+            transition: opacity 0.22s ease; text-align: center; max-width: 82%;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
         }
         
         .modal-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 90;
-            display: none;
-            justify-content: center;
-            align-items: flex-end;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px);
+            z-index: 90; display: none; justify-content: center; align-items: flex-end;
         }
         .modal-content {
-            background: white;
-            width: 100%;
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px 40px;
-            transform: translateY(100%);
-            transition: transform 0.28s ease-out;
+            background: white; width: 100%; border-radius: 28px 28px 0 0;
+            padding: 24px 20px 42px; transform: translateY(100%);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
         }
         .modal-overlay.show { display: flex; }
         .modal-overlay.show .modal-content { transform: translateY(0); }
 
-        /* Top Header */
-        .top-header {
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            background: white;
-            position: relative;
-            z-index: 20;
+        .top-header { 
+            height: 50px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 16px; background: white; position: relative; z-index: 20; 
         }
         .top-header.bg-transparent { background: transparent; }
-        .header-title { font-size: 17px; font-weight: 600; color: #1f2937; }
+        .header-title { font-size: 16.5px; font-weight: 700; color: #17191C; letter-spacing: -0.01em; }
+        
+        /* Level Badges */
+        .badge-level-s { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFF; }
+        .badge-level-a { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: #FFF; }
+        .badge-level-b { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: #FFF; }
+        .badge-level-c { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; }
+        .badge-level-d { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: #FFF; }
+        .badge-level-e { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: #FFF; }
+        .badge-level-default { background: #94A3B8; color: #FFF; }
+
+        /* Detail Segmented Tabs */
+        .detail-tab { position: relative; color: #64748B; font-weight: 500; font-size: 13.5px; transition: all 0.2s ease; }
+        .detail-tab.active { color: #1E293B; font-weight: 700; }
+        .detail-tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 36px; height: 3px; background: var(--primary); border-radius: 3px 3px 0 0;
+        }
+
+        .tag { padding: 2px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 600; display: inline-flex; align-items: center; }
+        .tag-red { background: #FEE2E2; color: #DC2626; }
+        .tag-blue { background: #EFF6FF; color: #2563EB; }
+        .tag-orange { background: #FFF7ED; color: #EA580C; }
+        .tag-green { background: #ECFDF5; color: #059669; }
+        .tag-gray { background: #F1F5F9; color: #475569; }
+        .tag-purple { background: #F5F3FF; color: #7C3AED; }
+
+        .progress-bar { height: 6px; background: #EEF2F6; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #F87171 0%, #E63950 100%); border-radius: 999px; transition: width 0.3s ease; }
     </style>
 </head>
 <body>
-
 <div id="main-wrapper">
     <div id="app-container">
 
         <!-- ============================================== -->
-        <!-- TAB 1: 首页 -->
+        <!-- TAB 1: 首页 (会员课堂) -->
         <!-- ============================================== -->
-        <div id="tab-home" class="page main-tab active hide-scrollbar">
-            <!-- Top Header -->
-            <div class="top-header bg-transparent pt-3">
-                <div class="text-xl font-bold text-gray-900 flex items-center gap-1.5">
-                    <i class="ph-fill ph-crown text-red-500"></i> 会员专享
-                </div>
-                <div class="relative cursor-pointer" onclick="switchTab('tab-notice')">
-                    <i class="ph ph-bell text-2xl text-gray-700"></i>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">3</span>
-                </div>
+        <div id="tab-home" class="page main-tab active hide-scrollbar bg-white">
+            <div class="top-header pt-3 justify-center border-b border-gray-100/80">
+                <div class="text-[17px] font-bold text-gray-900 tracking-tight">会员课堂</div>
             </div>
             
-            <div class="content-area px-4 pt-2">
-                <!-- Header Greeting -->
-                <div class="mb-4">
-                    <h1 class="text-2xl font-bold text-gray-800">早上好</h1>
-                    <p class="text-gray-500 text-xs mt-1">今天也来看看团队有哪些需要关注的地方</p>
+            <div class="content-area px-4 pt-3.5">
+                <div class="rounded-2xl overflow-hidden mb-4 relative bg-gradient-to-r from-[#EA3343] via-[#F24E5B] to-[#F87171] h-[106px] flex items-center justify-between px-5 shadow-[0_6px_16px_rgba(234,51,67,0.22)]">
+                    <div class="text-white z-10">
+                        <div class="text-[19px] font-extrabold italic mb-1.5 tracking-wider drop-shadow-sm">暖心回归 旧友重逢</div>
+                        <div class="bg-white/95 text-[#D92D3E] text-[10px] font-bold px-2.5 py-0.5 rounded-full inline-block shadow-sm">为迷失的家人 找到回家的路</div>
+                    </div>
+                    <i class="ph-fill ph-heart text-white/30 text-7xl absolute right-1 -bottom-3 transform rotate-12"></i>
                 </div>
 
-                <!-- MODULE 1: 今日经营 -->
-                <div class="card bg-gradient-to-br from-[#FFF0F2] via-white to-red-50/30 border border-red-100 shadow-sm mb-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <i class="ph-fill ph-calendar-check text-[var(--primary)] text-xl"></i>
-                            <span class="font-bold text-gray-800 text-sm">今日经营</span>
-                            <!-- 新增：用于快速演示状态切换的控制器 -->
-                            <span class="bg-red-100 text-[var(--primary)] px-2 py-0.5 rounded text-[10px] cursor-pointer font-medium active:opacity-70 ml-1 shadow-sm border border-red-200" onclick="toggleDemoState()">演示: 切换状态</span>
+                <div class="space-y-3.5">
+                    <div class="flex gap-3.5 p-2 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer press-active">
+                        <div class="w-[108px] h-[76px] rounded-xl bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] flex items-center justify-center text-white flex-shrink-0 shadow-sm relative overflow-hidden">
+                            <span class="font-extrabold text-[13.5px] relative z-10 tracking-wide">林大哥培训</span>
+                            <i class="ph-fill ph-chalkboard-teacher absolute -bottom-2 -right-2 text-5xl text-white/20"></i>
                         </div>
-                        <span class="text-xs text-gray-500" id="today-ops-header-text">今天有 <span class="text-[var(--primary)] font-bold text-sm global-todo-total">18</span> 项待处理</span>
-                    </div>
-                    
-                    <!-- Dynamic rendering target for Today's Ops -->
-                    <div id="today-ops-content">
-                        <!-- Will be filled by renderTodayOps() -->
-                    </div>
-                </div>
-
-                <!-- MODULE 2: 我的下级 -->
-                <div class="card mb-4 border border-gray-100">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <h2 class="text-base font-bold text-gray-800">我的下级</h2>
-                            <p class="text-[10px] text-gray-400">直属下级概览与成长状态</p>
-                        </div>
-                        <button class="text-xs text-[var(--primary)] font-medium flex items-center gap-0.5" onclick="navTo('page-team-list')">
-                            查看全部 <i class="ph ph-caret-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-4 gap-2 bg-gray-50 p-2.5 rounded-xl text-center mb-3">
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">直属下级</div>
-                            <div class="text-sm font-bold text-gray-800">18人</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">目标达成</div>
-                            <div class="text-sm font-bold text-green-600">12人</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">待关注</div>
-                            <div class="text-sm font-bold text-red-500">3人</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">成长中</div>
-                            <div class="text-sm font-bold text-amber-500">3人</div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="font-bold text-[14.5px] text-gray-900 mb-1 leading-snug">林大哥培训课程</div>
+                            <div class="text-[11px] text-gray-500 leading-relaxed line-clamp-2">2020年直播课程，把握直播红利获取大流量。2019年全国巡讲，满满干货回顾精华</div>
                         </div>
                     </div>
 
-                    <!-- Preview Subordinates List -->
-                    <div class="space-y-2.5" id="home-subordinates-preview">
-                        <!-- Dynamic Insertion -->
-                    </div>
-                </div>
-
-                <!-- MODULE 3: 团队经营报告 -->
-                <div class="card mb-4 border border-gray-100 bg-white">
-                    <div class="flex justify-between items-center mb-2">
-                        <div>
-                            <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
-                                团队经营报告
-                            </h2>
-                            <div class="text-[11px] text-gray-400 mt-0.5">
-                                经营范围：<span class="text-gray-700 font-medium">我 + 18名直属下级</span>
-                            </div>
+                    <div class="flex gap-3.5 p-2 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer press-active">
+                        <div class="w-[108px] h-[76px] rounded-xl bg-gradient-to-br from-[#FB923C] to-[#EA580C] flex items-center justify-center text-white flex-shrink-0 shadow-sm relative overflow-hidden">
+                            <span class="font-extrabold text-[13.5px] relative z-10 tracking-wide">产品课程</span>
+                            <i class="ph-fill ph-package absolute -bottom-2 -right-2 text-5xl text-white/20"></i>
                         </div>
-                        <span class="tag tag-red">2026年9月</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 my-3 text-center">
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">分享天数</div>
-                            <div class="text-base font-bold text-gray-900">26 <span class="text-[10px] font-normal text-gray-400">天</span></div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">浏览顾客</div>
-                            <div class="text-base font-bold text-gray-900">125 <span class="text-[10px] font-normal text-gray-400">人</span></div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">转化率</div>
-                            <div class="text-base font-bold text-gray-900">28%</div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="font-bold text-[14.5px] text-gray-900 mb-1 leading-snug">产品课程系统</div>
+                            <div class="text-[11px] text-gray-500 leading-relaxed line-clamp-2">图文搭配、老师语音培训，让你轻松掌握核心产品功能与价值卖点</div>
                         </div>
                     </div>
 
-                    <div class="space-y-3 mb-3">
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-gray-600">团队业绩</span>
-                                <span class="font-bold text-gray-900">¥63,420 / <span class="text-gray-400 font-normal">目标 ¥60,000</span></span>
-                            </div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
-                            <div class="text-[10px] text-green-600 font-medium mt-1">达成率 105.7% (已达标)</div>
+                    <div class="flex gap-3.5 p-2 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer press-active">
+                        <div class="w-[108px] h-[76px] rounded-xl bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center text-white flex-shrink-0 shadow-sm relative overflow-hidden">
+                            <span class="font-extrabold text-[13.5px] relative z-10 tracking-wide">制度课程</span>
+                            <i class="ph-fill ph-book-open-text absolute -bottom-2 -right-2 text-5xl text-white/20"></i>
                         </div>
-
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="text-gray-600">下单客户</span>
-                                <span class="font-bold text-gray-900">87人 / <span class="text-gray-400 font-normal">目标 100人</span></span>
-                            </div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
-                            <div class="text-[10px] text-red-500 font-medium mt-1 flex justify-between">
-                                <span>还差 13 人达成目标</span>
-                                <span>完成率 87%</span>
-                            </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="font-bold text-[14.5px] text-gray-900 mb-1 leading-snug">制度课程系统</div>
+                            <div class="text-[11px] text-gray-500 leading-relaxed line-clamp-2">业绩提成、奖金制度、会员培训，制度大全一看便知，合规稳步前行</div>
                         </div>
                     </div>
 
-                    <button class="btn-outline w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-team-report')">
-                        查看完整团队经营报告 <i class="ph ph-caret-right"></i>
-                    </button>
-                </div>
-
-                <!-- MODULE 4: 顾客跟进 -->
-                <div class="card mb-6 border border-gray-100">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <h2 class="text-base font-bold text-gray-800">顾客跟进</h2>
-                            <p class="text-[10px] text-gray-400">锁定转化卡点，精准促单跟进</p>
+                    <div class="flex gap-3.5 p-2 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer press-active">
+                        <div class="w-[108px] h-[76px] rounded-xl bg-gradient-to-br from-[#06B6D4] to-[#0284C7] flex items-center justify-center text-white flex-shrink-0 shadow-sm relative overflow-hidden">
+                            <span class="font-extrabold text-[13.5px] relative z-10 tracking-wide">创业路径</span>
+                            <i class="ph-fill ph-path absolute -bottom-2 -right-2 text-5xl text-white/20"></i>
                         </div>
-                        <button class="text-xs text-[var(--primary)] font-medium flex items-center gap-0.5" onclick="navTo('page-browse-list')">
-                            查看全部 <i class="ph ph-caret-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2.5 mb-3">
-                        <div class="bg-red-50/60 p-3 rounded-xl border border-red-100 cursor-pointer" onclick="navTo('page-browse-list')">
-                            <div class="text-[11px] text-gray-600 mb-1">浏览/加购未下单</div>
-                            <div class="text-lg font-bold text-red-600"><span class="global-todo-browse">10</span> <span class="text-xs font-normal text-gray-500">人</span></div>
-                        </div>
-                        <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100 cursor-pointer" onclick="navTo('page-order-list')">
-                            <div class="text-[11px] text-gray-600 mb-1">订单待回访</div>
-                            <div class="text-lg font-bold text-blue-600"><span class="global-todo-order">5</span> <span class="text-xs font-normal text-gray-500">人</span></div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="font-bold text-[14.5px] text-gray-900 mb-1 leading-snug">创业路径系统</div>
+                            <div class="text-[11px] text-gray-500 leading-relaxed line-clamp-2">新人起步有妙招，一整套实战流程教你如何迅速晋级创业精英</div>
                         </div>
                     </div>
 
-                    <!-- Preview Customer List -->
-                    <div class="space-y-2" id="home-customers-preview">
-                        <!-- Injected dynamic preview items -->
+                    <div class="flex gap-3.5 p-2 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer press-active">
+                        <div class="w-[108px] h-[76px] rounded-xl bg-gradient-to-br from-[#EC4899] to-[#BE185D] flex items-center justify-center text-white flex-shrink-0 shadow-sm relative overflow-hidden">
+                            <span class="font-extrabold text-[13.5px] relative z-10 tracking-wide">视觉文案</span>
+                            <i class="ph-fill ph-image absolute -bottom-2 -right-2 text-5xl text-white/20"></i>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="font-bold text-[14.5px] text-gray-900 mb-1 leading-snug">视觉文案系统</div>
+                            <div class="text-[11px] text-gray-500 leading-relaxed line-clamp-2">详细实战手把手教你玩转微信朋友圈、社群运营、抖音与小红书种草</div>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 2: 公告 (UNTOUCHED ORIGINAL) -->
+        <!-- TAB 2: 公告 (平台通知) -->
         <!-- ============================================== -->
         <div id="tab-notice" class="page main-tab hide-scrollbar bg-white">
             <div class="top-header pt-3 border-b border-gray-100">
                 <div class="header-title w-full text-center">系统公告与动态</div>
             </div>
 
-            <!-- Announcement Filter Tabs -->
-            <div class="flex overflow-x-auto hide-scrollbar gap-5 px-4 py-3 border-b border-gray-100 text-sm whitespace-nowrap" id="notice-filters">
-                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn" data-type="all">全部</div>
-                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="platform">平台通知</div>
-                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="activity">经营活动</div>
-                <div class="text-gray-500 pb-1 notice-filter-btn" data-type="rule">规则更新</div>
+            <div class="flex overflow-x-auto hide-scrollbar gap-6 px-4 py-3 border-b border-gray-100 text-[13px] whitespace-nowrap" id="notice-filters">
+                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn cursor-pointer" data-type="all">全部</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn cursor-pointer" data-type="platform">平台通知</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn cursor-pointer" data-type="activity">经营活动</div>
+                <div class="text-gray-500 pb-1 notice-filter-btn cursor-pointer" data-type="rule">规则更新</div>
             </div>
 
-            <div class="content-area bg-gray-50 px-4 pt-3" id="notice-list-container">
-                <!-- Dynamic Notice Items Injected Here -->
+            <div class="content-area bg-[#F8FAFC] px-4 pt-3.5" id="notice-list-container">
+                <!-- Dynamic notices injected -->
             </div>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 3: 我的 (100% STRICTLY UNTOUCHED ORIGINAL) -->
+        <!-- TAB 3: 我的 (个人中心与业务工具) -->
         <!-- ============================================== -->
-        <div id="tab-me" class="page main-tab hide-scrollbar bg-[#F7F8FA]">
-            <div class="content-area pb-24 px-4 pt-4 relative">
+        <div id="tab-me" class="page main-tab hide-scrollbar bg-[#F6F7F9]">
+            <div class="content-area pb-28 px-4 pt-4 relative">
                 
-                <!-- Message Icon Top Right -->
-                <div class="absolute top-4 right-4 z-20 cursor-pointer" onclick="showToast('查看消息')">
+                <div class="absolute top-4 right-4 z-20 cursor-pointer press-active" onclick="showToast('查看消息')">
+                    <div class="relative w-9 h-9 flex items-center justify-center bg-white/80 rounded-full shadow-sm border border-gray-100">
+                        <i class="ph-bold ph-chat-centered-dots text-[21px] text-gray-800"></i>
+                        <span class="absolute -top-1 -right-1 bg-[#EA3343] text-white text-[9px] w-[17px] h-[17px] rounded-full flex items-center justify-center font-bold border-2 border-white leading-none">6</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3.5 mt-2 mb-3">
                     <div class="relative">
-                        <i class="ph ph-chat-centered-dots text-[28px] text-gray-800"></i>
-                        <span class="absolute -top-1 -right-2 bg-[#EA3343] text-white text-[9px] w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold border-[1.5px] border-[#F7F8FA] leading-none">6</span>
+                        <img src="https://placehold.co/120x120/E2E8F0/64748B?text=高晴晴" class="w-[66px] h-[66px] rounded-full object-cover border-2 border-white shadow-md">
+                        <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
                     </div>
-                </div>
-
-                <!-- Header User Area -->
-                <div class="flex items-center gap-4 mt-4 mb-3">
-                    <img src="https://placehold.co/120x120/E5E7EB/A3A8B8?text=头像" class="w-[68px] h-[68px] rounded-full object-cover">
-                    <div class="flex flex-col justify-center gap-1.5">
-                        <div class="text-[17px] font-bold text-[#222]">高晴晴</div>
-                        <div class="flex items-center gap-3 text-[11px]">
-                            <div class="flex items-center"><span class="text-[#EA3343] font-bold italic mr-1 text-[12px]">ID</span><span class="text-gray-500 tracking-wide">3518317</span></div>
-                            <div class="flex items-center"><span class="text-[#EA3343] font-bold italic mr-1 text-[12px]">Code</span><span class="text-gray-500 tracking-wide">AAXG041681</span></div>
+                    <div class="flex flex-col justify-center gap-1">
+                        <div class="text-[18px] font-extrabold text-gray-900 tracking-tight">高晴晴</div>
+                        <div class="flex items-center gap-3 text-[11px] text-gray-500 font-medium">
+                            <div class="flex items-center"><span class="text-[#EA3343] font-black italic mr-1 text-[11px]">ID</span><span class="text-gray-600 tracking-wide font-semibold">3518317</span></div>
+                            <div class="flex items-center"><span class="text-[#EA3343] font-black italic mr-1 text-[11px]">Code</span><span class="text-gray-600 tracking-wide font-semibold">AAXG041681</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Business Center Title -->
-                <div class="flex justify-center items-center gap-3 mt-8 mb-5">
-                    <div class="h-[1.5px] w-5 bg-gradient-to-r from-transparent to-[#F57C82]"></div>
-                    <div class="text-[#333] font-bold text-[15px] tracking-[0.15em]">业务中心</div>
-                    <div class="h-[1.5px] w-5 bg-gradient-to-l from-transparent to-[#F57C82]"></div>
+                <div class="flex justify-center items-center gap-2.5 mt-7 mb-4">
+                    <div class="h-[1.5px] w-6 bg-gradient-to-r from-transparent to-[#F87171]"></div>
+                    <div class="text-[#1E293B] font-bold text-[13.5px] tracking-[0.16em]">业务中心</div>
+                    <div class="h-[1.5px] w-6 bg-gradient-to-l from-transparent to-[#F87171]"></div>
                 </div>
 
-                <!-- Business Center Cards -->
-                <div class="grid grid-cols-2 gap-3.5 mb-2">
-                    <div class="rounded-[20px] bg-gradient-to-br from-[#6A9BF6] to-[#7169E8] p-4 text-white relative overflow-hidden h-[95px] flex flex-col justify-center shadow-[0_6px_12px_rgba(106,155,246,0.25)] cursor-pointer" onclick="showToast('我的业绩')">
-                        <div class="absolute top-2.5 right-2.5 w-[22px] h-[22px] bg-[#EA3343] rounded-full border-[1.5px] border-white flex items-center justify-center text-[10px] font-bold shadow-sm z-10">赚</div>
-                        <i class="ph ph-trend-up text-[28px] mb-1.5 opacity-90 font-light"></i>
+                <div class="grid grid-cols-2 gap-3 mb-2">
+                    <div class="rounded-[20px] bg-gradient-to-br from-[#5D8EF4] to-[#6366F1] p-4 text-white relative overflow-hidden h-[96px] flex flex-col justify-center shadow-[0_6px_14px_rgba(93,142,244,0.22)] cursor-pointer press-active" onclick="showToast('我的业绩')">
+                        <div class="absolute top-2.5 right-2.5 w-[20px] h-[20px] bg-[#EA3343] rounded-full border-[1.5px] border-white flex items-center justify-center text-[9px] font-black shadow-sm z-10">赚</div>
+                        <i class="ph-bold ph-chart-line-up text-[26px] mb-1 opacity-95"></i>
                         <div class="font-bold text-[15px] leading-tight mb-0.5">我的业绩</div>
-                        <div class="text-[10px] text-white/85">实时数据</div>
+                        <div class="text-[10px] text-white/80">实时数据核算</div>
                     </div>
-                    <div class="rounded-[20px] bg-gradient-to-br from-[#FF6A88] to-[#FF4B5A] p-4 text-white relative overflow-hidden h-[95px] flex flex-col justify-center shadow-[0_6px_12px_rgba(255,106,136,0.25)] cursor-pointer" onclick="showToast('我的客户')">
-                        <i class="ph ph-users text-[28px] mb-1.5 opacity-90 font-light"></i>
+                    <div class="rounded-[20px] bg-gradient-to-br from-[#FF637D] to-[#F43F5E] p-4 text-white relative overflow-hidden h-[96px] flex flex-col justify-center shadow-[0_6px_14px_rgba(255,99,125,0.22)] cursor-pointer press-active" onclick="navTo('page-my-customers')">
+                        <i class="ph-bold ph-users text-[26px] mb-1 opacity-95"></i>
                         <div class="font-bold text-[15px] leading-tight mb-0.5">我的客户</div>
-                        <div class="text-[10px] text-white/85">(直属下级)</div>
+                        <div class="text-[10px] text-white/80">(直属下级管理)</div>
                     </div>
                 </div>
 
-                <!-- Common Tools Title -->
-                <div class="flex justify-center items-center gap-3 mt-8 mb-6">
-                    <div class="h-[1.5px] w-5 bg-gradient-to-r from-transparent to-[#F57C82]"></div>
-                    <div class="text-[#333] font-bold text-[15px] tracking-[0.15em]">常用工具</div>
-                    <div class="h-[1.5px] w-5 bg-gradient-to-l from-transparent to-[#F57C82]"></div>
+                <div class="flex justify-center items-center gap-2.5 mt-7 mb-4">
+                    <div class="h-[1.5px] w-6 bg-gradient-to-r from-transparent to-[#F87171]"></div>
+                    <div class="text-[#1E293B] font-bold text-[13.5px] tracking-[0.16em]">常用工具</div>
+                    <div class="h-[1.5px] w-6 bg-gradient-to-l from-transparent to-[#F87171]"></div>
                 </div>
 
-                <!-- Common Tools Grid -->
-                <div class="grid grid-cols-3 gap-y-6 mb-7">
-                    <!-- Row 1 -->
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的分销')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#34C783] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-squares-four text-[26px]"></i>
+                <div class="grid grid-cols-3 gap-y-5 mb-6 bg-white rounded-2xl p-4 shadow-sm border border-gray-100/80">
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('我的分销')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#10B981] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-squares-four text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">我的分销</span>
+                        <span class="text-[11px] text-gray-700 font-medium">我的分销</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('业绩奖金')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF8C38] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-chart-bar text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('业绩奖金')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#F59E0B] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-chart-bar text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">业绩奖金</span>
+                        <span class="text-[11px] text-gray-700 font-medium">业绩奖金</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的服务费')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#4D92FF] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-shield-check text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('我的服务费')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#3B82F6] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-shield-check text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">我的服务费</span>
+                        <span class="text-[11px] text-gray-700 font-medium">我的服务费</span>
                     </div>
                     
-                    <!-- Row 2 -->
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('锁单查询')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF6559] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-magnifying-glass text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('错单查询')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#EF4444] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-magnifying-glass text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">锁单查询</span>
+                        <span class="text-[11px] text-gray-700 font-medium">错单查询</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('我的二维码')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#898DF5] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-qr-code text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('我的二维码')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#8B5CF6] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-qr-code text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">我的二维码</span>
+                        <span class="text-[11px] text-gray-700 font-medium">我的二维码</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('爆款专柜')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF4C59] flex items-center justify-center text-white mb-2 shadow-sm relative">
-                            <div class="absolute inset-0 flex items-center justify-center"><i class="ph-fill ph-drop text-[26px]"></i></div>
-                            <div class="w-1.5 h-1.5 bg-white rounded-full absolute mt-3"></div>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('爆款专栏')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#F43F5E] flex items-center justify-center text-white mb-1.5 shadow-sm relative">
+                            <i class="ph-fill ph-drop text-[24px]"></i>
+                            <div class="w-1.5 h-1.5 bg-white rounded-full absolute bottom-3"></div>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">爆款专柜</span>
-                    </div>
-                    
-                    <!-- Row 3 -->
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('邀客佣金看涨')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FFA723] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-briefcase text-[26px]"></i>
-                        </div>
-                        <span class="text-[11px] text-[#444] font-medium">邀客佣金看涨</span>
-                    </div>
-                    <div class="flex flex-col items-center cursor-pointer" onclick="showToast('退折商品专区')">
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#F16AD6] flex items-center justify-center text-white mb-2 shadow-sm">
-                            <i class="ph-bold ph-plus-circle text-[26px]"></i>
-                        </div>
-                        <span class="text-[11px] text-[#444] font-medium">退折商品专区</span>
-                    </div>
-                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('我的粉丝')">
-                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#6F7AF7] flex items-center justify-center text-white mb-2 shadow-sm relative">
-                            <i class="ph-bold ph-users text-[26px]"></i>
-                        </div>
-                        <span class="text-[11px] text-[#444] font-medium">我的粉丝</span>
+                        <span class="text-[11px] text-gray-700 font-medium">爆款专栏</span>
                     </div>
                     
-                    <!-- Row 4 -->
-                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('直播奖金')">
-                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF4263] flex items-center justify-center text-white mb-2 shadow-sm relative">
-                            <i class="ph-bold ph-broadcast text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('推客佣金看板')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#F97316] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-briefcase text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">直播奖金</span>
+                        <span class="text-[11px] text-gray-700 font-medium">推客佣金看板</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer relative" onclick="showToast('全品类奖金')">
-                        <div class="absolute -top-1 right-0 bg-[#EA3343] text-white text-[9px] px-2 py-[1px] rounded-full font-medium z-10 border border-white translate-x-2">New</div>
-                        <div class="w-[50px] h-[50px] rounded-[16px] bg-[#FF9A26] flex items-center justify-center text-white mb-2 shadow-sm relative">
-                            <i class="ph-bold ph-shopping-bag text-[26px]"></i>
+                    <div class="flex flex-col items-center cursor-pointer press-active" onclick="showToast('返折商品专区')">
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#D946EF] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-tag-chevron text-[24px]"></i>
                         </div>
-                        <span class="text-[11px] text-[#444] font-medium">全品类奖金</span>
+                        <span class="text-[11px] text-gray-700 font-medium">返折商品专区</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer relative press-active" onclick="showToast('我的粉丝')">
+                        <div class="absolute -top-1 right-2 bg-[#EA3343] text-white text-[8px] px-1.5 py-[1px] rounded-full font-bold z-10 border border-white">New</div>
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#6366F1] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-heart text-[24px]"></i>
+                        </div>
+                        <span class="text-[11px] text-gray-700 font-medium">我的粉丝</span>
+                    </div>
+                    
+                    <div class="flex flex-col items-center cursor-pointer relative press-active" onclick="showToast('直播奖金')">
+                        <div class="absolute -top-1 right-2 bg-[#EA3343] text-white text-[8px] px-1.5 py-[1px] rounded-full font-bold z-10 border border-white">New</div>
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#E11D48] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-broadcast text-[24px]"></i>
+                        </div>
+                        <span class="text-[11px] text-gray-700 font-medium">直播奖金</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer relative press-active" onclick="showToast('全品类奖金')">
+                        <div class="absolute -top-1 right-2 bg-[#EA3343] text-white text-[8px] px-1.5 py-[1px] rounded-full font-bold z-10 border border-white">New</div>
+                        <div class="w-[48px] h-[48px] rounded-[15px] bg-[#EA580C] flex items-center justify-center text-white mb-1.5 shadow-sm">
+                            <i class="ph-bold ph-shopping-bag text-[24px]"></i>
+                        </div>
+                        <span class="text-[11px] text-gray-700 font-medium">全品类奖金</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mb-5">
-                    <div class="bg-white rounded-[16px] p-3.5 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer" onclick="showToast('推送热销商品')">
-                        <i class="ph-fill ph-star absolute -bottom-3 -right-2 text-[60px] text-[#FFF3E0] z-0 -rotate-12"></i>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-white rounded-2xl p-3.5 relative overflow-hidden shadow-sm border border-gray-100 cursor-pointer press-active" onclick="showToast('推送热销商品')">
+                        <i class="ph-fill ph-flame absolute -bottom-2 -right-2 text-[56px] text-orange-100 z-0 -rotate-12"></i>
                         <div class="relative z-10">
-                            <div class="font-bold text-[14px] text-[#222] mb-1">推送热销商品</div>
-                            <div class="text-[9px] text-[#999] leading-snug mb-3">将首页今日热销商品<br>送给下级</div>
-                            <button class="bg-[#F0F5FF] text-[#4A85F6] text-[11px] font-medium px-4 py-1 rounded-full">推送</button>
+                            <div class="font-bold text-[13.5px] text-gray-900 mb-0.5">推送热销商品</div>
+                            <div class="text-[10px] text-gray-400 leading-snug mb-2.5">将今日热销爆品<br>定向送达下级</div>
+                            <button class="bg-blue-50 text-blue-600 text-[10.5px] font-semibold px-3 py-1 rounded-full">立即推送</button>
                         </div>
                     </div>
-                    <div class="bg-white rounded-[16px] p-3.5 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer" onclick="showToast('推送记录')">
-                        <i class="ph-fill ph-file-text absolute -bottom-3 -right-2 text-[60px] text-[#F3F4F6] z-0 -rotate-12"></i>
+                    <div class="bg-white rounded-2xl p-3.5 relative overflow-hidden shadow-sm border border-gray-100 cursor-pointer press-active" onclick="showToast('推送记录')">
+                        <i class="ph-fill ph-clock-counter-clockwise absolute -bottom-2 -right-2 text-[56px] text-slate-100 z-0 -rotate-12"></i>
                         <div class="relative z-10">
-                            <div class="font-bold text-[14px] text-[#222] mb-1">推送记录</div>
-                            <div class="text-[9px] text-[#999] leading-snug mb-3">查看过往热销商品推送<br>记录</div>
-                            <button class="bg-transparent text-[#666] text-[11px] font-medium px-4 py-1 rounded-full border border-gray-200">查看记录</button>
+                            <div class="font-bold text-[13.5px] text-gray-900 mb-0.5">推送记录</div>
+                            <div class="text-[10px] text-gray-400 leading-snug mb-2.5">查看过往商品推送<br>与触达统计</div>
+                            <button class="bg-gray-50 text-gray-600 text-[10.5px] font-semibold px-3 py-1 rounded-full border border-gray-200">查看历史</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[16px] px-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-7">
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('APP二维码下载')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#EA3343] bg-red-50/50"><i class="ph-bold ph-app-window text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">APP二维码下载</span>
+                <div class="bg-white rounded-2xl px-4 shadow-sm border border-gray-100 mb-6">
+                    <div class="flex items-center justify-between py-3.5 border-b border-gray-100 cursor-pointer press-active" onclick="showToast('APP二维码下载')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-red-500 bg-red-50"><i class="ph-bold ph-download-simple text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">APP二维码下载</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('新消息通知')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#3B82F6] bg-blue-50/50"><i class="ph-bold ph-chat-circle text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">新消息通知</span>
+                    <div class="flex items-center justify-between py-3.5 border-b border-gray-100 cursor-pointer press-active" onclick="showToast('新消息通知')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-blue-500 bg-blue-50"><i class="ph-bold ph-bell-simple text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">新消息通知</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('用户协议')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#3B82F6] bg-blue-50/50"><i class="ph-bold ph-file-text text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">用户协议</span>
+                    <div class="flex items-center justify-between py-3.5 border-b border-gray-100 cursor-pointer press-active" onclick="showToast('用户协议')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-indigo-500 bg-indigo-50"><i class="ph-bold ph-file-text text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">用户协议</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('注册使用协议')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#8B5CF6] bg-purple-50/50"><i class="ph-bold ph-pencil-simple text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">注册使用协议</span>
+                    <div class="flex items-center justify-between py-3.5 border-b border-gray-100 cursor-pointer press-active" onclick="showToast('注册使用协议')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-purple-500 bg-purple-50"><i class="ph-bold ph-article text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">注册使用协议</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer" onclick="showToast('隐私政策')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#10B981] bg-green-50/50"><i class="ph-bold ph-shield-check text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">隐私政策</span>
+                    <div class="flex items-center justify-between py-3.5 border-b border-gray-100 cursor-pointer press-active" onclick="showToast('隐私政策')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-emerald-500 bg-emerald-50"><i class="ph-bold ph-shield-check text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">隐私政策</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
-                    <div class="flex items-center justify-between py-4 cursor-pointer" onclick="showToast('关于版本')">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[#F59E0B] bg-orange-50/50"><i class="ph-bold ph-info text-[16px]"></i></div>
-                            <span class="text-[#333] text-[14px]">关于版本</span>
+                    <div class="flex items-center justify-between py-3.5 cursor-pointer press-active" onclick="showToast('关于版本')">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-amber-500 bg-amber-50"><i class="ph-bold ph-info text-[15px]"></i></div>
+                            <span class="text-gray-800 text-[13.5px] font-medium">关于版本</span>
                         </div>
-                        <i class="ph ph-caret-right text-gray-300 text-sm"></i>
+                        <i class="ph ph-caret-right text-gray-400 text-xs"></i>
                     </div>
                 </div>
 
-                <!-- Logout Button -->
-                <button class="w-full bg-[#EA3343] text-white py-3 rounded-full font-medium text-[16px] mb-8 shadow-sm active:bg-[#D32F3C] transition-colors" onclick="showToast('退出登录')">
-                    退出
+                <button class="w-full bg-[#EA3343] text-white py-3 rounded-full font-bold text-[15px] mb-4 shadow-[0_4px_12px_rgba(234,51,67,0.25)] active:bg-[#D32F3C] press-active transition-colors" onclick="showToast('退出登录')">
+                    退出登录
                 </button>
-                
             </div>
         </div>
 
+        <!-- ============================================== -->
+        <!-- SUB PAGE 1: 我的客户 (直属下级列表) -->
+        <!-- ============================================== -->
+        <div id="page-my-customers" class="page sub-page bg-[#F6F7F9]">
+            <div class="top-header pt-3 bg-white border-b border-gray-100 flex items-center justify-between">
+                <div class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 cursor-pointer press-active -ml-1.5" onclick="goBack()">
+                    <i class="ph-bold ph-caret-left text-[22px] text-gray-800"></i>
+                </div>
+                <div class="header-title flex-1 text-center">我的客户</div>
+                <div class="w-9"></div>
+            </div>
+            
+            <div class="px-4 py-3 bg-white border-b border-gray-100 shadow-[0_2px_6px_rgba(0,0,0,0.015)]">
+                <div class="flex items-center gap-2 mb-2.5">
+                    <div class="flex-1 bg-[#F1F3F5] rounded-full h-[38px] flex items-center px-3.5 transition-all focus-within:ring-2 focus-within:ring-red-200 focus-within:bg-white border border-transparent focus-within:border-red-300">
+                        <i class="ph-bold ph-magnifying-glass text-gray-400 text-[16px] mr-2"></i>
+                        <input type="text" id="sub-search-input" placeholder="输入代理 Code 或姓名搜索" class="bg-transparent border-none outline-none text-[12.5px] w-full text-gray-800 placeholder-gray-400" oninput="renderMyCustomersList()">
+                    </div>
+                    <button class="bg-[#EA3343] text-white text-[12px] font-bold h-[38px] px-4 rounded-full press-active shadow-sm" onclick="renderMyCustomersList()">搜索</button>
+                </div>
+                
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[11.5px] text-gray-500 font-medium">业绩月份统计</span>
+                    <div class="flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded-full border border-gray-200/60 cursor-pointer press-active" onclick="openMonthPicker()">
+                        <span class="text-[12px] text-gray-700 font-semibold tracking-wide" id="customers-selected-month">2026-10</span>
+                        <i class="ph-bold ph-caret-down text-gray-400 text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area px-4 pt-3.5 pb-24" id="my-customers-list-content">
+                <!-- Direct subordinates injected -->
+            </div>
+        </div>
 
         <!-- ============================================== -->
-        <!-- SUB PAGES -->
+        <!-- SUB PAGE 2: 直属下级详情与行为中心 (双 Tab 架构) -->
         <!-- ============================================== -->
+        <div id="page-subordinate-customer-detail" class="page sub-page bg-[#F6F7F9]">
+            <div class="top-header pt-3 bg-white border-b border-gray-100/80 shrink-0">
+                <div class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 cursor-pointer press-active -ml-1.5" onclick="goBack()">
+                    <i class="ph-bold ph-caret-left text-[22px] text-gray-800"></i>
+                </div>
+                <div class="header-title flex-1 text-center" id="detail-header-name">直属下级详情</div>
+                <div class="w-9"></div>
+            </div>
+            
+            <div class="content-area !pb-0 flex flex-col h-full overflow-hidden">
+                <!-- 区域 A & B：固定头部 (身份与月度业绩) -->
+                <div class="bg-white px-4 pt-3 pb-3 border-b border-gray-100 shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                    <!-- 区域 A：用户身份信息 -->
+                    <div class="flex items-center gap-3.5 mb-3">
+                        <div class="relative">
+                            <img id="detail-avatar" src="" class="w-[52px] h-[52px] rounded-full bg-slate-200 border-2 border-white shadow-sm object-cover">
+                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="text-[16px] font-extrabold text-gray-900 tracking-tight" id="detail-name">--</span>
+                                <span id="detail-badge" class="px-2 py-[2px] rounded-full text-[10px] font-bold tracking-wider">--</span>
+                            </div>
+                            <div class="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                                <span class="text-gray-400">代理代码</span>
+                                <span class="text-gray-700 font-semibold" id="detail-code">--</span>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Sub Page: Today's To-Dos -->
+                    <!-- 区域 B：当月业绩概览 -->
+                    <div class="bg-gradient-to-r from-[#FFF5F6] to-[#FFF0F2] rounded-2xl p-3 border border-[#FDDCE1] flex justify-between items-center">
+                        <div>
+                            <div class="text-[11px] text-[#A03544] font-medium mb-0.5">当月个人业绩 (预估)</div>
+                            <div class="text-[20px] font-extrabold text-[#D92D3E] tracking-tight leading-none" id="detail-sales">¥0</div>
+                        </div>
+                        <div class="flex items-center gap-1.5 cursor-pointer press-active" onclick="openMonthPicker()">
+                            <span class="text-[10px] text-[#A03544] bg-white/80 px-2 py-0.5 rounded-full font-semibold border border-[#F8B4BD] flex items-center gap-1">
+                                <span id="detail-month-label">2026-10周期</span>
+                                <i class="ph-bold ph-caret-down text-[9px]"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 区域 C：双 Tab 切换控制器 -->
+                <div class="flex bg-white border-b border-gray-200/80 shrink-0 sticky top-0 z-20 shadow-sm">
+                    <div class="flex-1 text-center py-3 detail-tab active cursor-pointer press-active" data-tab="browse" onclick="switchDetailTab('browse')">
+                        浏览与加购
+                    </div>
+                    <div class="flex-1 text-center py-3 detail-tab cursor-pointer press-active" data-tab="orders" onclick="switchDetailTab('orders')">
+                        最近下单
+                    </div>
+                </div>
+
+                <!-- 区域 C：内容区 -->
+                <div class="flex-1 overflow-y-auto relative bg-[#F6F7F9]">
+                    
+                    <!-- TAB 1: 浏览与加购 -->
+                    <div id="tab-content-browse" class="w-full min-h-full p-3.5 pb-10 block transition-opacity duration-200">
+                        <div class="bg-white rounded-2xl p-3 mb-3 shadow-sm border border-gray-100">
+                            <div class="relative w-full mb-2.5">
+                                <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="text" id="browse-search" placeholder="搜索商品名称" class="w-full bg-[#F1F3F5] rounded-xl h-[34px] pl-8 pr-3 text-[12px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-200" oninput="renderBrowseTab()">
+                            </div>
+                            <div class="flex justify-between items-center pt-0.5">
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="browse-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-red-50 text-red-600 font-bold border border-red-200 cursor-pointer press-active shrink-0" data-val="all" onclick="setBrowseFilter('all')">全部行为</span>
+                                    <span class="browse-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0" data-val="browse" onclick="setBrowseFilter('browse')">仅看浏览</span>
+                                    <span class="browse-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0" data-val="cart" onclick="setBrowseFilter('cart')">仅看加购</span>
+                                </div>
+                                <div class="text-[11px] text-gray-600 font-medium flex items-center gap-1 cursor-pointer press-active hover:text-gray-900 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-200/60 shrink-0" onclick="toggleBrowseSort()">
+                                    <span id="browse-sort-label">交互频率</span>
+                                    <i class="ph-bold ph-arrows-down-up text-xs text-gray-500" id="browse-sort-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="browse-list-container" class="space-y-2.5"></div>
+                    </div>
+
+                    <!-- TAB 2: 最近下单 -->
+                    <div id="tab-content-orders" class="w-full min-h-full p-3.5 pb-10 hidden transition-opacity duration-200">
+                        <div class="bg-white rounded-2xl p-3 mb-3 shadow-sm border border-gray-100">
+                            <div class="relative w-full">
+                                <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="text" id="order-search" placeholder="搜索已购商品名称" class="w-full bg-[#F1F3F5] rounded-xl h-[34px] pl-8 pr-3 text-[12px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-200" oninput="renderOrderTab()">
+                            </div>
+                        </div>
+
+                        <!-- 数量统计区域 -->
+                        <div class="bg-gradient-to-r from-red-50/70 to-orange-50/50 border border-red-100 text-red-900 p-3 rounded-2xl mb-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                    <i class="ph-bold ph-shopping-bag text-base"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-red-600 font-medium">所选月度有效订单统计</div>
+                                    <div class="text-[13px] font-extrabold text-gray-900">
+                                        商品购买件数：<span class="text-red-600 font-black text-[15px]" id="orders-total-qty">0</span> 件
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-[10.5px] text-red-500 bg-white/80 px-2 py-0.5 rounded-full font-bold border border-red-200" id="orders-count-label">0 笔有效订单</span>
+                        </div>
+                        
+                        <div id="order-list-container" class="space-y-2.5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- 原有 CRM 第一期其他页面 (保留完整逻辑) -->
+        <!-- ============================================== -->
         <div id="page-todo-list" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">今日经营待办</div>
                 <div class="w-7"></div>
             </div>
-            
             <div class="content-area px-4 pt-3">
                 <div class="card mb-4 bg-white border border-gray-100">
                     <div class="flex justify-between items-end mb-2">
-                        <div>
-                            <div class="text-xs text-gray-400">今日任务总数</div>
-                            <div class="text-2xl font-bold text-gray-800 global-todo-total">18</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs text-gray-400">已跟进完成</div>
-                            <div class="text-xl font-bold text-[var(--primary)] global-todo-done">0</div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                        <span>跟进完成率</span>
-                        <span class="global-todo-percent">0%</span>
+                        <div><div class="text-xs text-gray-400">今日任务总数</div><div class="text-2xl font-bold text-gray-800 global-todo-total">18</div></div>
+                        <div class="text-right"><div class="text-xs text-gray-400">已跟进完成</div><div class="text-xl font-bold text-[var(--primary)] global-todo-done">0</div></div>
                     </div>
                     <div class="progress-bar"><div class="progress-fill global-todo-bar" style="width: 0%"></div></div>
                 </div>
-
                 <div class="space-y-3">
                     <div class="card flex items-center justify-between p-3.5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center text-red-600">
-                                <i class="ph-fill ph-users-three text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-sm flex items-center gap-1.5">下级待关注 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold">3人</span></div>
-                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">下单客户不足或业绩有缺口</div>
-                            </div>
-                        </div>
+                        <div class="font-bold text-sm">下级待关注 3人</div>
                         <button class="btn-primary text-xs py-1.5 px-3" onclick="navToTeamFilter('待关注')">去查看</button>
                     </div>
-
                     <div class="card flex items-center justify-between p-3.5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600">
-                                <i class="ph-fill ph-shopping-cart text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-sm flex items-center gap-1.5">顾客待跟进 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold global-todo-browse-tag">10人</span></div>
-                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">近期高频浏览/加购但未下单</div>
-                            </div>
-                        </div>
+                        <div class="font-bold text-sm">顾客待跟进 10人</div>
                         <button class="btn-primary text-xs py-1.5 px-3" onclick="navTo('page-browse-list')">去跟进</button>
                     </div>
-
                     <div class="card flex items-center justify-between p-3.5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-green-100 flex items-center justify-center text-green-600">
-                                <i class="ph-fill ph-phone-call text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-sm flex items-center gap-1.5">订单待回访 <span class="bg-red-100 text-red-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold global-todo-order-tag">5人</span></div>
-                                <div class="text-xs text-gray-400 mt-0.5 truncate w-40">回访产品使用体验，承接复购</div>
-                            </div>
-                        </div>
+                        <div class="font-bold text-sm">订单待回访 5人</div>
                         <button class="btn-primary text-xs py-1.5 px-3" onclick="navTo('page-order-list')">去回访</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sub Page: 我的下级 (My Subordinates List) -->
         <div id="page-team-list" class="page sub-page bg-white">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">我的下级</div>
                 <div class="w-7"></div>
             </div>
-            
-            <!-- Stats summary -->
-            <div class="flex justify-around py-3.5 border-b border-gray-100 px-4 bg-gray-50">
-                <div class="text-center"><div class="text-base font-bold text-gray-800">18</div><div class="text-[10px] text-gray-500">直属下级</div></div>
-                <div class="text-center"><div class="text-base font-bold text-green-600">12</div><div class="text-[10px] text-gray-500">目标达成</div></div>
-                <div class="text-center"><div class="text-base font-bold text-red-500">3</div><div class="text-[10px] text-gray-500">待关注</div></div>
-                <div class="text-center"><div class="text-base font-bold text-amber-500">3</div><div class="text-[10px] text-gray-500">成长中</div></div>
-            </div>
-
-            <!-- Filters -->
-            <div class="flex overflow-x-auto hide-scrollbar gap-4 px-4 py-3 border-b border-gray-100 text-xs whitespace-nowrap" id="team-filters">
-                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] filter-btn" data-filter="全部">全部</div>
-                <div class="text-gray-500 pb-1 filter-btn" data-filter="待关注">待关注</div>
-                <div class="text-gray-500 pb-1 filter-btn" data-filter="成长中">成长中</div>
-                <div class="text-gray-500 pb-1 filter-btn" data-filter="目标达成">目标达成</div>
-            </div>
-
-            <div class="content-area bg-gray-50 px-4 pt-3" id="team-list">
-                <!-- Injected via JS -->
-            </div>
+            <div class="content-area bg-gray-50 px-4 pt-3" id="team-list"></div>
         </div>
 
-        <!-- Sub Page: 下级详情 (Subordinate Detail) -->
         <div id="page-subordinate-detail" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">下级详情</div>
                 <div class="w-7"></div>
             </div>
-            <div class="content-area px-4 pt-4" id="subordinate-detail-content">
-                <!-- Dynamic Content -->
-            </div>
+            <div class="content-area px-4 pt-4" id="subordinate-detail-content"></div>
         </div>
 
-        <!-- Sub Page: 团队经营报告 (Team Performance Report) -->
         <div id="page-team-report" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">团队经营报告</div>
                 <div class="w-7"></div>
             </div>
             <div class="content-area px-4 pt-3">
-                <!-- Overview Info Card -->
                 <div class="card bg-gradient-to-br from-red-50 to-white border border-red-100 p-4 mb-3">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <div class="text-xs text-gray-500">统计周期</div>
-                            <div class="text-sm font-bold text-gray-800">2026.09.01 - 2026.09.30</div>
-                        </div>
-                        <span class="tag tag-red">当前周期</span>
-                    </div>
-                    <div class="text-xs text-gray-600 border-t border-red-100/60 pt-2 mt-2">
-                        经营范围：<span class="font-bold text-gray-800">我 + 18名直属下级</span>
-                    </div>
-                </div>
-
-                <!-- Core Performance Indicators -->
-                <div class="card mb-3">
-                    <h3 class="text-sm font-bold text-gray-800 mb-3">团队经营表现</h3>
-                    
-                    <div class="grid grid-cols-3 gap-2 bg-gray-50 p-3 rounded-xl mb-4 text-center">
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">分享天数</div>
-                            <div class="text-lg font-bold text-gray-900">26 <span class="text-xs font-normal text-gray-500">天</span></div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">浏览顾客</div>
-                            <div class="text-lg font-bold text-gray-900">125 <span class="text-xs font-normal text-gray-500">人</span></div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">转化率</div>
-                            <div class="text-lg font-bold text-gray-900">28%</div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="bg-gray-50 p-3 rounded-xl">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <span class="text-xs font-bold text-gray-800">团队业绩</span>
-                                <span class="text-xs font-bold text-[var(--primary)]">¥63,420</span>
-                            </div>
-                            <div class="flex justify-between text-[11px] text-gray-500 mb-1.5">
-                                <span>目标业绩 ¥60,000</span>
-                                <span class="text-green-600 font-medium">达成率 105.7%</span>
-                            </div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-xl">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <span class="text-xs font-bold text-gray-800">下单客户</span>
-                                <span class="text-xs font-bold text-gray-900">87 人</span>
-                            </div>
-                            <div class="flex justify-between text-[11px] text-gray-500 mb-1.5">
-                                <span>目标客户 100 人</span>
-                                <span class="text-red-500 font-medium">还差 13 人</span>
-                            </div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Current Bottleneck Module -->
-                <div class="card border-l-4 border-amber-500 bg-amber-50/30 p-4 mb-4">
-                    <div class="flex items-center gap-1.5 text-amber-700 font-bold text-xs mb-2">
-                        <i class="ph-fill ph-warning-circle text-base"></i> 当前经营卡点：下单客户数未达标
-                    </div>
-                    <div class="text-xs text-gray-700 bg-white p-3 rounded-xl border border-amber-100 leading-relaxed mb-3">
-                        本周期团队业绩已经达到目标，但下单客户数量仍存在缺口（已完成 87人 / 目标 100人，还差 13人）。建议优先关注近期有浏览/加购行为但尚未下单的顾客。
-                    </div>
-                    <button class="btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5" onclick="navTo('page-browse-list')">
-                        查看相关顾客 <i class="ph-bold ph-arrow-right"></i>
-                    </button>
+                    <div class="text-sm font-bold text-gray-800">2026.09.01 - 2026.09.30</div>
+                    <div class="text-xs text-gray-600 mt-2">经营范围：我 + 18名直属下级</div>
                 </div>
             </div>
         </div>
 
-        <!-- Sub Page: Customers Browse / Cart List (顾客跟进) -->
         <div id="page-browse-list" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">顾客跟进</div>
                 <div class="w-7"></div>
             </div>
-            <div class="flex gap-4 px-4 py-2.5 bg-white text-xs border-b border-gray-100 text-gray-500">
-                <div class="text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)]">浏览/加购未下单</div>
-                <div class="cursor-pointer" onclick="navTo('page-order-list')">订单待回访</div>
-            </div>
-            <div class="content-area px-4 pt-3" id="browse-list-content">
-                <!-- Dynamic Customer Cards -->
-            </div>
+            <div class="content-area px-4 pt-3" id="browse-list-content"></div>
         </div>
 
-        <!-- Sub Page: Customer Detail -->
         <div id="page-customer-detail" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 bg-transparent border-none absolute w-full z-30">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-800" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-800 cursor-pointer" onclick="goBack()"></i>
                 <div class="w-7"></div>
             </div>
-            <div class="content-area pb-24" id="customer-detail-content">
-                <!-- Dynamic Customer Detail Content -->
-            </div>
-            
-            <!-- Fixed Action Buttons Bar -->
+            <div class="content-area pb-24" id="customer-detail-content"></div>
             <div class="absolute bottom-0 left-0 w-full p-4 bg-white border-t border-gray-100 z-20 flex gap-3">
                  <button class="w-full btn-primary py-3 rounded-xl text-xs font-semibold" id="btn-mark-customer-done">标记已跟进</button>
             </div>
         </div>
 
-        <!-- Sub Page: Order Follow-up List -->
         <div id="page-order-list" class="page sub-page bg-gray-50">
             <div class="top-header pt-3 border-b border-gray-100">
-                <i class="ph ph-caret-left text-2xl p-1 -ml-1 text-gray-700" onclick="goBack()"></i>
+                <i class="ph-bold ph-caret-left text-2xl p-1 -ml-1 text-gray-700 cursor-pointer" onclick="goBack()"></i>
                 <div class="header-title">订单待回访</div>
                 <div class="w-7"></div>
             </div>
-            <div class="px-4 py-2.5 bg-white text-xs flex justify-between text-gray-500 border-b border-gray-100">
-                <span>待跟进回访 <span class="text-red-500 font-bold global-todo-order">5</span> 人</span>
-                <span>本月已完成 12 人</span>
-            </div>
-            <div class="content-area px-4 pt-3" id="order-list-content">
-                 <!-- Dynamic Orders -->
-            </div>
+            <div class="content-area px-4 pt-3" id="order-list-content"></div>
         </div>
 
-
         <!-- ============================================== -->
-        <!-- BOTTOM TAB BAR (3 TABS ONLY) -->
+        <!-- BOTTOM TAB BAR (3 TABS) -->
         <!-- ============================================== -->
         <nav id="tab-bar">
             <div class="tab-item active" data-target="tab-home">
@@ -938,71 +869,253 @@
             </div>
         </nav>
 
-
-        <!-- ============================================== -->
-        <!-- MODALS & TOASTS -->
-        <!-- ============================================== -->
-
-        <!-- Order Follow-up Modal -->
-        <div id="order-modal" class="modal-overlay">
-            <div class="modal-content pb-8">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-base text-gray-800">订单体验回访</h3>
+        <!-- Modals -->
+        <div id="month-picker-modal" class="modal-overlay">
+            <div class="modal-content pb-7">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-base text-gray-800">选择业绩统计月份</h3>
                     <i class="ph ph-x text-xl text-gray-400 p-1 cursor-pointer" onclick="closeModal()"></i>
                 </div>
-                <div class="text-xs text-gray-600 mb-3">
-                    <p class="font-bold mb-1.5 text-gray-800">本次回访核心目的：</p>
-                    <ul class="list-disc pl-4 space-y-0.5 text-gray-500">
-                        <li>了解产品使用体验与效果</li>
-                        <li>解决顾客使用疑问</li>
-                        <li>引导二次复购与分享</li>
-                    </ul>
+                <div class="space-y-2 mb-4" id="month-picker-list">
+                    <div class="p-3.5 rounded-2xl border border-red-200 bg-red-50/60 font-bold text-red-600 text-[13px] flex items-center justify-between cursor-pointer" onclick="selectMonth('2026-10')">
+                        <span>2026-10 (当前月度周期)</span>
+                        <i class="ph-bold ph-check text-base"></i>
+                    </div>
+                    <div class="p-3.5 rounded-2xl border border-gray-100 hover:bg-slate-50 font-semibold text-gray-700 text-[13px] flex items-center justify-between cursor-pointer" onclick="selectMonth('2026-09')">
+                        <span>2026-09 (往期月度周期)</span>
+                        <i class="ph-bold ph-caret-right text-gray-400"></i>
+                    </div>
                 </div>
-                <div class="bg-pink-50 border border-pink-100 rounded-xl p-3.5 mb-4 text-xs text-gray-700 leading-relaxed" id="order-modal-text">
-                    “亲爱的，您之前选购的臻享面膜使用效果怎么样？如果有任何用法疑问都可以随时跟我说哦～”
-                </div>
-                <div class="flex gap-3">
-                    <button class="flex-1 btn-outline py-2.5 rounded-xl text-xs" onclick="showToast('已复制回访话术')">复制话术</button>
-                    <button class="flex-1 btn-primary py-2.5 rounded-xl text-xs" onclick="markOrderFollowupDone()">标记回访完成</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Notice Detail Modal -->
-        <div id="notice-detail-modal" class="modal-overlay">
-            <div class="modal-content pb-8 max-h-[80vh] flex flex-col">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-base text-gray-800" id="notice-modal-title">公告详情</h3>
-                    <i class="ph ph-x text-xl text-gray-400 p-1 cursor-pointer" onclick="closeModal()"></i>
-                </div>
-                <div class="text-[10px] text-gray-400 mb-3" id="notice-modal-time">2026-09-28 10:00</div>
-                <div class="overflow-y-auto text-xs text-gray-600 leading-relaxed space-y-2" id="notice-modal-content">
-                    <!-- Content injected via JS -->
-                </div>
-                <button class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold mt-4" onclick="closeModal()">我已知晓</button>
+                <button class="w-full bg-slate-100 text-slate-700 py-3 rounded-full font-semibold text-xs" onclick="closeModal()">取消</button>
             </div>
         </div>
 
         <div id="toast"></div>
     </div>
-
-    <!-- Scheme Annotation Panel (For Presentation) -->
+    <!-- ============================================== -->
+    <!-- 右侧功能说明侧边栏 (重构为「业务说明 / 研发细则」双 Tab) -->
+    <!-- ============================================== -->
     <div id="annotation-panel">
-        <div style="font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--primary-light); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <i class="ph-fill ph-book-open"></i> 方案说明 (跟随页面自动切换)
+        <!-- 侧边栏顶部标题与联动指示器 -->
+        <div class="border-b border-slate-100 pb-3 mb-3 shrink-0">
+            <div class="flex items-center justify-between mb-1.5">
+                <div class="text-[15.5px] font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
+                    <i class="ph-fill ph-book-open text-[#E63950] text-lg"></i>
+                    <span>我的客户｜功能迭代说明</span>
+                </div>
+                <span class="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">已确认规范</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+                <span>规范版本：v3.7.0 (2026-10)</span>
+                <span class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E63950] animate-pulse"></span>
+                    当前预览：<strong id="sidebar-current-page-tag" class="text-slate-700 font-semibold">直属下级详情</strong>
+                </span>
+            </div>
         </div>
-        <div id="annotation-content">
-            <!-- Dynamic Annotation Content Injected Here -->
+
+        <!-- Tab 切换器 -->
+        <div class="flex bg-slate-100/80 p-1 rounded-full mb-3 shrink-0 border border-slate-200/50">
+            <button id="doc-btn-biz" class="doc-tab-btn active flex-1 text-center" onclick="switchSidebarTab('biz')">
+                业务说明
+            </button>
+            <button id="doc-btn-dev" class="doc-tab-btn flex-1 text-center" onclick="switchSidebarTab('dev')">
+                研发细则
+            </button>
+        </div>
+
+        <!-- ================================================== -->
+        <!-- TAB 1: 业务说明 (面向业务、产品及会议决策) -->
+        <!-- ================================================== -->
+        <div id="sidebar-panel-biz" class="doc-scroll-area">
+            <div class="doc-sec-title">一、功能目标</div>
+            <p class="doc-p">
+                升级「我的客户」中的直属下级经营信息查询能力，帮助业务人员快速了解下级的商品浏览、加购和购买情况，为日常业务沟通、商品推荐及经营分析提供参考。
+            </p>
+            <p class="doc-p">
+                本次重点优化商品行为信息的展示方式，让业务人员能够直观了解客户关注的商品、浏览频率、加购时间及购买情况，同时保留直属下级原有的月度业绩查询能力。
+            </p>
+
+            <div class="doc-sec-title">二、本次更新内容</div>
+            
+            <div class="doc-sub-title">1. 直属下级查询</div>
+            <ul class="doc-list">
+                <li>支持查询直属下级并查看基本信息。</li>
+                <li>保留原有月度业绩查询逻辑。</li>
+                <li>支持进入直属下级详情页面。</li>
+            </ul>
+
+            <div class="doc-sub-title">2. 浏览与加购</div>
+            <p class="doc-p">浏览和加购记录分开展示，根据当前记录的行为类型呈现对应信息：</p>
+            <ul class="doc-list">
+                <li><strong>仅浏览记录</strong>：展示浏览图标、最后浏览时间、本月浏览次数及今日浏览次数。</li>
+                <li><strong>浏览 + 加购记录</strong>：上方展示加购图标和加购时间，下方展示本月浏览次数及今日浏览次数。</li>
+                <li>加购记录不重复展示浏览时间，也不展示本月加购次数或今日加购次数。</li>
+                <li>两种模式均展示本月购买状态和历史累计购买件数。</li>
+                <li>支持商品名称搜索、行为筛选和交互频率排序。</li>
+            </ul>
+
+            <div class="doc-sub-title">3. 交互频率排序</div>
+            <p class="doc-p">
+                支持按商品交互频率升序或降序排列，帮助业务人员优先查看互动较多的商品。
+            </p>
+            <ul class="doc-list">
+                <li>交互频率由当前月度周期内的浏览次数与加购次数共同计算，仅用于内部排序，<strong>不在商品卡片中展示交互总量</strong>。</li>
+                <li>浏览行为按照 SKU 维度统计，不同 SKU 分别计算浏览次数及相关交互频率。</li>
+            </ul>
+
+            <div class="doc-sub-title">4. 最近下单</div>
+            <ul class="doc-list">
+                <li>沿用页面上方的月度筛选。</li>
+                <li>仅统计符合有效订单规则的购买记录。</li>
+                <li>商品数量按实际购买的商品件数计算，不按订单数量计算。</li>
+                <li>根据商品实际售后结果，判断相应商品是否计入购买统计。</li>
+            </ul>
+
+            <div class="doc-sec-title">三、业务操作流程</div>
+            <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                    我的 → 我的客户 → 选择直属下级 → 查看基本信息及月度业绩 → 进入浏览与加购或最近下单 → 搜索商品并查看相关信息。
+                </div>
+            </div>
+
+            <div class="doc-sec-title">四、本次迭代范围</div>
+            <ul class="doc-list">
+                <li>本次聚焦直属下级的商品行为查询、购买情况及最近下单信息展示。</li>
+                <li>本次不新增复杂客户标签、客户分类、客户跟进工作流或团队经营报表。</li>
+            </ul>
+
+            <div class="doc-sec-title">五、核心业务口径</div>
+            <div class="doc-card space-y-2">
+                <div class="text-[12px] text-slate-700"><strong>• 统计颗粒度：</strong>浏览统计按照 SKU 维度计算。</div>
+                <div class="text-[12px] text-slate-700"><strong>• 时间周期：</strong>月度统计采用自然月。</div>
+                <div class="text-[12px] text-slate-700"><strong>• 交互频率权重：</strong>由浏览次数与加购次数共同决定，但交互总量不在页面展示。</div>
+                <div class="text-[12px] text-slate-700"><strong>• 下单范围联动：</strong>最近下单使用页面上方的月度筛选。</div>
+                <div class="text-[12px] text-slate-700"><strong>• 售后口径：</strong>有效订单及商品售后统计按照研发细则中的确定规则执行。</div>
+            </div>
+            <div class="h-4"></div>
+        </div>
+
+        <!-- ================================================== -->
+        <!-- TAB 2: 研发细则 (面向开发与测试、实现与验收口径) -->
+        <!-- ================================================== -->
+        <div id="sidebar-panel-dev" class="doc-scroll-area hidden">
+            <div class="doc-sec-title">一、页面与功能范围</div>
+            <p class="doc-p">本次研发涉及：</p>
+            <ul class="doc-list">
+                <li>直属下级详情页面（双 Tab 容器）。</li>
+                <li>浏览与加购行为记录展示。</li>
+                <li>商品搜索、行为筛选及交互频率排序。</li>
+                <li>最近下单查询与商品购买件数统计。</li>
+            </ul>
+            <div class="doc-card bg-slate-50 border-slate-200">
+                <div class="text-[11.5px] text-slate-600">
+                    <strong>研发原则：</strong>保留现有直属下级查询、月度业绩查询、页面导航及其他无关功能。本次侧边栏 UI 改造本身不得修改左侧 App 页面及业务逻辑。
+                </div>
+            </div>
+
+            <div class="doc-sec-title">二、浏览与加购展示规则</div>
+            
+            <div class="doc-sub-title">1. 仅浏览记录</div>
+            <p class="doc-p"><strong>展示字段：</strong>商品图片、商品名称、浏览图标及行为标识、最后浏览时间（格式为 <code>MM-DD HH:mm</code>）、本月浏览次数、今日浏览次数、本月购买状态、历史累计购买件数。</p>
+            <div class="doc-card bg-amber-50/60 border-amber-200 text-amber-900 text-[11.5px]">
+                <strong>禁闭规则：</strong>仅浏览记录不展示加购图标、加购时间、本月加购次数或今日加购次数。
+            </div>
+
+            <div class="doc-sub-title">2. 浏览 + 加购记录</div>
+            <p class="doc-p"><strong>展示字段：</strong>商品图片、商品名称、加购图标及行为标识、加购时间（格式为 <code>MM-DD HH:mm</code>）、本月浏览次数、今日浏览次数、本月购买状态、历史累计购买件数。</p>
+            <ul class="doc-list">
+                <li><strong>不展示项：</strong>不展示本月加购次数、今日加购次数、浏览图标、浏览标识或最后浏览时间。</li>
+                <li><strong>加购记录层级：</strong>上方展示加购行为，下方保留浏览统计。加购时间必须来自对应加购事件，不得用浏览时间代替。</li>
+            </ul>
+
+            <div class="doc-sub-title">3. 浏览与加购事件处理</div>
+            <ul class="doc-list">
+                <li>浏览和加购事件分别存储、分别识别。</li>
+                <li>同一商品存在两种行为时，可以分别形成浏览记录和加购记录。</li>
+                <li>每条记录只展示自身对应的行为类型。</li>
+                <li>浏览次数只能由浏览事件计算，不得将加购事件计入浏览次数。</li>
+                <li>隐藏加购次数不代表删除底层加购事件数据。</li>
+                <li>不得为了减少重复商品而将浏览和加购强制合并为一条混合记录。</li>
+            </ul>
+
+            <div class="doc-sec-title">三、统计周期与时间口径</div>
+            <ul class="doc-list">
+                <li><strong>1. 自然月周期：</strong>月度统计采用自然月，即所选月份的 1 日至当月最后一日。页面上方现有的月度筛选是统一的月份选择依据。不得新增与之冲突的独立月份筛选。</li>
+                <li><strong>2. 浏览统计：</strong>本月浏览次数统计当前所选自然月内的浏览事件；今日浏览次数统计当前日期内的浏览事件；最后浏览时间取当前所选自然月内最新的浏览事件时间；浏览统计按 SKU 维度计算。</li>
+                <li><strong>3. 加购时间：</strong>加购时间取对应加购事件的实际发生时间，采用 <code>MM-DD HH:mm</code> 格式；不得使用浏览时间代替加购时间；页面可以不展示加购次数，但底层事件必须保留，以支持交互频率排序。</li>
+                <li><strong>4. 时间边界：</strong>自然月统计必须正确处理每月第一天、最后一天、跨月事件及闰年二月等边界情况；今日统计与自然月统计是两个独立口径，不得将今日次数误当成本月次数。</li>
+            </ul>
+
+            <div class="doc-sec-title">四、商品维度与交互频率排序</div>
+            <ul class="doc-list">
+                <li><strong>1. SKU 维度：</strong>浏览行为按照 SKU 维度统计。不同 SKU 分别计算浏览次数、最后浏览时间及对应交互频率，不得直接合并为同一个 SPU 的浏览统计；确保行为数据能通过明确的 SKU 标识与商品记录正确关联。</li>
+                <li><strong>2. 交互频率计算：</strong><br>
+                    <code class="bg-red-50 text-red-600 px-2 py-0.5 rounded border border-red-200 font-bold">商品交互频率 = 当前所选自然月浏览次数 + 当前所选自然月加购次数</code><br>
+                    交互频率仅用于内部排序，不在页面中展示对应总量、标签或数值。
+                </li>
+                <li><strong>3. 筛选规则：</strong>「全部行为」展示符合条件的浏览记录和加购记录；「仅看浏览」只展示浏览记录；「仅看加购」只展示加购记录。商品搜索与行为筛选支持组合使用。</li>
+                <li><strong>4. 排序规则：</strong>支持升序与降序；无论当前选择全部行为、仅看浏览还是仅看加购，排序均基于相同的商品级交互频率；同一 SKU 的浏览记录和加购记录必须使用一致的商品级交互频率；切换月份后重新计算排序结果。</li>
+            </ul>
+
+            <div class="doc-sec-title">五、购买状态与历史累计购买件数</div>
+            <ul class="doc-list">
+                <li><strong>1. 本月购买状态：</strong>展示「本月已购买」或「本月未购买」。购买状态应根据实际购买数据判断，不能因浏览或加购行为直接认定为已购买。</li>
+                <li><strong>2. 历史累计购买件数：</strong>按实际商品件数计算，不是订单数量。统计必须扣除取消、退款、整单售后以及部分售后中应扣除的商品件数。</li>
+            </ul>
+
+            <div class="doc-sec-title">六、有效订单与售后统计规则</div>
+            <div class="doc-card border-red-200 bg-red-50/30">
+                <div class="text-[11.5px] font-bold text-red-700 mb-1">【已确认业务口径，不得擅自修改】</div>
+                <div class="space-y-2 text-[12px] text-slate-700 leading-relaxed">
+                    <div><strong>1. 有效订单定义：</strong>指正常流程中未发生取消、退款或整单售后的订单。发生整单取消、退款或整单售后时，该订单中的商品均不计入有效购买统计。</div>
+                    <div><strong>2. 部分售后处理：</strong>发生部分售后的订单，必须按照具体商品的售后结果分别判断：
+                        <ul class="list-disc pl-4 mt-1 text-slate-600">
+                            <li><span class="text-emerald-700 font-semibold">商品未发生售后</span>：继续计入购买统计。</li>
+                            <li><span class="text-rose-700 font-semibold">商品售后退款</span>：该商品不计入有效购买统计。</li>
+                            <li><span class="text-blue-700 font-semibold">商品售后换货</span>：该商品继续计入购买统计。</li>
+                        </ul>
+                        <em>* 不得因为订单中某一个商品发生部分售后，就将其他未售后的商品一并排除。</em>
+                    </div>
+                    <div><strong>3. 历史购买件数扣减：</strong>历史累计购买件数必须扣除：取消订单件数、退款订单件数、整单售后件数、部分售后中退款商品件数。部分售后中未售后商品与换货商品继续计算。</div>
+                    <div><strong>4. 数量口径：</strong>商品购买数量必须按照实际购买的商品件数统计，而不是订单数（例如订单包含 SKU A 2件、SKU B 3件，合计为 5 件，不是 1 单）。</div>
+                </div>
+            </div>
+
+            <div class="doc-sec-title">七、最近下单页面</div>
+            <ul class="doc-list">
+                <li><strong>时间范围：</strong>沿用页面上方现有的月度筛选。</li>
+                <li><strong>月度周期：</strong>自然月。</li>
+                <li><strong>订单口径：</strong>遵循上述已确认的有效订单及商品售后规则。</li>
+                <li><strong>商品数量：</strong>按有效购买的实际商品件数统计。</li>
+                <li>保留商品搜索、商品图片、商品名称、下单时间及购买件数等现有功能。</li>
+                <li>月度切换后，订单列表与商品件数统计必须同步更新。</li>
+            </ul>
+
+            <div class="doc-sec-title">八、数据与接口要求</div>
+            <p class="doc-p">Mock 数据模型支持项核对：</p>
+            <ul class="doc-list">
+                <li>商品及 SKU 标识区分。</li>
+                <li>浏览和加购事件类型及绝对时间记录。</li>
+                <li>对应商品的购买件数及订单状态标识。</li>
+                <li>商品售后状态（未售后/退款/换货）及统计过滤逻辑。</li>
+                <li>严格杜绝通过硬编码次数或固定文案伪造统计结果。</li>
+            </ul>
+
+            <div class="doc-sec-title">九、UI 与交互验收标准</div>
+            <div class="doc-card text-[11.5px] space-y-1.5 text-slate-700">
+                <div><strong>• 侧边栏验收：</strong>默认业务说明；Tab 平滑切换；独立滚动条；长内容不被截断；层级清晰无密集文本。</div>
+                <div><strong>• 模式 A 验收：</strong>仅浏览记录只展示浏览图标、时间及次数，无加购信息。</div>
+                <div><strong>• 模式 B 验收：</strong>加购记录上方展示加购图标和时间，下方展示浏览次数，严格不展示加购次数和最后浏览时间。</div>
+                <div><strong>• 统计验收：</strong>浏览按 SKU 统计；月度按自然月；排序按浏览+加购之和但页面不显示交互总量；有效订单件数准确扣除退款。</div>
+            </div>
+            <div class="h-4"></div>
         </div>
     </div>
 </div>
-
-<!-- ============================================== -->
-<!-- JAVASCRIPT LOGIC -->
-<!-- ============================================== -->
 <script>
-    // --- Mock Data Store ---
     const MOCK = {
+        currentMonth: '2026-10',
         global: {
             tasksTotal: 18,
             tasksDone: 0,
@@ -1010,356 +1123,374 @@
             orderCount: 5,
             subAttentionCount: 3
         },
-        // Direct Subordinates (直属下级)
         subordinates: [
+            { id: 1, name: '小王', level: '高级成员', statusTag: '待关注', tagClass: 'tag-red', img: 'pink', sales: 6342, salesGoal: 6000, customers: 7, customersGoal: 20, statusMsg: '下单客户不足 (还差13人)', activeTime: '今天 10:24' },
+            { id: 2, name: '张三', level: '中级成员', statusTag: '待关注', tagClass: 'tag-red', img: 'blue', sales: 2100, salesGoal: 5000, customers: 4, customersGoal: 15, statusMsg: '业绩与下单客户均需跟进', activeTime: '今天 09:12' },
+            { id: 3, name: '李四', level: '初级成员', statusTag: '待关注', tagClass: 'tag-red', img: 'gray', sales: 800, salesGoal: 3000, customers: 2, customersGoal: 10, statusMsg: '活跃度较低，建议主动联系', activeTime: '昨天 15:30' },
+            { id: 4, name: '王五', level: '高级成员', statusTag: '目标达成', tagClass: 'tag-green', img: 'purple', sales: 9840, salesGoal: 8000, customers: 22, customersGoal: 20, statusMsg: '全套指标已达标', activeTime: '刚刚' },
+            { id: 5, name: '赵六', level: '中级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'orange', sales: 4200, salesGoal: 5000, customers: 11, customersGoal: 12, statusMsg: '接近目标，可定向帮扶', activeTime: '1小时前' },
+            { id: 6, name: '小林', level: '初级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'teal', sales: 2800, salesGoal: 3000, customers: 8, customersGoal: 10, statusMsg: '分享活跃上升中', activeTime: '3小时前' }
+        ],
+        // 直属下级月度业绩档案
+        myCustomersList: [
             { 
-                id: 1, 
-                name: '小王', 
-                level: '高级成员', 
-                statusTag: '待关注', 
-                tagClass: 'tag-red', 
-                img: 'pink', 
-                sales: 6342, 
-                salesGoal: 6000, 
-                customers: 7, 
-                customersGoal: 20, 
-                statusMsg: '下单客户不足 (还差13人)',
-                activeTime: '今天 10:24'
+                id: 1001, 
+                name: '马玉洁', 
+                code: 'AAXG048688', 
+                level: 'E档', 
+                img: 'pink',
+                monthlySales: {
+                    '2026-10': { sales: 269, tingmimiPersonal: 269, tingmimiDirect: 0, tingmimiTeam: 269, baokuanPersonal: 0, baokuanDirect: 0 },
+                    '2026-09': { sales: 580, tingmimiPersonal: 380, tingmimiDirect: 100, tingmimiTeam: 580, baokuanPersonal: 100, baokuanDirect: 0 }
+                }
             },
             { 
-                id: 2, 
-                name: '张三', 
-                level: '中级成员', 
-                statusTag: '待关注', 
-                tagClass: 'tag-red', 
-                img: 'blue', 
-                sales: 2100, 
-                salesGoal: 5000, 
-                customers: 4, 
-                customersGoal: 15, 
-                statusMsg: '业绩与下单客户均需跟进',
-                activeTime: '今天 09:12'
+                id: 1002, 
+                name: '李丽', 
+                code: 'AAXG059123', 
+                level: 'B档', 
+                img: 'purple',
+                monthlySales: {
+                    '2026-10': { sales: 5800, tingmimiPersonal: 3200, tingmimiDirect: 1500, tingmimiTeam: 5800, baokuanPersonal: 600, baokuanDirect: 200 },
+                    '2026-09': { sales: 4900, tingmimiPersonal: 2900, tingmimiDirect: 1200, tingmimiTeam: 4900, baokuanPersonal: 500, baokuanDirect: 300 }
+                }
             },
             { 
-                id: 3, 
-                name: '李四', 
-                level: '初级成员', 
-                statusTag: '待关注', 
-                tagClass: 'tag-red', 
-                img: 'gray', 
-                sales: 800, 
-                salesGoal: 3000, 
-                customers: 2, 
-                customersGoal: 10, 
-                statusMsg: '活跃度较低，建议主动联系',
-                activeTime: '昨天 15:30'
+                id: 1003, 
+                name: '王小丫', 
+                code: 'AAXG066782', 
+                level: 'D档', 
+                img: 'blue',
+                monthlySales: {
+                    '2026-10': { sales: 1200, tingmimiPersonal: 1200, tingmimiDirect: 0, tingmimiTeam: 1200, baokuanPersonal: 100, baokuanDirect: 0 },
+                    '2026-09': { sales: 900, tingmimiPersonal: 900, tingmimiDirect: 0, tingmimiTeam: 900, baokuanPersonal: 0, baokuanDirect: 0 }
+                }
             },
             { 
-                id: 4, 
-                name: '王五', 
-                level: '高级成员', 
-                statusTag: '目标达成', 
-                tagClass: 'tag-green', 
-                img: 'purple', 
-                sales: 9840, 
-                salesGoal: 8000, 
-                customers: 22, 
-                customersGoal: 20, 
-                statusMsg: '全套指标已达标',
-                activeTime: '刚刚'
-            },
-            { 
-                id: 5, 
-                name: '赵六', 
-                level: '中级成员', 
-                statusTag: '成长中', 
-                tagClass: 'tag-orange', 
-                img: 'orange', 
-                sales: 4200, 
-                salesGoal: 5000, 
-                customers: 11, 
-                customersGoal: 12, 
-                statusMsg: '接近目标，可定向帮扶',
-                activeTime: '1小时前'
-            },
-            { 
-                id: 6, 
-                name: '小林', 
-                level: '初级成员', 
-                statusTag: '成长中', 
-                tagClass: 'tag-orange', 
-                img: 'teal', 
-                sales: 2800, 
-                salesGoal: 3000, 
-                customers: 8, 
-                customersGoal: 10, 
-                statusMsg: '分享活跃上升中',
-                activeTime: '3小时前'
+                id: 1004, 
+                name: '赵总', 
+                code: 'AAXG011223', 
+                level: 'S档', 
+                img: 'orange',
+                monthlySales: {
+                    '2026-10': { sales: 24500, tingmimiPersonal: 5000, tingmimiDirect: 12000, tingmimiTeam: 24500, baokuanPersonal: 3000, baokuanDirect: 8000 },
+                    '2026-09': { sales: 21000, tingmimiPersonal: 4000, tingmimiDirect: 11000, tingmimiTeam: 21000, baokuanPersonal: 2000, baokuanDirect: 4000 }
+                }
             }
         ],
-        // Follow-up Customers (顾客跟进) - Modified for requested tags
+        // 商品基础库与商品行为事件底表 (按 SKU 维度分别统计)
+        behaviorDatabase: {
+            1001: [
+                {
+                    productId: 'P101',
+                    skuId: 'SKU10101',
+                    productName: '臻享补水修护面膜套装 (10片/盒)',
+                    img: 'https://placehold.co/120x120/FEE2E2/DC2626?text=面膜套装',
+                    historyBoughtQty: 4, // 历史实际有效购买件数 (已扣除退款)
+                    monthlyRecords: {
+                        '2026-10': {
+                            boughtThisMonth: true,
+                            browse: {
+                                lastTime: '10-09 18:32',
+                                relativeTime: '昨天',
+                                monthCount: 12,
+                                todayCount: 3
+                            },
+                            cart: {
+                                lastTime: '10-09 18:40',
+                                relativeTime: '昨天',
+                                monthCount: 3,
+                                todayCount: 1
+                            }
+                        },
+                        '2026-09': {
+                            boughtThisMonth: false,
+                            browse: {
+                                lastTime: '09-28 14:10',
+                                relativeTime: '上月',
+                                monthCount: 5,
+                                todayCount: 0
+                            },
+                            cart: null
+                        }
+                    }
+                },
+                {
+                    productId: 'P102',
+                    skuId: 'SKU10201',
+                    productName: '抗初老紧致多肽精华液 30ml',
+                    img: 'https://placehold.co/120x120/EFF6FF/2563EB?text=紧致精华',
+                    historyBoughtQty: 0,
+                    monthlyRecords: {
+                        '2026-10': {
+                            boughtThisMonth: false,
+                            browse: {
+                                lastTime: '10-10 09:15',
+                                relativeTime: '今天 09:15',
+                                monthCount: 14,
+                                todayCount: 4
+                            },
+                            cart: null
+                        },
+                        '2026-09': {
+                            boughtThisMonth: false,
+                            browse: {
+                                lastTime: '09-25 11:20',
+                                relativeTime: '上月',
+                                monthCount: 2,
+                                todayCount: 0
+                            },
+                            cart: null
+                        }
+                    }
+                },
+                {
+                    productId: 'P103',
+                    skuId: 'SKU10301',
+                    productName: '氨基酸温和舒缓洁面乳 120g',
+                    img: 'https://placehold.co/120x120/ECFDF5/059669?text=温和洁面',
+                    historyBoughtQty: 1,
+                    monthlyRecords: {
+                        '2026-10': {
+                            boughtThisMonth: false,
+                            browse: null,
+                            cart: {
+                                lastTime: '10-08 20:15',
+                                relativeTime: '2天前',
+                                monthCount: 4,
+                                todayCount: 0
+                            }
+                        },
+                        '2026-09': {
+                            boughtThisMonth: true,
+                            browse: {
+                                lastTime: '09-20 10:00',
+                                relativeTime: '上月',
+                                monthCount: 3,
+                                todayCount: 0
+                            },
+                            cart: {
+                                lastTime: '09-20 10:05',
+                                relativeTime: '上月',
+                                monthCount: 1,
+                                todayCount: 0
+                            }
+                        }
+                    }
+                },
+                {
+                    productId: 'P104',
+                    skuId: 'SKU10401',
+                    productName: '轻薄水感隔离防晒乳 SPF50+ 50ml',
+                    img: 'https://placehold.co/120x120/FFF7ED/EA580C?text=防晒乳',
+                    historyBoughtQty: 6,
+                    monthlyRecords: {
+                        '2026-10': {
+                            boughtThisMonth: true,
+                            browse: {
+                                lastTime: '10-07 16:45',
+                                relativeTime: '3天前',
+                                monthCount: 6,
+                                todayCount: 0
+                            },
+                            cart: {
+                                lastTime: '10-07 17:10',
+                                relativeTime: '3天前',
+                                monthCount: 5,
+                                todayCount: 0
+                            }
+                        },
+                        '2026-09': {
+                            boughtThisMonth: false,
+                            browse: {
+                                lastTime: '09-15 14:00',
+                                relativeTime: '上月',
+                                monthCount: 8,
+                                todayCount: 0
+                            },
+                            cart: null
+                        }
+                    }
+                }
+            ],
+            1002: [
+                {
+                    productId: 'P105',
+                    skuId: 'SKU10501',
+                    productName: '酵母焕肤修护乳霜 50g',
+                    img: 'https://placehold.co/120x120/F5F3FF/7C3AED?text=修护乳霜',
+                    historyBoughtQty: 2,
+                    monthlyRecords: {
+                        '2026-10': {
+                            boughtThisMonth: false,
+                            browse: {
+                                lastTime: '10-10 10:05',
+                                relativeTime: '今天 10:05',
+                                monthCount: 8,
+                                todayCount: 2
+                            },
+                            cart: {
+                                lastTime: '10-10 10:20',
+                                relativeTime: '今天 10:20',
+                                monthCount: 2,
+                                todayCount: 1
+                            }
+                        }
+                    }
+                }
+            ],
+            1003: [],
+            1004: []
+        },
+        // 直属下级订单记录库 (含部分售后判断、有效件数)
+        recentOrdersDatabase: {
+            1001: [
+                {
+                    orderId: 'ORD2026100508112',
+                    orderTime: '10-05 14:30',
+                    month: '2026-10',
+                    isValid: true,
+                    afterSalesStatus: 'none', // 未发生售后
+                    items: [
+                        {
+                            productId: 'P101',
+                            skuId: 'SKU10101',
+                            productName: '臻享补水修护面膜套装 (10片/盒)',
+                            qty: 2,
+                            img: 'https://placehold.co/120x120/FEE2E2/DC2626?text=面膜套装'
+                        }
+                    ]
+                },
+                {
+                    orderId: 'ORD2026100209421',
+                    orderTime: '10-02 11:20',
+                    month: '2026-10',
+                    isValid: true,
+                    afterSalesStatus: 'exchange', // 售后换货，继续计入
+                    items: [
+                        {
+                            productId: 'P104',
+                            skuId: 'SKU10401',
+                            productName: '轻薄水感隔离防晒乳 SPF50+ 50ml',
+                            qty: 3,
+                            img: 'https://placehold.co/120x120/FFF7ED/EA580C?text=防晒乳'
+                        }
+                    ]
+                },
+                {
+                    orderId: 'ORD2026092809153',
+                    orderTime: '09-28 09:15',
+                    month: '2026-09',
+                    isValid: true,
+                    afterSalesStatus: 'none',
+                    items: [
+                        {
+                            productId: 'P103',
+                            skuId: 'SKU10301',
+                            productName: '氨基酸温和舒缓洁面乳 120g',
+                            qty: 1,
+                            img: 'https://placehold.co/120x120/ECFDF5/059669?text=温和洁面'
+                        }
+                    ]
+                }
+            ],
+            1002: [],
+            1003: [],
+            1004: []
+        },
         customers: [
             { id: 101, name: '小美', behavior: '浏览了「臻享补水面膜」', time: '2小时前', product: '臻享补水面膜', history: 3, lastBuy: '12天前', status: 'pending', tags: ['高转化关注'], tagClass: 'tag-red' },
-            { id: 102, name: '张姐', behavior: '加购了「抗初老精华液」', time: '3小时前', product: '抗初老精华液', history: 5, lastBuy: '20天前', status: 'pending', tags: ['潜力观察'], tagClass: 'tag-orange' },
-            { id: 103, name: '陈太太', behavior: '浏览了「爆款防晒霜」3次', time: '5小时前', product: '爆款防晒霜', history: 1, lastBuy: '1个月前', status: 'pending', tags: ['低活跃'], tagClass: 'tag-gray' },
-            { id: 104, name: '刘女士', behavior: '加购了「氨基酸洁面乳」', time: '昨天', product: '氨基酸洁面乳', history: 12, lastBuy: '15天前', status: 'pending', tags: ['自主购买型'], tagClass: 'tag-blue' },
-            { id: 105, name: '赵总', behavior: '浏览了「高端护肤套装」', time: '昨天', product: '高端护肤套装', history: 2, lastBuy: '2个月前', status: 'pending', tags: ['潜力观察'], tagClass: 'tag-orange' }
+            { id: 102, name: '张姐', behavior: '加购了「抗初老精华液」', time: '3小时前', product: '抗初老精华液', history: 5, lastBuy: '20天前', status: 'pending', tags: ['潜力观察'], tagClass: 'tag-orange' }
         ],
-        // Orders Follow-up
         orders: [
-            { id: 201, name: '王太太', product: '臻享面膜套装', time: '3天前', status: 'pending' },
-            { id: 202, name: '李女士', product: '防晒霜', time: '5天前', status: 'pending' },
-            { id: 203, name: '周小姐', product: '紧致精华', time: '7天前', status: 'pending' }
+            { id: 201, name: '王太太', product: '臻享面膜套装', time: '3天前', status: 'pending' }
         ],
-        // Announcements
         notices: [
-            { id: 1, type: 'activity', tag: '经营活动', tagClass: 'tag-red', title: '【9月冲刺】团队经营奖励月度结算通知', time: '今天 09:00', summary: '本月团队业绩与下单客户数达标店长将获得额外扶持资源。', content: '各位店长：<br>9月经营冲刺活动已进入尾声！请根据首页「团队经营报告」查找缺口，重点跟进浏览/加购客户。' },
-            { id: 2, type: 'platform', tag: '平台通知', tagClass: 'tag-blue', title: '会员专享 CRM 一期首页重构上线', time: '2026-09-28', summary: '全新首页聚焦今日经营、我的下级、团队经营报告和顾客跟进。', content: '会员专享 CRM 升级说明：<br>1. 首页直观呈现今日经营待办；<br>2. 统一直属下级与团队经营报告概念；<br>3. 强化以问题卡点驱动顾客跟进的经营闭环。' },
-            { id: 3, type: 'rule', tag: '规则更新', tagClass: 'tag-orange', title: '关于团队经营数据周期的统一规则说明', time: '2026-09-20', summary: '分享天数、浏览顾客、转化率、团队业绩均统一为月度周期。', content: '为确保店长精准诊断问题，CRM 报告中所有的分享和转化指标均已调整为自然月周期。' }
+            { id: 1, type: 'activity', tag: '经营活动', tagClass: 'tag-red', title: '【9月冲刺】团队经营奖励月度结算通知', time: '今天 09:00', summary: '本月团队业绩与下单客户数达标店长将获得额外扶持资源。', content: '各位店长：请抓紧时间冲刺！' },
+            { id: 2, type: 'platform', tag: '平台通知', tagClass: 'tag-blue', title: '会员专享 CRM 架构升级说明', time: '2026-09-28', summary: '全新首页聚焦今日经营、我的下级、团队经营报告和顾客跟进。', content: '会员专享 CRM 升级说明文档发布。' }
         ]
     };
 
-    // --- Scheme Annotations Data (For Presentation) ---
-    const ANNOTATIONS = {
-        'tab-home': {
-            name: '首页 / CRM经营入口',
-            flow: ['进入 App 首页', '查看今日经营', '发现当前需要关注的问题', '查看需要关注的下级', '查看团队经营卡点', '进入相关顾客', '完成跟进'],
-            logic: [
-                '首页不是传统数据看板，而是问题发现入口。',
-                '系统根据当前下级经营状态、顾客跟进任务、订单回访任务计算首页数据。',
-                '“下级待关注”属于实时经营问题，不会因为用户查看过就消失。',
-                '“顾客待跟进”和“订单待回访”属于可完成任务，完成后数量会减少。',
-                '首页最终形成“发现问题 → 定位对象 → 理解原因 → 执行动作”的 CRM 闭环。'
-            ]
-        },
-        'page-todo-list': {
-            name: '今日经营待办',
-            flow: ['点击首页“去处理今日待办”进入', '查看今日各项跟进任务总数与完成进度', '点击具体分类（下级/顾客/订单）进入相应详细列表'],
-            logic: [
-                '聚合三类核心任务（下级、顾客、订单）。',
-                '顶部的进度条根据今日已完成任务动态计算。这里的完成度是驱动用户执行的正向心理暗示。',
-                '属于每日清空的短期任务，帮助用户聚焦当下。'
-            ]
-        },
-        'page-team-list': {
-            name: '我的下级列表',
-            flow: ['从首页“我的下级”进入', '通过顶部标签切换不同状态人群（全部 / 待关注 / 成长中 / 目标达成）', '点击具体的下级卡片进入下级详情'],
-            logic: [
-                '系统根据下级的个人业绩和下单客户数与月度目标的差值进行分类计算。',
-                '下级排序的具体数学权重待业务确认，当前原型使用 Mock 数据演示。',
-                '核心目的是让店长快速找到“谁在拖后腿”（待关注）和“谁差临门一脚”（成长中）。'
-            ]
-        },
-        'page-subordinate-detail': {
-            name: '下级详情',
-            flow: ['从下级列表进入该页面', '查看该下级的当前周期核心指标达成情况', '查看系统给出的状态诊断', '结合诊断结果进行针对性的线下指导与跟进'],
-            logic: [
-                '聚合单体下级的指标进度，降低上级的信息获取成本。',
-                '提供显性化的“状态诊断”建议，帮助上级（当前店长）找到帮扶切入点。',
-                '暂未实现线上聊天闭环，依靠诊断辅助其在微信等渠道进行沟通。'
-            ]
-        },
-        'page-team-report': {
-            name: '团队经营报告',
-            flow: ['从首页“团队经营报告”模块进入', '查看本周期各项经营指标与目标差距', '发现底部高亮的“当前经营卡点”', '点击底部按钮进入相关顾客跟进列表'],
-            logic: [
-                '分享天数、转化率最终计算公式待业务确认，目前统一为自然月度周期。',
-                '不仅仅是看数据，更重要的是系统根据指标达成情况自动识别“当前经营卡点”（例如本原型演示的“业绩达标但下单客户数未达标”）。',
-                '利用卡点结论，直接驱动用户去跟进高潜力的流量（浏览未下单）。'
-            ]
-        },
-        'page-browse-list': {
-            name: '顾客跟进 (浏览/加购)',
-            flow: ['从首页或团队报告进入顾客列表', '查看近期有浏览/加购行为的顾客', '识别顾客的类型标签', '点击“去跟进”进入顾客详情'],
-            logic: [
-                '系统根据顾客登录、浏览、订单等可观察行为进行规则分类（高转化关注 / 自主购买型 / 低活跃 / 潜力观察），用于确定跟进优先级，不代表用户一定会购买。',
-                '这里是强规则驱动，不做复杂的 AI 预测概率。',
-                '顾客意向规则的具体数值阈值待业务确认，当前原型使用 Mock 数据演示。'
-            ]
-        },
-        'page-customer-detail': {
-            name: '顾客详情',
-            flow: ['进入指定顾客详情', '查看顾客系统标签及历史购买概况', '查看系统的跟进建议与最近行为时间线', '执行线下/微信沟通后，点击底部“标记已跟进”'],
-            logic: [
-                '将零散的用户行为（几点看了什么）串联成时间线，增强店长跟进的抓手。',
-                '基于行为推导跟进建议。',
-                '用户点击“标记已跟进”后，数据状态发生变化，任务数减少，形成最小业务闭环。'
-            ]
-        },
-        'page-order-list': {
-            name: '订单待回访',
-            flow: ['从首页或分类Tab进入订单待回访', '查看近期待关怀的订单列表', '点击“去回访”调出回访话术弹窗', '复制话术并标记回访完成'],
-            logic: [
-                '专门针对售后服务及复购场景设计的任务流。',
-                '系统自动筛选签收后到达合适回访节点的订单。',
-                '提供标准回访话术模板，降低店长的行动门槛，标记完成后，今日任务数对应扣减。'
-            ]
-        },
-        'tab-notice': {
-            name: '公告页面',
-            flow: ['点击底部“公告”Tab进入', '根据分类标签筛选系统或活动通知', '点击查阅详细图文'],
-            logic: [
-                '用于平台自上而下的政策、活动、规则更新触达。',
-                '当前属于基础业务支撑模块，本次一期原型不涉及大规模改造。'
-            ]
-        },
-        'tab-me': {
-            name: '我的页面',
-            flow: ['点击底部“我的”Tab进入', '查看个人名片、业务中心与常用工具入口'],
-            logic: [
-                '标准的个人中心页，承载所有的非日常高频 CRM 动作工具集。',
-                '作为底层资产与工具架存在，保持原有框架设计，本次 CRM 一期主推经营逻辑，故不对“我的”页面进行改动。'
-            ]
-        }
+    const LEVEL_MAP = {
+        'S档': { class: 'badge-level-s', text: 'S档' },
+        'A档': { class: 'badge-level-a', text: 'A档' },
+        'B档': { class: 'badge-level-b', text: 'B档' },
+        'C档': { class: 'badge-level-c', text: 'C档' },
+        'D档': { class: 'badge-level-d', text: 'D档' },
+        'E档': { class: 'badge-level-e', text: 'E档' }
     };
-
-    function updateAnnotation(pageId) {
-        const panel = document.getElementById('annotation-content');
-        const data = ANNOTATIONS[pageId] || ANNOTATIONS['tab-home'];
-        
-        let flowHtml = data.flow.map(item => `<li>${item}</li>`).join('');
-        let logicHtml = data.logic.map(item => `<li>${item}</li>`).join('');
-
-        panel.innerHTML = `
-            <div class="annotation-title">页面定位：${data.name}</div>
-            
-            <div class="annotation-title">【用户操作流程】</div>
-            <ul class="annotation-list">
-                ${flowHtml}
-            </ul>
-
-            <div class="annotation-title">【系统实现逻辑】</div>
-            <ul class="annotation-list">
-                ${logicHtml}
-            </ul>
-        `;
+    function getLevelInfo(lvl) {
+        return LEVEL_MAP[lvl] || { class: 'badge-level-default', text: lvl };
     }
 
-    // --- State Management ---
     let currentState = {
         activeTab: 'tab-home',
         history: [],
         currentCustomerId: null,
-        currentOrderId: null
+        currentOrderId: null,
+        currentMyCustomerId: 1001, 
+        browseFilter: 'all', 
+        browseSortDesc: true, 
+        browseKeyword: '',
+        orderKeyword: '',
+        sidebarDocTab: 'biz' // 'biz' | 'dev'
     };
 
-    // View States
-    let demoTodayState = 'has_data'; // 'has_data' | 'no_data'
-    let homeSubIndex = 0;
-    let homeCustIndex = 0;
-
-    // Store completed items
     window.completedCustomers = [];
     window.completedOrders = [];
 
-    // --- UI Elements ---
-    const toastEl = document.getElementById('toast');
-    const orderModal = document.getElementById('order-modal');
-    const noticeDetailModal = document.getElementById('notice-detail-modal');
+    // --- 侧边栏专属 Tab 切换函数 ---
+    function switchSidebarTab(tabKey) {
+        currentState.sidebarDocTab = tabKey;
+        const btnBiz = document.getElementById('doc-btn-biz');
+        const btnDev = document.getElementById('doc-btn-dev');
+        const panelBiz = document.getElementById('sidebar-panel-biz');
+        const panelDev = document.getElementById('sidebar-panel-dev');
 
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', () => {
-        initTabs();
-        initNoticeFilters();
-        renderHomepagePreviews();
-        updateGlobalNumbersUI();
-        updateAnnotation('tab-home');
-    });
-
-    // Toggle Demo State for Today's Operations
-    function toggleDemoState() {
-        demoTodayState = demoTodayState === 'has_data' ? 'no_data' : 'has_data';
-        renderTodayOps();
-        showToast('演示状态已切换');
-    }
-
-    // Dynamic Rendering for Today's Ops based on Demo State
-    function renderTodayOps() {
-        const container = document.getElementById('today-ops-content');
-        const headerText = document.getElementById('today-ops-header-text');
-
-        if (demoTodayState === 'has_data') {
-            headerText.style.display = 'block';
-            container.innerHTML = `
-                <div class="grid grid-cols-3 gap-2 bg-white/80 backdrop-blur rounded-xl p-3 mb-3 border border-red-100/50 text-center">
-                    <div class="cursor-pointer" onclick="navTo('page-todo-list')">
-                        <div class="text-xs text-gray-500 mb-0.5">下级待关注</div>
-                        <div class="text-base font-bold text-gray-900"><span class="global-sub-attention">${MOCK.global.subAttentionCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
-                    </div>
-                    <div class="border-x border-gray-100 cursor-pointer" onclick="navTo('page-browse-list')">
-                        <div class="text-xs text-gray-500 mb-0.5">顾客待跟进</div>
-                        <div class="text-base font-bold text-gray-900"><span class="global-todo-browse">${MOCK.global.browseCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
-                    </div>
-                    <div class="cursor-pointer" onclick="navTo('page-order-list')">
-                        <div class="text-xs text-gray-500 mb-0.5">订单待回访</div>
-                        <div class="text-base font-bold text-gray-900"><span class="global-todo-order">${MOCK.global.orderCount}</span> <span class="text-[10px] font-normal text-gray-400">人</span></div>
-                    </div>
-                </div>
-                <button class="btn-primary w-full shadow-md shadow-red-200/50 py-2.5 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-todo-list')">
-                    去处理今日待办 <i class="ph-bold ph-arrow-right"></i>
-                </button>
-            `;
+        if(tabKey === 'biz') {
+            btnBiz.classList.add('active');
+            btnDev.classList.remove('active');
+            panelBiz.classList.remove('hidden');
+            panelDev.classList.add('hidden');
         } else {
-            // Empty State (no_data)
-            headerText.style.display = 'none'; // hide the "今天有 X 项处理"
-            
-            if (window.completedCustomers.length > 0 || window.completedOrders.length > 0) {
-                container.innerHTML = `
-                    <div class="bg-white/80 backdrop-blur rounded-xl p-6 mb-1 border border-red-100/50 text-center">
-                        <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
-                        <div class="text-sm font-bold text-gray-800 mb-1">最近已经完成的跟进记录</div>
-                        <div class="text-[10px] text-gray-500 mb-4">今日待关注任务已全部处理完毕</div>
-                        <button class="btn-outline w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="showToast('查看近期已跟进历史')">
-                            查看曾经已办 <i class="ph ph-caret-right"></i>
-                        </button>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="bg-white/80 backdrop-blur rounded-xl p-6 mb-1 border border-red-100/50 text-center">
-                        <img src="https://placehold.co/80x80/F5F6F8/A3A8B8?text=无任务" class="w-16 h-16 rounded-full mx-auto mb-3">
-                        <div class="text-sm font-bold text-gray-800 mb-1">今日暂无待关注事项</div>
-                        <div class="text-[10px] text-gray-500 mb-4">团队经营状态良好，继续保持</div>
-                        <button class="btn-primary w-full py-2 text-xs font-semibold flex items-center justify-center gap-1" onclick="navTo('page-team-list')">
-                            去拓展更多下级 <i class="ph-bold ph-arrow-right"></i>
-                        </button>
-                    </div>
-                `;
-            }
+            btnDev.classList.add('active');
+            btnBiz.classList.remove('active');
+            panelDev.classList.remove('hidden');
+            panelBiz.classList.add('hidden');
         }
     }
 
-    // Global Number Synchronizer
-    function updateGlobalNumbersUI() {
-        const total = MOCK.global.browseCount + MOCK.global.orderCount + MOCK.global.subAttentionCount;
-        MOCK.global.tasksTotal = total;
-        
-        const percent = Math.round((MOCK.global.tasksDone / (MOCK.global.tasksTotal + MOCK.global.tasksDone || 1)) * 100);
-        
-        document.querySelectorAll('.global-todo-total').forEach(el => el.innerText = total);
-        document.querySelectorAll('.global-todo-done').forEach(el => el.innerText = MOCK.global.tasksDone);
-        document.querySelectorAll('.global-todo-percent').forEach(el => el.innerText = percent + '%');
-        document.querySelectorAll('.global-todo-bar').forEach(el => el.style.width = percent + '%');
-        
-        document.querySelectorAll('.global-todo-browse').forEach(el => el.innerText = MOCK.global.browseCount);
-        document.querySelectorAll('.global-todo-order').forEach(el => el.innerText = MOCK.global.orderCount);
-        document.querySelectorAll('.global-sub-attention').forEach(el => el.innerText = MOCK.global.subAttentionCount);
-        
-        document.querySelectorAll('.global-todo-browse-tag').forEach(el => {
-            el.innerText = MOCK.global.browseCount + '人';
-            if(MOCK.global.browseCount === 0) {
-                el.className = "bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold";
-            }
-        });
-        document.querySelectorAll('.global-todo-order-tag').forEach(el => {
-            el.innerText = MOCK.global.orderCount + '人';
-            if(MOCK.global.orderCount === 0) {
-                el.className = "bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.2 rounded-full font-bold";
-            }
-        });
+    // 更新侧边栏顶部联动小标徽（保留联动，不破坏侧边栏文档）
+    function updateSidebarTracker(pageId) {
+        const tag = document.getElementById('sidebar-current-page-tag');
+        if(!tag) return;
+        const pageNames = {
+            'tab-home': '首页 (会员课堂)',
+            'tab-notice': '公告动态',
+            'tab-me': '我的 (业务中心)',
+            'page-my-customers': '我的客户 (列表)',
+            'page-subordinate-customer-detail': '直属下级详情 (行为与订单)',
+            'page-todo-list': '今日经营待办',
+            'page-team-list': '我的下级',
+            'page-subordinate-detail': '下级详情',
+            'page-team-report': '团队经营报告',
+            'page-browse-list': '顾客跟进',
+            'page-customer-detail': '顾客详情',
+            'page-order-list': '订单待回访'
+        };
+        tag.innerText = pageNames[pageId] || '直属下级详情';
     }
 
-    // --- SPA Navigation & Tab Handler ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initTabs();
+        initNoticeFilters();
+        renderNotices('all');
+        
+        document.querySelectorAll('.main-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-home').classList.add('active');
+        updateSidebarTracker('tab-home');
+    });
+
     function initTabs() {
         document.querySelectorAll('#tab-bar .tab-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -1376,31 +1507,32 @@
         document.querySelectorAll('.page.main-tab').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         
-        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(el => {
+            el.classList.remove('active');
+            const icon = el.querySelector('i');
+            if (icon) icon.className = icon.className.replace('ph-fill', 'ph');
+        });
         const activeItem = document.querySelector(`.tab-item[data-target="${tabId}"]`);
-        if(activeItem) activeItem.classList.add('active');
+        if(activeItem) {
+            activeItem.classList.add('active');
+            const activeIcon = activeItem.querySelector('i');
+            if (activeIcon) activeIcon.className = activeIcon.className.replace('ph ', 'ph-fill ');
+        }
         
         currentState.activeTab = tabId;
         if(tabId === 'tab-notice') renderNotices('all');
-        
-        // Update Scheme Annotation
-        updateAnnotation(tabId);
+        updateSidebarTracker(tabId);
     }
 
     function navTo(pageId, dataId = null) {
         const activeMain = document.querySelector('.page.main-tab.active')?.id || currentState.activeTab;
         currentState.history.push(activeMain);
         
-        if (pageId === 'page-team-list') renderSubordinatesList();
-        if (pageId === 'page-subordinate-detail') renderSubordinateDetail(dataId);
-        if (pageId === 'page-browse-list') renderBrowseList();
-        if (pageId === 'page-customer-detail') renderCustomerDetail(dataId);
-        if (pageId === 'page-order-list') renderOrderList();
+        if (pageId === 'page-my-customers') renderMyCustomersList();
+        if (pageId === 'page-subordinate-customer-detail') initSubordinateDetail(dataId);
 
         document.getElementById(pageId).classList.add('active');
-        
-        // Update Scheme Annotation
-        updateAnnotation(pageId);
+        updateSidebarTracker(pageId);
     }
 
     function goBack() {
@@ -1409,17 +1541,17 @@
             activeSubPages[activeSubPages.length - 1].classList.remove('active');
             currentState.history.pop();
             
-            // Sync Annotation to the current visible page
             const remainingActive = document.querySelectorAll('.sub-page.active');
             if (remainingActive.length > 0) {
-                updateAnnotation(remainingActive[remainingActive.length - 1].id);
+                updateSidebarTracker(remainingActive[remainingActive.length - 1].id);
             } else {
-                updateAnnotation(currentState.activeTab);
+                updateSidebarTracker(currentState.activeTab);
             }
         }
     }
 
     function showToast(msg) {
+        const toastEl = document.getElementById('toast');
         toastEl.innerText = msg;
         toastEl.style.opacity = '1';
         toastEl.style.pointerEvents = 'auto';
@@ -1433,345 +1565,395 @@
         document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
     }
 
-    // --- Homepage Dynamic Rendering ---
-    function renderHomepagePreviews() {
-        renderTodayOps();
+    function openMonthPicker() {
+        document.getElementById('month-picker-modal').classList.add('show');
+    }
 
-        // Subordinates preview (Batched)
-        const subContainer = document.getElementById('home-subordinates-preview');
-        const allSubs = MOCK.subordinates;
-        const subStart = homeSubIndex * 3;
-        const previewSubs = allSubs.slice(subStart, subStart + 3);
+    function selectMonth(m) {
+        MOCK.currentMonth = m;
+        closeModal();
+        const lbl1 = document.getElementById('customers-selected-month');
+        if(lbl1) lbl1.innerText = m;
+        const lbl2 = document.getElementById('detail-month-label');
+        if(lbl2) lbl2.innerText = `${m}周期`;
         
-        let subHtml = previewSubs.map(s => `
-            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
-                <div class="flex items-center gap-2.5">
-                    <img src="https://placehold.co/80x80/${s.img}/white?text=${s.name.charAt(0)}" class="w-9 h-9 rounded-full">
-                    <div>
-                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                            ${s.name} <span class="tag ${s.tagClass} scale-90 origin-left">${s.statusTag}</span>
-                        </div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">${s.statusMsg}</div>
-                    </div>
-                </div>
-                <button class="btn-outline text-[11px] py-1 px-2.5" onclick="navTo('page-subordinate-detail', ${s.id})">查看</button>
-            </div>
-        `).join('');
-
-        if (allSubs.length > 3) {
-            subHtml += `<div class="text-center pt-1"><button class="text-[11px] text-gray-500 font-medium py-1.5 px-4 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 mx-auto" onclick="nextHomeSubBatch()">换一组 <i class="ph-bold ph-arrows-clockwise"></i></button></div>`;
-        }
-        subContainer.innerHTML = subHtml;
-
-        // Customers preview (Batched)
-        const custContainer = document.getElementById('home-customers-preview');
-        const activeCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
-        const custStart = homeCustIndex * 3;
-        const previewCusts = activeCusts.slice(custStart, custStart + 3);
-        
-        if (activeCusts.length === 0) {
-            custContainer.innerHTML = '<div class="text-center text-xs text-gray-400 py-3">今日跟进任务已全部完成！</div>';
-        } else {
-            let custHtml = previewCusts.map(c => `
-                <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
-                    <div>
-                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1">
-                            ${c.name} <span class="text-[10px] text-gray-400 font-normal">(${c.time})</span>
-                        </div>
-                        <div class="text-[10px] text-gray-500 mt-0.5">${c.behavior}</div>
-                    </div>
-                    <button class="btn-primary text-[11px] py-1 px-3" onclick="navTo('page-customer-detail', ${c.id})">去跟进</button>
-                </div>
-            `).join('');
-
-            if (activeCusts.length > 3) {
-                custHtml += `<div class="text-center pt-1"><button class="text-[11px] text-gray-500 font-medium py-1.5 px-4 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 mx-auto" onclick="nextHomeCustBatch()">换一组 <i class="ph-bold ph-arrows-clockwise"></i></button></div>`;
-            }
-            custContainer.innerHTML = custHtml;
+        showToast(`已切换至 ${m} 自然月统计周期`);
+        renderMyCustomersList();
+        if (document.getElementById('page-subordinate-customer-detail').classList.contains('active')) {
+            initSubordinateDetail(currentState.currentMyCustomerId);
         }
     }
-
-    function nextHomeSubBatch() {
-        const total = MOCK.subordinates.length;
-        homeSubIndex++;
-        if (homeSubIndex * 3 >= total) homeSubIndex = 0;
-        renderHomepagePreviews();
-    }
-
-    function nextHomeCustBatch() {
-        const activeCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
-        homeCustIndex++;
-        if (homeCustIndex * 3 >= activeCusts.length) homeCustIndex = 0;
-        renderHomepagePreviews();
-    }
-
-    // --- Subordinate List & Detail Logic ---
-    function navToTeamFilter(filterStr) {
-        navTo('page-team-list');
-        const filterBtns = document.querySelectorAll('#team-filters .filter-btn');
-        filterBtns.forEach(b => {
-            if(b.dataset.filter === filterStr) {
-                b.click();
-            }
-        });
-    }
-
-    function renderSubordinatesList(filter = '全部') {
-        const container = document.getElementById('team-list');
-        const filterBtns = document.querySelectorAll('#team-filters .filter-btn');
-        filterBtns.forEach(btn => {
-            if(btn.dataset.filter === filter) {
-                btn.className = "text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] filter-btn";
-            } else {
-                btn.className = "text-gray-500 pb-1 filter-btn";
-            }
-            btn.onclick = () => renderSubordinatesList(btn.dataset.filter);
-        });
-
-        const filtered = filter === '全部' ? MOCK.subordinates : MOCK.subordinates.filter(s => s.statusTag === filter);
+    function renderMyCustomersList() {
+        const query = (document.getElementById('sub-search-input')?.value || '').toLowerCase().trim();
+        const container = document.getElementById('my-customers-list-content');
+        const month = MOCK.currentMonth;
+        
+        let filtered = MOCK.myCustomersList;
+        if (query) {
+            filtered = filtered.filter(c => c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query));
+        }
 
         if(filtered.length === 0) {
-            container.innerHTML = '<div class="text-center text-gray-400 py-10 text-xs">暂无符合条件的直属下级</div>';
-            return;
-        }
-
-        container.innerHTML = filtered.map(s => `
-            <div class="card p-3.5 mb-2.5 flex items-center justify-between cursor-pointer" onclick="navTo('page-subordinate-detail', ${s.id})">
-                <div class="flex items-center gap-3">
-                    <img src="https://placehold.co/80x80/${s.img}/white?text=${s.name.charAt(0)}" class="w-10 h-10 rounded-full">
-                    <div>
-                        <div class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                            ${s.name} <span class="tag ${s.tagClass}">${s.statusTag}</span>
-                        </div>
-                        <div class="text-[10px] text-gray-400 mt-1">
-                            业绩 ¥${s.sales}/${s.salesGoal} | 下单客户 ${s.customers}/${s.customersGoal}人
-                        </div>
-                        <div class="text-[10px] text-red-500 font-medium mt-0.5">${s.statusMsg}</div>
-                    </div>
-                </div>
-                <div class="flex items-center text-gray-300">
-                    <i class="ph ph-caret-right text-base"></i>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderSubordinateDetail(id) {
-        const s = MOCK.subordinates.find(x => x.id === id) || MOCK.subordinates[0];
-        const container = document.getElementById('subordinate-detail-content');
-        
-        container.innerHTML = `
-            <div class="card flex items-center gap-3.5 mb-3">
-                <img src="https://placehold.co/90x90/${s.img}/white?text=${s.name.charAt(0)}" class="w-12 h-12 rounded-full">
-                <div>
-                    <div class="text-base font-bold text-gray-800 flex items-center gap-2">
-                        ${s.name} <span class="tag ${s.tagClass}">${s.statusTag}</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-0.5">当前等级：${s.level} | 最近活跃：${s.activeTime}</div>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <h3 class="text-xs font-bold text-gray-800 mb-3">本周期经营指标 (2026.09)</h3>
-                
-                <div class="space-y-3">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-600">个人业绩</span>
-                            <span class="font-bold text-gray-800">¥${s.sales} / <span class="text-gray-400 font-normal">目标 ¥${s.salesGoal}</span></span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (s.sales/s.salesGoal)*100)}%"></div></div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-600">下单客户数</span>
-                            <span class="font-bold text-gray-800">${s.customers} 人 / <span class="text-gray-400 font-normal">目标 ${s.customersGoal} 人</span></span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (s.customers/s.customersGoal)*100)}%"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card border border-red-100 bg-red-50/30">
-                <div class="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1">
-                    <i class="ph-fill ph-info text-[var(--primary)]"></i> 当前状态诊断
-                </div>
-                <div class="text-xs text-gray-600 leading-relaxed">
-                    ${s.statusMsg}。建议帮助该直属下级梳理其近期浏览但未下单的潜客，指导其开展一对一微信跟进。
-                </div>
-            </div>
-        `;
-    }
-
-    // --- Customer Browse & Detail Logic ---
-    function renderBrowseList() {
-        const container = document.getElementById('browse-list-content');
-        
-        const pendingCusts = MOCK.customers.filter(c => !window.completedCustomers.includes(c.id));
-        
-        if (pendingCusts.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-12">
-                    <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
-                    <div class="text-sm font-bold text-gray-800">暂无待跟进顾客</div>
-                    <div class="text-xs text-gray-400 mt-1">今日浏览/加购跟进任务已全部处理完毕</div>
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2.5 text-gray-400">
+                        <i class="ph ph-magnifying-glass text-3xl"></i>
+                    </div>
+                    <div class="text-sm font-bold text-gray-800">未找到相关直属下级</div>
+                    <div class="text-xs text-gray-400 mt-1">请核对代理 Code 或姓名后重新搜索</div>
                 </div>`;
             return;
         }
 
-        container.innerHTML = pendingCusts.map(c => `
-            <div class="card p-3.5 mb-2.5">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-center gap-2">
-                        <img src="https://placehold.co/70x70/E2E8F0/475569?text=顾客" class="w-9 h-9 rounded-full">
-                        <div>
-                            <div class="font-bold text-xs flex gap-1 items-center text-gray-800">${c.name}</div>
-                            <div class="flex gap-1 mt-0.5">${c.tags.map(t=>`<span class="tag ${c.tagClass} scale-85 origin-left">${t}</span>`).join('')}</div>
+        container.innerHTML = filtered.map(c => {
+            const lvl = getLevelInfo(c.level);
+            const perf = c.monthlySales[month] || { sales: 0, tingmimiPersonal: 0, tingmimiDirect: 0, tingmimiTeam: 0, baokuanPersonal: 0, baokuanDirect: 0 };
+            return `
+            <div class="card p-0 mb-3 overflow-hidden border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.025)]">
+                <div class="p-3.5 flex items-center justify-between cursor-pointer press-active transition-colors hover:bg-slate-50/60" onclick="navTo('page-subordinate-customer-detail', ${c.id})">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                            ${c.name.charAt(0)}
                         </div>
-                    </div>
-                    <div class="text-[10px] text-gray-400">${c.time}</div>
-                </div>
-                <div class="bg-gray-50 rounded-lg p-2 text-xs text-gray-700 mb-2.5 border-l-2 border-[var(--primary)]">
-                    <span class="font-medium">最新行为：</span>${c.behavior}
-                </div>
-                <div class="flex justify-between items-center pt-1">
-                    <div class="text-[10px] text-gray-400">历史购买 ${c.history} 次</div>
-                    <button class="btn-primary text-xs py-1 px-3" onclick="navTo('page-customer-detail', ${c.id})">去跟进</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderCustomerDetail(id) {
-        const c = MOCK.customers.find(x => x.id === id) || MOCK.customers[0];
-        currentState.currentCustomerId = id;
-        const container = document.getElementById('customer-detail-content');
-        
-        const isDone = window.completedCustomers.includes(id);
-
-        container.innerHTML = `
-            <div class="bg-[var(--primary)] h-28 absolute top-0 left-0 w-full rounded-b-[28px] -z-10"></div>
-            
-            <div class="px-4 pt-8">
-                <div class="card shadow-sm mt-3 relative pt-9 text-center">
-                    <img src="https://placehold.co/90x90/E2E8F0/475569?text=顾客" class="w-14 h-14 rounded-full border-2 border-white absolute -top-7 left-1/2 transform -translate-x-1/2 shadow-sm">
-                    <h2 class="text-base font-bold text-gray-800">${c.name}</h2>
-                    <div class="flex justify-center gap-1 mt-1 mb-3">
-                         ${c.tags.map(t=>`<span class="tag ${c.tagClass} text-[10px]">${t}</span>`).join('')}
+                        <div>
+                            <div class="font-extrabold text-[14.5px] text-gray-900 flex items-center gap-1.5 leading-tight mb-1">
+                                <span>${c.name}</span>
+                                <span class="${lvl.class} text-[9.5px] font-bold px-1.5 py-[1px] rounded-full shadow-xs">${lvl.text}</span>
+                            </div>
+                            <div class="text-[11px] text-gray-500 font-medium">Code: <span class="text-gray-700 font-semibold">${c.code}</span></div>
+                        </div>
                     </div>
                     
-                    <div class="grid grid-cols-3 gap-2 py-2.5 border-t border-gray-100 text-center">
-                        <div><div class="text-[10px] text-gray-400">历史订单</div><div class="font-bold text-xs text-gray-800">${c.history} 单</div></div>
-                        <div><div class="text-[10px] text-gray-400">最近购买</div><div class="font-bold text-xs text-gray-800">${c.lastBuy}</div></div>
-                        <div><div class="text-[10px] text-gray-400">意向特征</div><div class="font-bold text-xs text-[var(--primary)]">${c.tags[0]}</div></div>
-                    </div>
-                </div>
-
-                <div class="card bg-gradient-to-r from-red-50 to-white mt-3 border border-red-100 p-3">
-                    <div class="text-xs leading-relaxed">
-                        <span class="font-bold text-gray-800">系统建议：</span>
-                        <span class="text-gray-600">系统根据顾客登录、浏览、订单等可观察行为进行分类。该顾客近期有「${c.product}」的相关行为，可结合优惠或体验活动主动微信沟通。</span>
-                    </div>
-                </div>
-
-                <h3 class="font-bold text-gray-800 mt-4 mb-2 text-xs px-1">最近行为时间线</h3>
-                <div class="card px-4 py-3">
-                    <div class="relative border-l border-gray-200 ml-2 space-y-4 py-1">
-                        <div class="relative pl-5">
-                            <div class="absolute w-2.5 h-2.5 bg-[var(--primary)] rounded-full -left-[5.5px] top-1"></div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">${c.time}</div>
-                            <div class="text-xs text-gray-800 font-semibold">${c.behavior}</div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <div class="text-[10px] text-gray-400 font-medium">${month} 预估业绩</div>
+                            <div class="text-[15px] font-extrabold text-[#D92D3E] tracking-tight">¥${perf.sales}</div>
                         </div>
-                        <div class="relative pl-5">
-                            <div class="absolute w-2 h-2 bg-gray-300 rounded-full -left-[4px] top-1"></div>
-                            <div class="text-[10px] text-gray-400 mb-0.5">昨天 18:20</div>
-                            <div class="text-xs text-gray-600">浏览「推荐商品列表」</div>
+                        <div class="w-7 h-7 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center cursor-pointer press-active" onclick="event.stopPropagation(); togglePerformanceDetail(${c.id}, this)">
+                            <i class="ph-bold ph-caret-down text-gray-400 text-xs transition-transform" id="perf-icon-${c.id}"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="perf-detail-${c.id}" class="hidden px-3.5 pb-3.5 pt-2 border-t border-gray-100 bg-[#FAFAFC]">
+                    <div class="bg-white rounded-xl p-3 mb-2 border border-gray-100">
+                        <div class="font-bold text-[11.5px] text-gray-800 flex items-center gap-1.5 mb-2">
+                            <div class="w-1 h-3 bg-red-500 rounded-full"></div>庭秘密帮卖业绩 (预估)
+                        </div>
+                        <div class="space-y-1.5 text-[11px]">
+                            <div class="flex justify-between text-gray-500"><span>个人业绩</span><span class="font-semibold text-gray-800">¥${perf.tingmimiPersonal}</span></div>
+                            <div class="flex justify-between text-gray-500"><span>直系业绩</span><span class="font-semibold text-gray-800">¥${perf.tingmimiDirect}</span></div>
+                            <div class="flex justify-between text-gray-500"><span>团队业绩</span><span class="font-bold text-red-600">¥${perf.tingmimiTeam}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                        <div class="font-bold text-[11.5px] text-gray-800 flex items-center gap-1.5 mb-2">
+                            <div class="w-1 h-3 bg-orange-500 rounded-full"></div>爆款专区业绩 (预估)
+                        </div>
+                        <div class="space-y-1.5 text-[11px]">
+                            <div class="flex justify-between text-gray-500"><span>个人爆款业绩</span><span class="font-semibold text-gray-800">¥${perf.baokuanPersonal}</span></div>
+                            <div class="flex justify-between text-gray-500"><span>直系爆款业绩</span><span class="font-semibold text-gray-800">¥${perf.baokuanDirect}</span></div>
                         </div>
                     </div>
                 </div>
             </div>
-        `;
+            `;
+        }).join('');
+    }
 
-        const markBtn = document.getElementById('btn-mark-customer-done');
-        if (isDone) {
-            markBtn.innerText = "已完成跟进";
-            markBtn.className = "w-full btn-outline py-3 rounded-xl bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed text-xs font-semibold";
-            markBtn.onclick = null;
+    function togglePerformanceDetail(id, iconWrapper) {
+        const el = document.getElementById(`perf-detail-${id}`);
+        const icon = document.getElementById(`perf-icon-${id}`);
+        if (el.classList.contains('hidden')) {
+            el.classList.remove('hidden');
+            icon.classList.add('rotate-180');
         } else {
-            markBtn.innerText = "标记已跟进";
-            markBtn.className = "w-full btn-primary py-3 rounded-xl text-xs font-semibold";
-            markBtn.onclick = () => handleMarkCustomerDone(id);
+            el.classList.add('hidden');
+            icon.classList.remove('rotate-180');
         }
     }
 
-    function handleMarkCustomerDone(id) {
-        if (!window.completedCustomers.includes(id)) {
-            window.completedCustomers.push(id);
-            if (MOCK.global.browseCount > 0) MOCK.global.browseCount--;
-            MOCK.global.tasksDone++;
-            
-            showToast('已标记为已跟进');
-            updateGlobalNumbersUI();
-            renderHomepagePreviews();
-            renderCustomerDetail(id);
-        }
-    }
+    function initSubordinateDetail(subId) {
+        currentState.currentMyCustomerId = subId;
+        const c = MOCK.myCustomersList.find(x => x.id === subId) || MOCK.myCustomersList[0];
+        const month = MOCK.currentMonth;
+        const perf = c.monthlySales[month] || { sales: 0 };
 
-    // --- Order Follow-up Logic ---
-    function renderOrderList() {
-        const container = document.getElementById('order-list-content');
-        const pendingOrders = MOCK.orders.filter(o => !window.completedOrders.includes(o.id));
+        currentState.browseFilter = 'all';
+        currentState.browseSortDesc = true;
+        currentState.browseKeyword = '';
+        currentState.orderKeyword = '';
+        const bs = document.getElementById('browse-search'); if(bs) bs.value = '';
+        const os = document.getElementById('order-search'); if(os) os.value = '';
+
+        document.getElementById('detail-avatar').src = `https://placehold.co/120x120/1E293B/FFFFFF?text=${c.name.charAt(0)}`;
+        document.getElementById('detail-name').innerText = c.name;
+        document.getElementById('detail-code').innerText = c.code;
+        document.getElementById('detail-sales').innerText = `¥${perf.sales}`;
+        document.getElementById('detail-month-label').innerText = `${month}周期`;
         
-        if (pendingOrders.length === 0) {
+        const lvl = getLevelInfo(c.level);
+        const badge = document.getElementById('detail-badge');
+        badge.innerText = lvl.text;
+        badge.className = `px-2 py-[2px] rounded-full text-[10px] font-bold shadow-xs ${lvl.class}`;
+
+        switchDetailTab('browse'); 
+    }
+
+    function switchDetailTab(tabName) {
+        document.querySelectorAll('.detail-tab').forEach(el => {
+            if(el.dataset.tab === tabName) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+
+        if(tabName === 'browse') {
+            document.getElementById('tab-content-browse').classList.remove('hidden');
+            document.getElementById('tab-content-orders').classList.add('hidden');
+            renderBrowseTab();
+        } else {
+            document.getElementById('tab-content-browse').classList.add('hidden');
+            document.getElementById('tab-content-orders').classList.remove('hidden');
+            renderOrderTab();
+        }
+    }
+
+    function setBrowseFilter(val) {
+        currentState.browseFilter = val;
+        document.querySelectorAll('.browse-filter-btn').forEach(el => {
+            if(el.dataset.val === val) {
+                el.className = "browse-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-red-50 text-red-600 font-bold border border-red-200 cursor-pointer press-active shrink-0";
+            } else {
+                el.className = "browse-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0";
+            }
+        });
+        renderBrowseTab();
+    }
+
+    function toggleBrowseSort() {
+        currentState.browseSortDesc = !currentState.browseSortDesc;
+        const icon = document.getElementById('browse-sort-icon');
+        const label = document.getElementById('browse-sort-label');
+        if (label) label.innerText = "交互频率";
+        if (icon) {
+            icon.className = currentState.browseSortDesc 
+                ? "ph-bold ph-arrows-down-up text-xs text-red-600" 
+                : "ph-bold ph-arrows-up-down text-xs text-red-600";
+        }
+        renderBrowseTab();
+    }
+
+    function renderBrowseTab() {
+        currentState.browseKeyword = (document.getElementById('browse-search')?.value || '').trim().toLowerCase();
+        const container = document.getElementById('browse-list-container');
+        const subId = currentState.currentMyCustomerId;
+        const month = MOCK.currentMonth;
+        const rawProducts = MOCK.behaviorDatabase[subId] || [];
+
+        const productStatsList = [];
+
+        rawProducts.forEach(prod => {
+            const mData = prod.monthlyRecords[month];
+            if (!mData) return;
+
+            const b = mData.browse;
+            const c = mData.cart;
+
+            const browseMonthCount = b ? b.monthCount : 0;
+            const browseTodayCount = b ? b.todayCount : 0;
+            const cartMonthCount = c ? c.monthCount : 0;
+            
+            // 内部排序计算：商品交互频率 = 当前周期浏览次数 + 当前周期加购次数
+            const productFrequency = browseMonthCount + cartMonthCount;
+
+            if (productFrequency === 0 && !b && !c) return;
+
+            if (currentState.browseKeyword && !prod.productName.toLowerCase().includes(currentState.browseKeyword)) {
+                return;
+            }
+
+            // 模式 A：仅浏览记录
+            if (b && (currentState.browseFilter === 'all' || currentState.browseFilter === 'browse')) {
+                productStatsList.push({
+                    productId: prod.productId,
+                    skuId: prod.skuId,
+                    productName: prod.productName,
+                    img: prod.img,
+                    mode: 'A',
+                    actionType: 'browse',
+                    actionTime: b.lastTime,
+                    browseMonthCount: browseMonthCount,
+                    browseTodayCount: browseTodayCount,
+                    boughtThisMonth: mData.boughtThisMonth,
+                    historyBoughtQty: prod.historyBoughtQty !== undefined ? prod.historyBoughtQty : 0,
+                    productFrequency: productFrequency
+                });
+            }
+
+            // 模式 B：加购记录 (上方加购行为，下方展示浏览次数，严格不展示加购次数和最后浏览时间)
+            if (c && (currentState.browseFilter === 'all' || currentState.browseFilter === 'cart')) {
+                productStatsList.push({
+                    productId: prod.productId,
+                    skuId: prod.skuId,
+                    productName: prod.productName,
+                    img: prod.img,
+                    mode: 'B',
+                    actionType: 'cart',
+                    actionTime: c.lastTime,
+                    browseMonthCount: browseMonthCount,
+                    browseTodayCount: browseTodayCount,
+                    boughtThisMonth: mData.boughtThisMonth,
+                    historyBoughtQty: prod.historyBoughtQty !== undefined ? prod.historyBoughtQty : 0,
+                    productFrequency: productFrequency
+                });
+            }
+        });
+
+        // 基于同一商品的商品级交互频率排序
+        productStatsList.sort((x, y) => {
+            if (currentState.browseSortDesc) {
+                return y.productFrequency !== x.productFrequency 
+                    ? (y.productFrequency - x.productFrequency) 
+                    : y.actionTime.localeCompare(x.actionTime);
+            } else {
+                return x.productFrequency !== y.productFrequency 
+                    ? (x.productFrequency - y.productFrequency) 
+                    : x.actionTime.localeCompare(y.actionTime);
+            }
+        });
+
+        if (productStatsList.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-12">
-                    <i class="ph-fill ph-check-circle text-4xl text-green-500 mb-2"></i>
-                    <div class="text-sm font-bold text-gray-800">暂无待回访订单</div>
-                    <div class="text-xs text-gray-400 mt-1">所有订单回访任务均已完成</div>
-                </div>`;
+                <div class="bg-white rounded-2xl p-10 flex flex-col items-center justify-center border border-gray-100 shadow-sm text-gray-400">
+                    <i class="ph ph-eyes text-4xl mb-2 text-gray-300"></i>
+                    <p class="text-xs font-medium">所选周期内暂无符合条件的行为记录</p>
+                </div>
+            `;
             return;
         }
 
-        container.innerHTML = pendingOrders.map(o => `
-            <div class="card p-3.5 mb-2.5 flex items-center justify-between">
-                <div>
-                    <div class="text-xs font-bold text-gray-800 mb-1">${o.name} - ${o.product}</div>
-                    <div class="text-[10px] text-gray-400">下单时间：${o.time}</div>
+        container.innerHTML = productStatsList.map(r => {
+            const isModeA = r.mode === 'A';
+            
+            const actionTag = isModeA 
+                ? `<span class="inline-flex items-center gap-1 px-1.5 py-[2px] rounded text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200/80 shrink-0"><i class="ph-bold ph-eye"></i> 浏览</span>`
+                : `<span class="inline-flex items-center gap-1 px-1.5 py-[2px] rounded text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200/80 shrink-0"><i class="ph-bold ph-shopping-cart-simple"></i> 加购</span>`;
+
+            const timeLabel = isModeA
+                ? `<span class="text-[11px] text-gray-500 font-medium">最后浏览时间：${r.actionTime}</span>`
+                : `<span class="text-[11px] text-gray-500 font-medium">加购时间：${r.actionTime}</span>`;
+
+            const todayBrowseHtml = r.browseTodayCount > 0 
+                ? `<span class="text-gray-500">今日浏览 <strong class="text-gray-800 font-bold">${r.browseTodayCount}</strong> 次</span>`
+                : `<span class="text-gray-400">今日未浏览</span>`;
+
+            const monthBoughtStatus = r.boughtThisMonth 
+                ? `<span class="text-emerald-600 font-semibold inline-flex items-center gap-1"><i class="ph-fill ph-check-circle text-xs"></i> 本月已购买</span>` 
+                : `<span class="text-gray-400 font-medium">本月未购买</span>`;
+
+            return `
+            <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-gray-100 flex gap-3 press-active">
+                <img src="${r.img}" class="w-[72px] h-[72px] rounded-xl object-cover border border-gray-100 shrink-0">
+                <div class="flex-1 flex flex-col justify-between min-w-0">
+                    <div>
+                        <div class="font-bold text-[13px] text-gray-900 leading-snug mb-1.5 line-clamp-1" title="${r.productName}">${r.productName}</div>
+                        <div class="flex items-center gap-2 mb-2">
+                            ${actionTag}
+                            ${timeLabel}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-[#F8FAFC] rounded-lg px-2.5 py-1.5 mb-2 border border-slate-100 flex items-center justify-between text-[11px]">
+                        <span class="text-gray-700">本月浏览 <strong class="text-gray-900 font-bold">${r.browseMonthCount}</strong> 次</span>
+                        ${todayBrowseHtml}
+                    </div>
+
+                    <div class="flex justify-between items-center text-[11px] pt-1.5 border-t border-gray-100/80">
+                        <div>${monthBoughtStatus}</div>
+                        <div class="text-gray-500 font-medium">历史累计购买 <strong class="text-gray-800 font-bold">${r.historyBoughtQty}</strong> 件</div>
+                    </div>
                 </div>
-                <button class="btn-primary text-xs py-1 px-3" onclick="openOrderModal(${o.id})">去回访</button>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function renderOrderTab() {
+        currentState.orderKeyword = (document.getElementById('order-search')?.value || '').trim().toLowerCase();
+        const container = document.getElementById('order-list-container');
+        const subId = currentState.currentMyCustomerId;
+        const month = MOCK.currentMonth;
+        const allOrders = MOCK.recentOrdersDatabase[subId] || [];
+
+        // 仅统计符合有效订单规则且属于当前所选自然月的订单
+        const validMonthlyOrders = allOrders.filter(o => o.month === month && o.isValid);
+
+        let orderItemList = [];
+        let totalPurchasedPieces = 0; 
+
+        validMonthlyOrders.forEach(ord => {
+            ord.items.forEach(item => {
+                totalPurchasedPieces += item.qty;
+
+                if (currentState.orderKeyword && !item.productName.toLowerCase().includes(currentState.orderKeyword)) {
+                    return;
+                }
+
+                orderItemList.push({
+                    orderId: ord.orderId,
+                    orderTime: ord.orderTime,
+                    productName: item.productName,
+                    qty: item.qty,
+                    img: item.img
+                });
+            });
+        });
+
+        const qtyLabel = document.getElementById('orders-total-qty');
+        if(qtyLabel) qtyLabel.innerText = totalPurchasedPieces;
+        const countLabel = document.getElementById('orders-count-label');
+        if(countLabel) countLabel.innerText = `${validMonthlyOrders.length} 笔有效订单`;
+
+        if (orderItemList.length === 0) {
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl p-10 flex flex-col items-center justify-center border border-gray-100 shadow-sm text-gray-400">
+                    <i class="ph ph-receipt text-4xl mb-2 text-gray-300"></i>
+                    <p class="text-xs font-medium">在 ${month} 自然月内暂无符合条件的有效下单记录</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = orderItemList.map(r => `
+            <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-gray-100 flex gap-3 items-center press-active">
+                <img src="${r.img}" class="w-[64px] h-[64px] rounded-xl object-cover border border-gray-100 shrink-0">
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold text-[13.5px] text-gray-900 leading-snug mb-1 line-clamp-1">${r.productName}</div>
+                    <div class="text-[10.5px] text-gray-500 mb-2 flex items-center justify-between">
+                        <span>下单时间：${r.orderTime}</span>
+                        <span class="text-emerald-600 bg-emerald-50 px-1.5 py-[1px] rounded text-[9.5px] font-bold">有效订单</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] pt-1.5 border-t border-gray-50">
+                        <span class="text-gray-400 text-[10px]">单号: ${r.orderId}</span>
+                        <div class="text-gray-800 font-bold bg-slate-50 px-2.5 py-0.5 rounded-lg border border-gray-100">
+                            购买 <span class="text-red-600 font-extrabold text-[13px]">${r.qty}</span> 件
+                        </div>
+                    </div>
+                </div>
             </div>
         `).join('');
     }
 
-    function openOrderModal(orderId) {
-        currentState.currentOrderId = orderId;
-        orderModal.classList.add('show');
-    }
-
-    function markOrderFollowupDone() {
-        const id = currentState.currentOrderId;
-        if (id && !window.completedOrders.includes(id)) {
-            window.completedOrders.push(id);
-            if (MOCK.global.orderCount > 0) MOCK.global.orderCount--;
-            MOCK.global.tasksDone++;
-            
-            closeModal();
-            showToast('订单回访已完成');
-            updateGlobalNumbersUI();
-            renderHomepagePreviews();
-            renderOrderList();
-        }
-    }
-
-    // --- Notice Tab Logic ---
     function initNoticeFilters() {
         document.querySelectorAll('#notice-filters .notice-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#notice-filters .notice-filter-btn').forEach(b => {
-                    b.className = "text-gray-500 pb-1 notice-filter-btn";
+                    b.className = "text-gray-500 pb-1 notice-filter-btn cursor-pointer";
                 });
-                btn.className = "text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn";
+                btn.className = "text-[var(--primary)] font-bold pb-1 border-b-2 border-[var(--primary)] notice-filter-btn cursor-pointer";
                 renderNotices(btn.dataset.type);
             });
         });
@@ -1780,28 +1962,16 @@
     function renderNotices(type) {
         const container = document.getElementById('notice-list-container');
         const list = type === 'all' ? MOCK.notices : MOCK.notices.filter(n => n.type === type);
-        
         container.innerHTML = list.map(n => `
-            <div class="card p-4 mb-3 cursor-pointer" onclick="openNoticeModal(${n.id})">
+            <div class="card p-4 mb-3 cursor-pointer press-active" onclick="showToast('查看公告详情')">
                 <div class="flex justify-between items-center mb-1.5">
                     <span class="tag ${n.tagClass}">${n.tag}</span>
-                    <span class="text-[10px] text-gray-400">${n.time}</span>
+                    <span class="text-[10.5px] text-gray-400">${n.time}</span>
                 </div>
-                <h3 class="text-xs font-bold text-gray-800 mb-1.5 leading-snug">${n.title}</h3>
-                <p class="text-[11px] text-gray-500 leading-relaxed">${n.summary}</p>
+                <h3 class="text-[13.5px] font-bold text-gray-900 mb-1.5 leading-snug">${n.title}</h3>
+                <p class="text-[11.5px] text-gray-500 leading-relaxed">${n.summary}</p>
             </div>
         `).join('');
-    }
-
-    function openNoticeModal(id) {
-        const n = MOCK.notices.find(x => x.id === id);
-        if(!n) return;
-        
-        document.getElementById('notice-modal-title').innerText = n.title;
-        document.getElementById('notice-modal-time').innerText = n.time;
-        document.getElementById('notice-modal-content').innerHTML = n.content;
-        
-        noticeDetailModal.classList.add('show');
     }
 </script>
 </body>
