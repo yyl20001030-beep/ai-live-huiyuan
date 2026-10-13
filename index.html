@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Version: v3.7.0 | 重构右侧功能说明侧边栏为「业务说明 / 研发细则」双 Tab 文档系统 -->
+    <!-- Version: v3.8.0 | 页面级文档隔离 + 本月下单状态重构(已支付/未支付)与动态筛选 -->
     <title>会员专享 CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -166,15 +166,6 @@
             border-radius: 14px;
             padding: 12px 14px;
             margin-bottom: 10px;
-        }
-
-        .doc-tag-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 1px 7px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -402,9 +393,7 @@
                 <div class="text-gray-500 pb-1 notice-filter-btn cursor-pointer" data-type="rule">规则更新</div>
             </div>
 
-            <div class="content-area bg-[#F8FAFC] px-4 pt-3.5" id="notice-list-container">
-                <!-- Dynamic notices injected -->
-            </div>
+            <div class="content-area bg-[#F8FAFC] px-4 pt-3.5" id="notice-list-container"></div>
         </div>
 
         <!-- ============================================== -->
@@ -636,13 +625,11 @@
                 </div>
             </div>
 
-            <div class="content-area px-4 pt-3.5 pb-24" id="my-customers-list-content">
-                <!-- Direct subordinates injected -->
-            </div>
+            <div class="content-area px-4 pt-3.5 pb-24" id="my-customers-list-content"></div>
         </div>
 
         <!-- ============================================== -->
-        <!-- SUB PAGE 2: 直属下级详情与行为中心 (双 Tab 架构) -->
+        <!-- SUB PAGE 2: 直属下级详情与行为中心 (双 Tab 架构: 浏览与加购 / 本月下单) -->
         <!-- ============================================== -->
         <div id="page-subordinate-customer-detail" class="page sub-page bg-[#F6F7F9]">
             <div class="top-header pt-3 bg-white border-b border-gray-100/80 shrink-0">
@@ -689,13 +676,13 @@
                     </div>
                 </div>
 
-                <!-- 区域 C：双 Tab 切换控制器 -->
+                <!-- 区域 C：双 Tab 切换控制器 (最近下单更名为本月下单) -->
                 <div class="flex bg-white border-b border-gray-200/80 shrink-0 sticky top-0 z-20 shadow-sm">
                     <div class="flex-1 text-center py-3 detail-tab active cursor-pointer press-active" data-tab="browse" onclick="switchDetailTab('browse')">
                         浏览与加购
                     </div>
                     <div class="flex-1 text-center py-3 detail-tab cursor-pointer press-active" data-tab="orders" onclick="switchDetailTab('orders')">
-                        最近下单
+                        本月下单
                     </div>
                 </div>
 
@@ -725,29 +712,34 @@
                         <div id="browse-list-container" class="space-y-2.5"></div>
                     </div>
 
-                    <!-- TAB 2: 最近下单 -->
+                    <!-- TAB 2: 本月下单 (新增已支付/未支付状态筛选与中性统计) -->
                     <div id="tab-content-orders" class="w-full min-h-full p-3.5 pb-10 hidden transition-opacity duration-200">
                         <div class="bg-white rounded-2xl p-3 mb-3 shadow-sm border border-gray-100">
-                            <div class="relative w-full">
+                            <div class="relative w-full mb-2.5">
                                 <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <input type="text" id="order-search" placeholder="搜索已购商品名称" class="w-full bg-[#F1F3F5] rounded-xl h-[34px] pl-8 pr-3 text-[12px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-200" oninput="renderOrderTab()">
+                                <input type="text" id="order-search" placeholder="搜索本月已购商品名称" class="w-full bg-[#F1F3F5] rounded-xl h-[34px] pl-8 pr-3 text-[12px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-200" oninput="renderOrderTab()">
+                            </div>
+                            <div class="flex items-center gap-1.5 pt-0.5">
+                                <span class="order-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-red-50 text-red-600 font-bold border border-red-200 cursor-pointer press-active shrink-0" data-val="all" onclick="setOrderFilter('all')">全部</span>
+                                <span class="order-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0" data-val="paid" onclick="setOrderFilter('paid')">已支付</span>
+                                <span class="order-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0" data-val="unpaid" onclick="setOrderFilter('unpaid')">未支付</span>
                             </div>
                         </div>
 
-                        <!-- 数量统计区域 -->
+                        <!-- 订单数量与件数统计区域 (标题中性化，数量随筛选动态变化) -->
                         <div class="bg-gradient-to-r from-red-50/70 to-orange-50/50 border border-red-100 text-red-900 p-3 rounded-2xl mb-3 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                                     <i class="ph-bold ph-shopping-bag text-base"></i>
                                 </div>
                                 <div>
-                                    <div class="text-[10px] text-red-600 font-medium">所选月度有效订单统计</div>
+                                    <div class="text-[10px] text-red-600 font-medium">所选月度订单统计</div>
                                     <div class="text-[13px] font-extrabold text-gray-900">
                                         商品购买件数：<span class="text-red-600 font-black text-[15px]" id="orders-total-qty">0</span> 件
                                     </div>
                                 </div>
                             </div>
-                            <span class="text-[10.5px] text-red-500 bg-white/80 px-2 py-0.5 rounded-full font-bold border border-red-200" id="orders-count-label">0 笔有效订单</span>
+                            <span class="text-[10.5px] text-red-600 bg-white/90 px-2.5 py-1 rounded-full font-bold border border-red-200 shadow-2xs" id="orders-count-label">0 笔订单</span>
                         </div>
                         
                         <div id="order-list-container" class="space-y-2.5"></div>
@@ -869,7 +861,7 @@
             </div>
         </nav>
 
-        <!-- Modals -->
+        <!-- Month Picker Modal -->
         <div id="month-picker-modal" class="modal-overlay">
             <div class="modal-content pb-7">
                 <div class="flex justify-between items-center mb-4">
@@ -892,8 +884,9 @@
 
         <div id="toast"></div>
     </div>
+
     <!-- ============================================== -->
-    <!-- 右侧功能说明侧边栏 (重构为「业务说明 / 研发细则」双 Tab) -->
+    <!-- 右侧功能说明侧边栏 (页面级独立隔离与专属文档引擎) -->
     <!-- ============================================== -->
     <div id="annotation-panel">
         <!-- 侧边栏顶部标题与联动指示器 -->
@@ -901,21 +894,21 @@
             <div class="flex items-center justify-between mb-1.5">
                 <div class="text-[15.5px] font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
                     <i class="ph-fill ph-book-open text-[#E63950] text-lg"></i>
-                    <span>我的客户｜功能迭代说明</span>
+                    <span id="sidebar-doc-title">功能说明与研发细则</span>
                 </div>
-                <span class="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">已确认规范</span>
+                <span id="sidebar-status-badge" class="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full font-bold">待命就绪</span>
             </div>
             <div class="flex items-center justify-between text-[11px] text-slate-500">
-                <span>规范版本：v3.7.0 (2026-10)</span>
+                <span>规范版本：v3.8.0</span>
                 <span class="flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#E63950] animate-pulse"></span>
-                    当前预览：<strong id="sidebar-current-page-tag" class="text-slate-700 font-semibold">直属下级详情</strong>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E63950]" id="sidebar-pulse-dot"></span>
+                    当前定位：<strong id="sidebar-current-page-tag" class="text-slate-700 font-semibold">待命中</strong>
                 </span>
             </div>
         </div>
 
-        <!-- Tab 切换器 -->
-        <div class="flex bg-slate-100/80 p-1 rounded-full mb-3 shrink-0 border border-slate-200/50">
+        <!-- Tab 切换器 (业务说明 / 研发细则) -->
+        <div class="flex bg-slate-100/80 p-1 rounded-full mb-3 shrink-0 border border-slate-200/50" id="sidebar-tab-controller">
             <button id="doc-btn-biz" class="doc-tab-btn active flex-1 text-center" onclick="switchSidebarTab('biz')">
                 业务说明
             </button>
@@ -924,193 +917,11 @@
             </button>
         </div>
 
-        <!-- ================================================== -->
-        <!-- TAB 1: 业务说明 (面向业务、产品及会议决策) -->
-        <!-- ================================================== -->
-        <div id="sidebar-panel-biz" class="doc-scroll-area">
-            <div class="doc-sec-title">一、功能目标</div>
-            <p class="doc-p">
-                升级「我的客户」中的直属下级经营信息查询能力，帮助业务人员快速了解下级的商品浏览、加购和购买情况，为日常业务沟通、商品推荐及经营分析提供参考。
-            </p>
-            <p class="doc-p">
-                本次重点优化商品行为信息的展示方式，让业务人员能够直观了解客户关注的商品、浏览频率、加购时间及购买情况，同时保留直属下级原有的月度业绩查询能力。
-            </p>
+        <!-- 容器：业务说明 -->
+        <div id="sidebar-panel-biz" class="doc-scroll-area"></div>
 
-            <div class="doc-sec-title">二、本次更新内容</div>
-            
-            <div class="doc-sub-title">1. 直属下级查询</div>
-            <ul class="doc-list">
-                <li>支持查询直属下级并查看基本信息。</li>
-                <li>保留原有月度业绩查询逻辑。</li>
-                <li>支持进入直属下级详情页面。</li>
-            </ul>
-
-            <div class="doc-sub-title">2. 浏览与加购</div>
-            <p class="doc-p">浏览和加购记录分开展示，根据当前记录的行为类型呈现对应信息：</p>
-            <ul class="doc-list">
-                <li><strong>仅浏览记录</strong>：展示浏览图标、最后浏览时间、本月浏览次数及今日浏览次数。</li>
-                <li><strong>浏览 + 加购记录</strong>：上方展示加购图标和加购时间，下方展示本月浏览次数及今日浏览次数。</li>
-                <li>加购记录不重复展示浏览时间，也不展示本月加购次数或今日加购次数。</li>
-                <li>两种模式均展示本月购买状态和历史累计购买件数。</li>
-                <li>支持商品名称搜索、行为筛选和交互频率排序。</li>
-            </ul>
-
-            <div class="doc-sub-title">3. 交互频率排序</div>
-            <p class="doc-p">
-                支持按商品交互频率升序或降序排列，帮助业务人员优先查看互动较多的商品。
-            </p>
-            <ul class="doc-list">
-                <li>交互频率由当前月度周期内的浏览次数与加购次数共同计算，仅用于内部排序，<strong>不在商品卡片中展示交互总量</strong>。</li>
-                <li>浏览行为按照 SKU 维度统计，不同 SKU 分别计算浏览次数及相关交互频率。</li>
-            </ul>
-
-            <div class="doc-sub-title">4. 最近下单</div>
-            <ul class="doc-list">
-                <li>沿用页面上方的月度筛选。</li>
-                <li>仅统计符合有效订单规则的购买记录。</li>
-                <li>商品数量按实际购买的商品件数计算，不按订单数量计算。</li>
-                <li>根据商品实际售后结果，判断相应商品是否计入购买统计。</li>
-            </ul>
-
-            <div class="doc-sec-title">三、业务操作流程</div>
-            <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
-                <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                    我的 → 我的客户 → 选择直属下级 → 查看基本信息及月度业绩 → 进入浏览与加购或最近下单 → 搜索商品并查看相关信息。
-                </div>
-            </div>
-
-            <div class="doc-sec-title">四、本次迭代范围</div>
-            <ul class="doc-list">
-                <li>本次聚焦直属下级的商品行为查询、购买情况及最近下单信息展示。</li>
-                <li>本次不新增复杂客户标签、客户分类、客户跟进工作流或团队经营报表。</li>
-            </ul>
-
-            <div class="doc-sec-title">五、核心业务口径</div>
-            <div class="doc-card space-y-2">
-                <div class="text-[12px] text-slate-700"><strong>• 统计颗粒度：</strong>浏览统计按照 SKU 维度计算。</div>
-                <div class="text-[12px] text-slate-700"><strong>• 时间周期：</strong>月度统计采用自然月。</div>
-                <div class="text-[12px] text-slate-700"><strong>• 交互频率权重：</strong>由浏览次数与加购次数共同决定，但交互总量不在页面展示。</div>
-                <div class="text-[12px] text-slate-700"><strong>• 下单范围联动：</strong>最近下单使用页面上方的月度筛选。</div>
-                <div class="text-[12px] text-slate-700"><strong>• 售后口径：</strong>有效订单及商品售后统计按照研发细则中的确定规则执行。</div>
-            </div>
-            <div class="h-4"></div>
-        </div>
-
-        <!-- ================================================== -->
-        <!-- TAB 2: 研发细则 (面向开发与测试、实现与验收口径) -->
-        <!-- ================================================== -->
-        <div id="sidebar-panel-dev" class="doc-scroll-area hidden">
-            <div class="doc-sec-title">一、页面与功能范围</div>
-            <p class="doc-p">本次研发涉及：</p>
-            <ul class="doc-list">
-                <li>直属下级详情页面（双 Tab 容器）。</li>
-                <li>浏览与加购行为记录展示。</li>
-                <li>商品搜索、行为筛选及交互频率排序。</li>
-                <li>最近下单查询与商品购买件数统计。</li>
-            </ul>
-            <div class="doc-card bg-slate-50 border-slate-200">
-                <div class="text-[11.5px] text-slate-600">
-                    <strong>研发原则：</strong>保留现有直属下级查询、月度业绩查询、页面导航及其他无关功能。本次侧边栏 UI 改造本身不得修改左侧 App 页面及业务逻辑。
-                </div>
-            </div>
-
-            <div class="doc-sec-title">二、浏览与加购展示规则</div>
-            
-            <div class="doc-sub-title">1. 仅浏览记录</div>
-            <p class="doc-p"><strong>展示字段：</strong>商品图片、商品名称、浏览图标及行为标识、最后浏览时间（格式为 <code>MM-DD HH:mm</code>）、本月浏览次数、今日浏览次数、本月购买状态、历史累计购买件数。</p>
-            <div class="doc-card bg-amber-50/60 border-amber-200 text-amber-900 text-[11.5px]">
-                <strong>禁闭规则：</strong>仅浏览记录不展示加购图标、加购时间、本月加购次数或今日加购次数。
-            </div>
-
-            <div class="doc-sub-title">2. 浏览 + 加购记录</div>
-            <p class="doc-p"><strong>展示字段：</strong>商品图片、商品名称、加购图标及行为标识、加购时间（格式为 <code>MM-DD HH:mm</code>）、本月浏览次数、今日浏览次数、本月购买状态、历史累计购买件数。</p>
-            <ul class="doc-list">
-                <li><strong>不展示项：</strong>不展示本月加购次数、今日加购次数、浏览图标、浏览标识或最后浏览时间。</li>
-                <li><strong>加购记录层级：</strong>上方展示加购行为，下方保留浏览统计。加购时间必须来自对应加购事件，不得用浏览时间代替。</li>
-            </ul>
-
-            <div class="doc-sub-title">3. 浏览与加购事件处理</div>
-            <ul class="doc-list">
-                <li>浏览和加购事件分别存储、分别识别。</li>
-                <li>同一商品存在两种行为时，可以分别形成浏览记录和加购记录。</li>
-                <li>每条记录只展示自身对应的行为类型。</li>
-                <li>浏览次数只能由浏览事件计算，不得将加购事件计入浏览次数。</li>
-                <li>隐藏加购次数不代表删除底层加购事件数据。</li>
-                <li>不得为了减少重复商品而将浏览和加购强制合并为一条混合记录。</li>
-            </ul>
-
-            <div class="doc-sec-title">三、统计周期与时间口径</div>
-            <ul class="doc-list">
-                <li><strong>1. 自然月周期：</strong>月度统计采用自然月，即所选月份的 1 日至当月最后一日。页面上方现有的月度筛选是统一的月份选择依据。不得新增与之冲突的独立月份筛选。</li>
-                <li><strong>2. 浏览统计：</strong>本月浏览次数统计当前所选自然月内的浏览事件；今日浏览次数统计当前日期内的浏览事件；最后浏览时间取当前所选自然月内最新的浏览事件时间；浏览统计按 SKU 维度计算。</li>
-                <li><strong>3. 加购时间：</strong>加购时间取对应加购事件的实际发生时间，采用 <code>MM-DD HH:mm</code> 格式；不得使用浏览时间代替加购时间；页面可以不展示加购次数，但底层事件必须保留，以支持交互频率排序。</li>
-                <li><strong>4. 时间边界：</strong>自然月统计必须正确处理每月第一天、最后一天、跨月事件及闰年二月等边界情况；今日统计与自然月统计是两个独立口径，不得将今日次数误当成本月次数。</li>
-            </ul>
-
-            <div class="doc-sec-title">四、商品维度与交互频率排序</div>
-            <ul class="doc-list">
-                <li><strong>1. SKU 维度：</strong>浏览行为按照 SKU 维度统计。不同 SKU 分别计算浏览次数、最后浏览时间及对应交互频率，不得直接合并为同一个 SPU 的浏览统计；确保行为数据能通过明确的 SKU 标识与商品记录正确关联。</li>
-                <li><strong>2. 交互频率计算：</strong><br>
-                    <code class="bg-red-50 text-red-600 px-2 py-0.5 rounded border border-red-200 font-bold">商品交互频率 = 当前所选自然月浏览次数 + 当前所选自然月加购次数</code><br>
-                    交互频率仅用于内部排序，不在页面中展示对应总量、标签或数值。
-                </li>
-                <li><strong>3. 筛选规则：</strong>「全部行为」展示符合条件的浏览记录和加购记录；「仅看浏览」只展示浏览记录；「仅看加购」只展示加购记录。商品搜索与行为筛选支持组合使用。</li>
-                <li><strong>4. 排序规则：</strong>支持升序与降序；无论当前选择全部行为、仅看浏览还是仅看加购，排序均基于相同的商品级交互频率；同一 SKU 的浏览记录和加购记录必须使用一致的商品级交互频率；切换月份后重新计算排序结果。</li>
-            </ul>
-
-            <div class="doc-sec-title">五、购买状态与历史累计购买件数</div>
-            <ul class="doc-list">
-                <li><strong>1. 本月购买状态：</strong>展示「本月已购买」或「本月未购买」。购买状态应根据实际购买数据判断，不能因浏览或加购行为直接认定为已购买。</li>
-                <li><strong>2. 历史累计购买件数：</strong>按实际商品件数计算，不是订单数量。统计必须扣除取消、退款、整单售后以及部分售后中应扣除的商品件数。</li>
-            </ul>
-
-            <div class="doc-sec-title">六、有效订单与售后统计规则</div>
-            <div class="doc-card border-red-200 bg-red-50/30">
-                <div class="text-[11.5px] font-bold text-red-700 mb-1">【已确认业务口径，不得擅自修改】</div>
-                <div class="space-y-2 text-[12px] text-slate-700 leading-relaxed">
-                    <div><strong>1. 有效订单定义：</strong>指正常流程中未发生取消、退款或整单售后的订单。发生整单取消、退款或整单售后时，该订单中的商品均不计入有效购买统计。</div>
-                    <div><strong>2. 部分售后处理：</strong>发生部分售后的订单，必须按照具体商品的售后结果分别判断：
-                        <ul class="list-disc pl-4 mt-1 text-slate-600">
-                            <li><span class="text-emerald-700 font-semibold">商品未发生售后</span>：继续计入购买统计。</li>
-                            <li><span class="text-rose-700 font-semibold">商品售后退款</span>：该商品不计入有效购买统计。</li>
-                            <li><span class="text-blue-700 font-semibold">商品售后换货</span>：该商品继续计入购买统计。</li>
-                        </ul>
-                        <em>* 不得因为订单中某一个商品发生部分售后，就将其他未售后的商品一并排除。</em>
-                    </div>
-                    <div><strong>3. 历史购买件数扣减：</strong>历史累计购买件数必须扣除：取消订单件数、退款订单件数、整单售后件数、部分售后中退款商品件数。部分售后中未售后商品与换货商品继续计算。</div>
-                    <div><strong>4. 数量口径：</strong>商品购买数量必须按照实际购买的商品件数统计，而不是订单数（例如订单包含 SKU A 2件、SKU B 3件，合计为 5 件，不是 1 单）。</div>
-                </div>
-            </div>
-
-            <div class="doc-sec-title">七、最近下单页面</div>
-            <ul class="doc-list">
-                <li><strong>时间范围：</strong>沿用页面上方现有的月度筛选。</li>
-                <li><strong>月度周期：</strong>自然月。</li>
-                <li><strong>订单口径：</strong>遵循上述已确认的有效订单及商品售后规则。</li>
-                <li><strong>商品数量：</strong>按有效购买的实际商品件数统计。</li>
-                <li>保留商品搜索、商品图片、商品名称、下单时间及购买件数等现有功能。</li>
-                <li>月度切换后，订单列表与商品件数统计必须同步更新。</li>
-            </ul>
-
-            <div class="doc-sec-title">八、数据与接口要求</div>
-            <p class="doc-p">Mock 数据模型支持项核对：</p>
-            <ul class="doc-list">
-                <li>商品及 SKU 标识区分。</li>
-                <li>浏览和加购事件类型及绝对时间记录。</li>
-                <li>对应商品的购买件数及订单状态标识。</li>
-                <li>商品售后状态（未售后/退款/换货）及统计过滤逻辑。</li>
-                <li>严格杜绝通过硬编码次数或固定文案伪造统计结果。</li>
-            </ul>
-
-            <div class="doc-sec-title">九、UI 与交互验收标准</div>
-            <div class="doc-card text-[11.5px] space-y-1.5 text-slate-700">
-                <div><strong>• 侧边栏验收：</strong>默认业务说明；Tab 平滑切换；独立滚动条；长内容不被截断；层级清晰无密集文本。</div>
-                <div><strong>• 模式 A 验收：</strong>仅浏览记录只展示浏览图标、时间及次数，无加购信息。</div>
-                <div><strong>• 模式 B 验收：</strong>加购记录上方展示加购图标和时间，下方展示浏览次数，严格不展示加购次数和最后浏览时间。</div>
-                <div><strong>• 统计验收：</strong>浏览按 SKU 统计；月度按自然月；排序按浏览+加购之和但页面不显示交互总量；有效订单件数准确扣除退款。</div>
-            </div>
-            <div class="h-4"></div>
-        </div>
+        <!-- 容器：研发细则 -->
+        <div id="sidebar-panel-dev" class="doc-scroll-area hidden"></div>
     </div>
 </div>
 <script>
@@ -1131,7 +942,7 @@
             { id: 5, name: '赵六', level: '中级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'orange', sales: 4200, salesGoal: 5000, customers: 11, customersGoal: 12, statusMsg: '接近目标，可定向帮扶', activeTime: '1小时前' },
             { id: 6, name: '小林', level: '初级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'teal', sales: 2800, salesGoal: 3000, customers: 8, customersGoal: 10, statusMsg: '分享活跃上升中', activeTime: '3小时前' }
         ],
-        // 直属下级月度业绩档案
+        // 直属下级档案
         myCustomersList: [
             { 
                 id: 1001, 
@@ -1178,7 +989,7 @@
                 }
             }
         ],
-        // 商品基础库与商品行为事件底表 (按 SKU 维度分别统计)
+        // 商品基础库与商品行为事件底表
         behaviorDatabase: {
             1001: [
                 {
@@ -1186,31 +997,16 @@
                     skuId: 'SKU10101',
                     productName: '臻享补水修护面膜套装 (10片/盒)',
                     img: 'https://placehold.co/120x120/FEE2E2/DC2626?text=面膜套装',
-                    historyBoughtQty: 4, // 历史实际有效购买件数 (已扣除退款)
+                    historyBoughtQty: 4,
                     monthlyRecords: {
                         '2026-10': {
                             boughtThisMonth: true,
-                            browse: {
-                                lastTime: '10-09 18:32',
-                                relativeTime: '昨天',
-                                monthCount: 12,
-                                todayCount: 3
-                            },
-                            cart: {
-                                lastTime: '10-09 18:40',
-                                relativeTime: '昨天',
-                                monthCount: 3,
-                                todayCount: 1
-                            }
+                            browse: { lastTime: '10-09 18:32', monthCount: 12, todayCount: 3 },
+                            cart: { lastTime: '10-09 18:40', monthCount: 3, todayCount: 1 }
                         },
                         '2026-09': {
                             boughtThisMonth: false,
-                            browse: {
-                                lastTime: '09-28 14:10',
-                                relativeTime: '上月',
-                                monthCount: 5,
-                                todayCount: 0
-                            },
+                            browse: { lastTime: '09-28 14:10', monthCount: 5, todayCount: 0 },
                             cart: null
                         }
                     }
@@ -1224,22 +1020,12 @@
                     monthlyRecords: {
                         '2026-10': {
                             boughtThisMonth: false,
-                            browse: {
-                                lastTime: '10-10 09:15',
-                                relativeTime: '今天 09:15',
-                                monthCount: 14,
-                                todayCount: 4
-                            },
+                            browse: { lastTime: '10-10 09:15', monthCount: 14, todayCount: 4 },
                             cart: null
                         },
                         '2026-09': {
                             boughtThisMonth: false,
-                            browse: {
-                                lastTime: '09-25 11:20',
-                                relativeTime: '上月',
-                                monthCount: 2,
-                                todayCount: 0
-                            },
+                            browse: { lastTime: '09-25 11:20', monthCount: 2, todayCount: 0 },
                             cart: null
                         }
                     }
@@ -1254,27 +1040,12 @@
                         '2026-10': {
                             boughtThisMonth: false,
                             browse: null,
-                            cart: {
-                                lastTime: '10-08 20:15',
-                                relativeTime: '2天前',
-                                monthCount: 4,
-                                todayCount: 0
-                            }
+                            cart: { lastTime: '10-08 20:15', monthCount: 4, todayCount: 0 }
                         },
                         '2026-09': {
                             boughtThisMonth: true,
-                            browse: {
-                                lastTime: '09-20 10:00',
-                                relativeTime: '上月',
-                                monthCount: 3,
-                                todayCount: 0
-                            },
-                            cart: {
-                                lastTime: '09-20 10:05',
-                                relativeTime: '上月',
-                                monthCount: 1,
-                                todayCount: 0
-                            }
+                            browse: { lastTime: '09-20 10:00', monthCount: 3, todayCount: 0 },
+                            cart: { lastTime: '09-20 10:05', monthCount: 1, todayCount: 0 }
                         }
                     }
                 },
@@ -1287,70 +1058,31 @@
                     monthlyRecords: {
                         '2026-10': {
                             boughtThisMonth: true,
-                            browse: {
-                                lastTime: '10-07 16:45',
-                                relativeTime: '3天前',
-                                monthCount: 6,
-                                todayCount: 0
-                            },
-                            cart: {
-                                lastTime: '10-07 17:10',
-                                relativeTime: '3天前',
-                                monthCount: 5,
-                                todayCount: 0
-                            }
+                            browse: { lastTime: '10-07 16:45', monthCount: 6, todayCount: 0 },
+                            cart: { lastTime: '10-07 17:10', monthCount: 5, todayCount: 0 }
                         },
                         '2026-09': {
                             boughtThisMonth: false,
-                            browse: {
-                                lastTime: '09-15 14:00',
-                                relativeTime: '上月',
-                                monthCount: 8,
-                                todayCount: 0
-                            },
+                            browse: { lastTime: '09-15 14:00', monthCount: 8, todayCount: 0 },
                             cart: null
                         }
                     }
                 }
             ],
-            1002: [
-                {
-                    productId: 'P105',
-                    skuId: 'SKU10501',
-                    productName: '酵母焕肤修护乳霜 50g',
-                    img: 'https://placehold.co/120x120/F5F3FF/7C3AED?text=修护乳霜',
-                    historyBoughtQty: 2,
-                    monthlyRecords: {
-                        '2026-10': {
-                            boughtThisMonth: false,
-                            browse: {
-                                lastTime: '10-10 10:05',
-                                relativeTime: '今天 10:05',
-                                monthCount: 8,
-                                todayCount: 2
-                            },
-                            cart: {
-                                lastTime: '10-10 10:20',
-                                relativeTime: '今天 10:20',
-                                monthCount: 2,
-                                todayCount: 1
-                            }
-                        }
-                    }
-                }
-            ],
+            1002: [],
             1003: [],
             1004: []
         },
-        // 直属下级订单记录库 (含部分售后判断、有效件数)
+        // 订单数据库 (新规则: payStatus = 'paid' | 'unpaid', isFullRefund = true/false)
         recentOrdersDatabase: {
             1001: [
                 {
-                    orderId: 'ORD2026100508112',
-                    orderTime: '10-05 14:30',
+                    orderId: 'ORD2026100908112',
+                    orderTime: '10-09 14:30',
                     month: '2026-10',
-                    isValid: true,
-                    afterSalesStatus: 'none', // 未发生售后
+                    payStatus: 'paid',
+                    isFullRefund: false,
+                    afterSalesStatus: 'none',
                     items: [
                         {
                             productId: 'P101',
@@ -1362,11 +1094,12 @@
                     ]
                 },
                 {
-                    orderId: 'ORD2026100209421',
-                    orderTime: '10-02 11:20',
+                    orderId: 'ORD2026100709421',
+                    orderTime: '10-07 11:20',
                     month: '2026-10',
-                    isValid: true,
-                    afterSalesStatus: 'exchange', // 售后换货，继续计入
+                    payStatus: 'paid',
+                    isFullRefund: false,
+                    afterSalesStatus: 'exchange', // 换货不改变已支付属性
                     items: [
                         {
                             productId: 'P104',
@@ -1378,10 +1111,45 @@
                     ]
                 },
                 {
+                    orderId: 'ORD2026100516203',
+                    orderTime: '10-05 16:20',
+                    month: '2026-10',
+                    payStatus: 'paid',
+                    isFullRefund: true, // 整单退款，业务规则归类为未支付！
+                    afterSalesStatus: 'refund',
+                    items: [
+                        {
+                            productId: 'P102',
+                            skuId: 'SKU10201',
+                            productName: '抗初老紧致多肽精华液 30ml',
+                            qty: 1,
+                            img: 'https://placehold.co/120x120/EFF6FF/2563EB?text=紧致精华'
+                        }
+                    ]
+                },
+                {
+                    orderId: 'ORD2026100310158',
+                    orderTime: '10-03 10:15',
+                    month: '2026-10',
+                    payStatus: 'unpaid', // 原始未支付订单
+                    isFullRefund: false,
+                    afterSalesStatus: 'none',
+                    items: [
+                        {
+                            productId: 'P103',
+                            skuId: 'SKU10301',
+                            productName: '氨基酸温和舒缓洁面乳 120g',
+                            qty: 2,
+                            img: 'https://placehold.co/120x120/ECFDF5/059669?text=温和洁面'
+                        }
+                    ]
+                },
+                {
                     orderId: 'ORD2026092809153',
                     orderTime: '09-28 09:15',
                     month: '2026-09',
-                    isValid: true,
+                    payStatus: 'paid',
+                    isFullRefund: false,
                     afterSalesStatus: 'none',
                     items: [
                         {
@@ -1390,6 +1158,23 @@
                             productName: '氨基酸温和舒缓洁面乳 120g',
                             qty: 1,
                             img: 'https://placehold.co/120x120/ECFDF5/059669?text=温和洁面'
+                        }
+                    ]
+                },
+                {
+                    orderId: 'ORD2026091811204',
+                    orderTime: '09-18 11:20',
+                    month: '2026-09',
+                    payStatus: 'unpaid',
+                    isFullRefund: false,
+                    afterSalesStatus: 'none',
+                    items: [
+                        {
+                            productId: 'P101',
+                            skuId: 'SKU10101',
+                            productName: '臻享补水修护面膜套装 (10片/盒)',
+                            qty: 2,
+                            img: 'https://placehold.co/120x120/FEE2E2/DC2626?text=面膜套装'
                         }
                     ]
                 }
@@ -1422,6 +1207,20 @@
     function getLevelInfo(lvl) {
         return LEVEL_MAP[lvl] || { class: 'badge-level-default', text: lvl };
     }
+    // 状态分类核心函数: 已支付 vs 未支付 (整单退款判定为未支付)
+    function getOrderCalculatedStatus(order) {
+        if (!order) return 'unpaid';
+        if (order.payStatus === 'unpaid') {
+            return 'unpaid';
+        }
+        if (order.payStatus === 'paid') {
+            if (order.isFullRefund === true) {
+                return 'unpaid'; // 已支付后发生整单退款，归类为未支付
+            }
+            return 'paid'; // 正常已支付（即使换货、部分退款等售后，仍归类为已支付）
+        }
+        return 'unpaid';
+    }
 
     let currentState = {
         activeTab: 'tab-home',
@@ -1432,14 +1231,195 @@
         browseFilter: 'all', 
         browseSortDesc: true, 
         browseKeyword: '',
+        orderFilter: 'all', // 'all' | 'paid' | 'unpaid'
         orderKeyword: '',
-        sidebarDocTab: 'biz' // 'biz' | 'dev'
+        sidebarDocTab: 'biz', // 'biz' | 'dev'
+        activeDocPageId: 'idle'
     };
 
     window.completedCustomers = [];
     window.completedOrders = [];
 
-    // --- 侧边栏专属 Tab 切换函数 ---
+    // --- 页面级独立文档数据库 (严格隔离) ---
+    const PAGE_DOCS = {
+        'idle': {
+            title: '功能说明与研发细则',
+            pageName: '待命中',
+            statusTag: '就绪',
+            statusClass: 'text-slate-600 bg-slate-100 border-slate-200',
+            biz: `
+                <div class="py-12 flex flex-col items-center justify-center text-center px-4">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+                        <i class="ph-bold ph-browsers text-3xl"></i>
+                    </div>
+                    <div class="text-[14.5px] font-extrabold text-slate-800 mb-1.5">请在左侧进入相关功能</div>
+                    <div class="text-[12px] text-slate-500 max-w-[280px] leading-relaxed mb-4">
+                        右侧文档面板已启用<strong>页面级隔离保护机制</strong>。首次打开不预展示任何页面注释，请点击进入左侧功能查看对应文档。
+                    </div>
+                    <div class="bg-red-50/70 border border-red-200/80 rounded-xl p-3 text-left w-full text-[11.5px] text-red-900 leading-relaxed">
+                        <strong>快速体验路径：</strong><br>
+                        点击左侧下方导航「我的」→ 点击「我的客户」即可解锁该页面专属业务说明与研发细则。
+                    </div>
+                </div>
+            `,
+            dev: `
+                <div class="py-12 flex flex-col items-center justify-center text-center px-4">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+                        <i class="ph-bold ph-code text-3xl"></i>
+                    </div>
+                    <div class="text-[14.5px] font-extrabold text-slate-800 mb-1.5">研发规范待命中</div>
+                    <div class="text-[12px] text-slate-500 max-w-[280px] leading-relaxed">
+                        当用户在左侧 App 导航至「我的客户」或「直属下级详情」时，此处将即时加载对应的研发验收细则、字段数据模型与边界测试口径。
+                    </div>
+                </div>
+            `
+        },
+        'page-my-customers': {
+            title: '我的客户 (列表)｜功能说明',
+            pageName: '我的客户 (列表)',
+            statusTag: '列表规范',
+            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            biz: `
+                <div class="doc-sec-title">一、功能目标</div>
+                <p class="doc-p">为店长提供直属下级的集中名录检索与月度业绩概览，辅助上级快速识别核心下级与成长中下级。</p>
+                <div class="doc-sec-title">二、本次更新重点</div>
+                <div class="doc-sub-title">1. 直属下级查询与筛选</div>
+                <ul class="doc-list">
+                    <li>支持按代理 Code 或姓名模糊搜索。</li>
+                    <li>月度统计周期切换（默认 2026-10，可切换往期周期）。</li>
+                    <li>展示下级个人销售预估业绩与醒目的等级徽标。</li>
+                </ul>
+                <div class="doc-sub-title">2. 交互独立防误触</div>
+                <p class="doc-p">卡片主体点击直接进入「直属下级详情」；右侧圆形下拉箭头独立控制业绩详情（帮卖业绩与爆款专区）的展开与收起，互不干扰。</p>
+                <div class="doc-sec-title">三、业务操作流程</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        我的 → 我的客户 → 查看下级列表与当月业绩 → 点击卡片进入直属下级详情。
+                    </div>
+                </div>
+                <div class="h-4"></div>
+            `,
+            dev: `
+                <div class="doc-sec-title">一、页面与组件范围</div>
+                <p class="doc-p">涉及容器 <code>#page-my-customers</code> 及列表容器 <code>#my-customers-list-content</code>。</p>
+                <div class="doc-sec-title">二、等级映射与视觉规范</div>
+                <ul class="doc-list">
+                    <li>S档、A档、B档、C档、D档、E档采用专用徽标色阶。</li>
+                    <li>等级文字必须清晰可读，不能仅依赖颜色传达等级。</li>
+                </ul>
+                <div class="doc-sec-title">三、月份筛选与响应</div>
+                <p class="doc-p">所选统计月份驱动 <code>renderMyCustomersList()</code> 动态重绘，业绩字段按月动态读取，不得写死。</p>
+                <div class="h-4"></div>
+            `
+        },
+        'page-subordinate-customer-detail': {
+            title: '直属下级详情｜功能说明',
+            pageName: '直属下级详情',
+            statusTag: '详情与订单规范',
+            statusClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+            biz: `
+                <div class="doc-sec-title">一、页面结构与定位</div>
+                <p class="doc-p">采用三段式结构：固定头部（用户身份与当月个人业绩）+ 双 Tab 切换（浏览与加购 / 本月下单）。</p>
+                
+                <div class="doc-sec-title">二、「浏览与加购」业务规则</div>
+                <ul class="doc-list">
+                    <li><strong>独立展示</strong>：浏览与加购行为严格区分，不合并为一条混合记录。</li>
+                    <li><strong>仅浏览记录 (模式 A)</strong>：展示浏览图标、最后浏览时间（MM-DD HH:mm）、本月浏览次数与今日浏览次数。</li>
+                    <li><strong>加购记录 (模式 B)</strong>：上方展示加购图标与加购时间；下方展示本月与今日浏览次数。严格不展示加购次数与最后浏览时间。</li>
+                    <li><strong>购买情况</strong>：均展示「本月已购买 / 本月未购买」及「历史累计购买 N 件」。</li>
+                    <li><strong>交互频率排序</strong>：按当前所选月份内浏览次数与加购次数之和排序，内部计算，卡片上隐藏交互总量。</li>
+                </ul>
+
+                <div class="doc-sec-title">三、「本月下单」业务规则 (重要更新)</div>
+                <div class="doc-sub-title">1. Tab 改名与周期绑定</div>
+                <p class="doc-p">原「最近下单」正式改名为<strong>「本月下单」</strong>。数据统计范围严格沿用页面上方当前所选的统计月份，不固定为当前自然月。</p>
+                
+                <div class="doc-sub-title">2. 订单状态判定口径 (废除有效订单)</div>
+                <ul class="doc-list">
+                    <li><strong>已支付</strong>：原始已支付的订单；订单发生换货、部分退款等售后，暂不影响分类，仍归为「已支付」。</li>
+                    <li><strong>未支付</strong>：原始未支付订单；或用户支付后发生<strong>整单退款</strong>的订单，一律归类为「未支付」。</li>
+                </ul>
+
+                <div class="doc-sub-title">3. 状态筛选胶囊</div>
+                <p class="doc-p">提供「全部」「已支付」「未支付」三项筛选胶囊，默认选中「全部」，支持与商品名称搜索组合生效。</p>
+
+                <div class="doc-sub-title">4. 月度统计区域动态更新</div>
+                <ul class="doc-list">
+                    <li>标题中性化：固定为<strong>「所选月度订单统计」</strong>，彻底废除“有效订单”文案。</li>
+                    <li>订单笔数：按订单 ID 去重；筛选「全部」时显示总量，筛选「已支付」时显示「N 笔订单已支付」，筛选「未支付」时显示「N 笔订单未支付」。</li>
+                    <li>商品购买件数：按商品数量累加统计，严格区分于订单笔数。</li>
+                </ul>
+                <div class="h-4"></div>
+            `,
+            dev: `
+                <div class="doc-sec-title">一、订单状态计算算法</div>
+                <div class="doc-card bg-slate-900 text-white font-mono text-[11px] leading-relaxed p-3">
+                    // 状态分类算法<br>
+                    if (payStatus === 'unpaid') return 'unpaid';<br>
+                    if (payStatus === 'paid') {<br>
+                    &nbsp;&nbsp;if (isFullRefund === true) return 'unpaid'; // 整单退款<br>
+                    &nbsp;&nbsp;return 'paid'; // 换货/部分退款暂不影响<br>
+                    }
+                </div>
+
+                <div class="doc-sec-title">二、筛选与搜索组合逻辑</div>
+                <ul class="doc-list">
+                    <li>筛选变量 <code>currentState.orderFilter</code> 取值: <code>all</code> | <code>paid</code> | <code>unpaid</code>。</li>
+                    <li>筛选与 <code>currentState.orderKeyword</code> 组合过滤，结果即时渲染无物理刷新。</li>
+                </ul>
+
+                <div class="doc-sec-title">三、统计计算口径</div>
+                <div class="doc-card space-y-1.5 text-[11.5px]">
+                    <div>• <strong>订单数量</strong>：基于唯一 <code>orderId</code> 去重计数。</div>
+                    <div>• <strong>商品件数</strong>：基于符合条件的商品条目 <code>item.qty</code> 累加。</div>
+                    <div>• <strong>文案联动</strong>：
+                        <br>&nbsp;&nbsp;- 筛选「全部」：<code>共 N 笔订单 (X 笔已支付 / Y 笔未支付)</code>
+                        <br>&nbsp;&nbsp;- 筛选「已支付」：<code>N 笔订单已支付</code>
+                        <br>&nbsp;&nbsp;- 筛选「未支付」：<code>N 笔订单未支付</code>
+                    </div>
+                </div>
+
+                <div class="doc-sec-title">四、验收标准核对 (Checklist)</div>
+                <div class="doc-card text-[11.5px] space-y-1 text-slate-700">
+                    <div>☑ Tab 标识为「本月下单」；</div>
+                    <div>☑ 彻底废止「有效订单」文案与判断逻辑；</div>
+                    <div>☑ 整单退款订单正确分类并筛选入「未支付」；</div>
+                    <div>☑ 换货订单在未整单退款时正确保留在「已支付」；</div>
+                    <div>☑ 统计卡片件数与笔数严格区分。</div>
+                </div>
+                <div class="h-4"></div>
+            `
+        }
+    };
+    // --- 侧边栏动态更新与切换引擎 ---
+    function updateSidebarDoc(pageId) {
+        currentState.activeDocPageId = pageId;
+        const docData = PAGE_DOCS[pageId] || PAGE_DOCS['idle'];
+
+        const titleEl = document.getElementById('sidebar-doc-title');
+        if (titleEl) titleEl.innerText = docData.title;
+
+        const pageTagEl = document.getElementById('sidebar-current-page-tag');
+        if (pageTagEl) pageTagEl.innerText = docData.pageName;
+
+        const badgeEl = document.getElementById('sidebar-status-badge');
+        if (badgeEl) {
+            badgeEl.innerText = docData.statusTag;
+            badgeEl.className = `text-[10px] px-2 py-0.5 rounded-full font-bold border ${docData.statusClass}`;
+        }
+
+        const panelBiz = document.getElementById('sidebar-panel-biz');
+        const panelDev = document.getElementById('sidebar-panel-dev');
+        if (panelBiz) panelBiz.innerHTML = docData.biz;
+        if (panelDev) panelDev.innerHTML = docData.dev;
+
+        // 重置滚动位置
+        if (panelBiz) panelBiz.scrollTop = 0;
+        if (panelDev) panelDev.scrollTop = 0;
+
+        switchSidebarTab(currentState.sidebarDocTab || 'biz');
+    }
+
     function switchSidebarTab(tabKey) {
         currentState.sidebarDocTab = tabKey;
         const btnBiz = document.getElementById('doc-btn-biz');
@@ -1460,35 +1440,18 @@
         }
     }
 
-    // 更新侧边栏顶部联动小标徽（保留联动，不破坏侧边栏文档）
-    function updateSidebarTracker(pageId) {
-        const tag = document.getElementById('sidebar-current-page-tag');
-        if(!tag) return;
-        const pageNames = {
-            'tab-home': '首页 (会员课堂)',
-            'tab-notice': '公告动态',
-            'tab-me': '我的 (业务中心)',
-            'page-my-customers': '我的客户 (列表)',
-            'page-subordinate-customer-detail': '直属下级详情 (行为与订单)',
-            'page-todo-list': '今日经营待办',
-            'page-team-list': '我的下级',
-            'page-subordinate-detail': '下级详情',
-            'page-team-report': '团队经营报告',
-            'page-browse-list': '顾客跟进',
-            'page-customer-detail': '顾客详情',
-            'page-order-list': '订单待回访'
-        };
-        tag.innerText = pageNames[pageId] || '直属下级详情';
-    }
-
+    // --- 应用生命周期与导航 ---
     document.addEventListener('DOMContentLoaded', () => {
         initTabs();
         initNoticeFilters();
         renderNotices('all');
         
+        // 初始打开保持在首页
         document.querySelectorAll('.main-tab').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-home').classList.add('active');
-        updateSidebarTracker('tab-home');
+        
+        // 首次打开不主动显示任何页面的注释文档，置于待命就绪状态
+        updateSidebarDoc('idle');
     });
 
     function initTabs() {
@@ -1521,7 +1484,9 @@
         
         currentState.activeTab = tabId;
         if(tabId === 'tab-notice') renderNotices('all');
-        updateSidebarTracker(tabId);
+
+        // 主导航切换时，右侧注释切回就绪状态，不串页展示我的客户文档
+        updateSidebarDoc('idle');
     }
 
     function navTo(pageId, dataId = null) {
@@ -1532,7 +1497,13 @@
         if (pageId === 'page-subordinate-customer-detail') initSubordinateDetail(dataId);
 
         document.getElementById(pageId).classList.add('active');
-        updateSidebarTracker(pageId);
+
+        // 仅在进入对应页面时加载该页面专属文档
+        if (pageId === 'page-my-customers' || pageId === 'page-subordinate-customer-detail') {
+            updateSidebarDoc(pageId);
+        } else {
+            updateSidebarDoc('idle');
+        }
     }
 
     function goBack() {
@@ -1543,9 +1514,14 @@
             
             const remainingActive = document.querySelectorAll('.sub-page.active');
             if (remainingActive.length > 0) {
-                updateSidebarTracker(remainingActive[remainingActive.length - 1].id);
+                const currentSubId = remainingActive[remainingActive.length - 1].id;
+                if (currentSubId === 'page-my-customers' || currentSubId === 'page-subordinate-customer-detail') {
+                    updateSidebarDoc(currentSubId);
+                } else {
+                    updateSidebarDoc('idle');
+                }
             } else {
-                updateSidebarTracker(currentState.activeTab);
+                updateSidebarDoc('idle');
             }
         }
     }
@@ -1577,12 +1553,13 @@
         const lbl2 = document.getElementById('detail-month-label');
         if(lbl2) lbl2.innerText = `${m}周期`;
         
-        showToast(`已切换至 ${m} 自然月统计周期`);
+        showToast(`已切换至 ${m} 统计周期`);
         renderMyCustomersList();
         if (document.getElementById('page-subordinate-customer-detail').classList.contains('active')) {
             initSubordinateDetail(currentState.currentMyCustomerId);
         }
     }
+    // --- 我的客户列表渲染 ---
     function renderMyCustomersList() {
         const query = (document.getElementById('sub-search-input')?.value || '').toLowerCase().trim();
         const container = document.getElementById('my-customers-list-content');
@@ -1674,6 +1651,7 @@
         }
     }
 
+    // --- 直属下级详情初始化 ---
     function initSubordinateDetail(subId) {
         currentState.currentMyCustomerId = subId;
         const c = MOCK.myCustomersList.find(x => x.id === subId) || MOCK.myCustomersList[0];
@@ -1683,7 +1661,9 @@
         currentState.browseFilter = 'all';
         currentState.browseSortDesc = true;
         currentState.browseKeyword = '';
+        currentState.orderFilter = 'all';
         currentState.orderKeyword = '';
+        
         const bs = document.getElementById('browse-search'); if(bs) bs.value = '';
         const os = document.getElementById('order-search'); if(os) os.value = '';
 
@@ -1697,6 +1677,9 @@
         const badge = document.getElementById('detail-badge');
         badge.innerText = lvl.text;
         badge.className = `px-2 py-[2px] rounded-full text-[10px] font-bold shadow-xs ${lvl.class}`;
+
+        // 重置订单筛选按钮状态
+        resetOrderFilterButtons();
 
         switchDetailTab('browse'); 
     }
@@ -1766,16 +1749,13 @@
             const browseTodayCount = b ? b.todayCount : 0;
             const cartMonthCount = c ? c.monthCount : 0;
             
-            // 内部排序计算：商品交互频率 = 当前周期浏览次数 + 当前周期加购次数
             const productFrequency = browseMonthCount + cartMonthCount;
-
             if (productFrequency === 0 && !b && !c) return;
 
             if (currentState.browseKeyword && !prod.productName.toLowerCase().includes(currentState.browseKeyword)) {
                 return;
             }
 
-            // 模式 A：仅浏览记录
             if (b && (currentState.browseFilter === 'all' || currentState.browseFilter === 'browse')) {
                 productStatsList.push({
                     productId: prod.productId,
@@ -1793,7 +1773,6 @@
                 });
             }
 
-            // 模式 B：加购记录 (上方加购行为，下方展示浏览次数，严格不展示加购次数和最后浏览时间)
             if (c && (currentState.browseFilter === 'all' || currentState.browseFilter === 'cart')) {
                 productStatsList.push({
                     productId: prod.productId,
@@ -1812,7 +1791,6 @@
             }
         });
 
-        // 基于同一商品的商品级交互频率排序
         productStatsList.sort((x, y) => {
             if (currentState.browseSortDesc) {
                 return y.productFrequency !== x.productFrequency 
@@ -1837,7 +1815,6 @@
 
         container.innerHTML = productStatsList.map(r => {
             const isModeA = r.mode === 'A';
-            
             const actionTag = isModeA 
                 ? `<span class="inline-flex items-center gap-1 px-1.5 py-[2px] rounded text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200/80 shrink-0"><i class="ph-bold ph-eye"></i> 浏览</span>`
                 : `<span class="inline-flex items-center gap-1 px-1.5 py-[2px] rounded text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200/80 shrink-0"><i class="ph-bold ph-shopping-cart-simple"></i> 加购</span>`;
@@ -1881,6 +1858,24 @@
         }).join('');
     }
 
+    // --- 订单状态筛选交互 ---
+    function resetOrderFilterButtons() {
+        document.querySelectorAll('.order-filter-btn').forEach(el => {
+            if (el.dataset.val === currentState.orderFilter) {
+                el.className = "order-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-red-50 text-red-600 font-bold border border-red-200 cursor-pointer press-active shrink-0";
+            } else {
+                el.className = "order-filter-btn px-2.5 py-1 text-[11px] rounded-full bg-gray-50 text-gray-600 border border-gray-200/70 cursor-pointer press-active shrink-0";
+            }
+        });
+    }
+
+    function setOrderFilter(val) {
+        currentState.orderFilter = val;
+        resetOrderFilterButtons();
+        renderOrderTab();
+    }
+
+    // --- 本月下单渲染 (状态逻辑重构 + 动态统计) ---
     function renderOrderTab() {
         currentState.orderKeyword = (document.getElementById('order-search')?.value || '').trim().toLowerCase();
         const container = document.getElementById('order-list-container');
@@ -1888,23 +1883,41 @@
         const month = MOCK.currentMonth;
         const allOrders = MOCK.recentOrdersDatabase[subId] || [];
 
-        // 仅统计符合有效订单规则且属于当前所选自然月的订单
-        const validMonthlyOrders = allOrders.filter(o => o.month === month && o.isValid);
+        // 当前月度内的所有订单
+        const monthlyOrders = allOrders.filter(o => o.month === month);
 
-        let orderItemList = [];
-        let totalPurchasedPieces = 0; 
+        // 订单去重统计（按订单 ID）
+        const totalOrdersInMonth = monthlyOrders.length;
+        const paidOrdersInMonth = monthlyOrders.filter(o => getOrderCalculatedStatus(o) === 'paid').length;
+        const unpaidOrdersInMonth = monthlyOrders.filter(o => getOrderCalculatedStatus(o) === 'unpaid').length;
 
-        validMonthlyOrders.forEach(ord => {
+        // 执行筛选与搜索组合
+        let filteredOrders = monthlyOrders.filter(ord => {
+            const status = getOrderCalculatedStatus(ord);
+            if (currentState.orderFilter === 'paid' && status !== 'paid') return false;
+            if (currentState.orderFilter === 'unpaid' && status !== 'unpaid') return false;
+            return true;
+        });
+
+        let displayItemList = [];
+        let totalPiecesCount = 0;
+        let matchedOrderIds = new Set();
+
+        filteredOrders.forEach(ord => {
+            const status = getOrderCalculatedStatus(ord);
             ord.items.forEach(item => {
-                totalPurchasedPieces += item.qty;
-
                 if (currentState.orderKeyword && !item.productName.toLowerCase().includes(currentState.orderKeyword)) {
                     return;
                 }
+                matchedOrderIds.add(ord.orderId);
+                totalPiecesCount += item.qty;
 
-                orderItemList.push({
+                displayItemList.push({
                     orderId: ord.orderId,
                     orderTime: ord.orderTime,
+                    status: status,
+                    isFullRefund: ord.isFullRefund,
+                    afterSalesStatus: ord.afterSalesStatus,
                     productName: item.productName,
                     qty: item.qty,
                     img: item.img
@@ -1912,29 +1925,52 @@
             });
         });
 
+        // 动态更新统计区域文案
         const qtyLabel = document.getElementById('orders-total-qty');
-        if(qtyLabel) qtyLabel.innerText = totalPurchasedPieces;
-        const countLabel = document.getElementById('orders-count-label');
-        if(countLabel) countLabel.innerText = `${validMonthlyOrders.length} 笔有效订单`;
+        if (qtyLabel) qtyLabel.innerText = totalPiecesCount;
 
-        if (orderItemList.length === 0) {
+        const countLabel = document.getElementById('orders-count-label');
+        if (countLabel) {
+            const matchedCount = matchedOrderIds.size;
+            if (currentState.orderFilter === 'all') {
+                countLabel.innerText = `共 ${matchedCount} 笔 (${paidOrdersInMonth}已支付/${unpaidOrdersInMonth}未支付)`;
+            } else if (currentState.orderFilter === 'paid') {
+                countLabel.innerText = `${matchedCount} 笔订单已支付`;
+            } else if (currentState.orderFilter === 'unpaid') {
+                countLabel.innerText = `${matchedCount} 笔订单未支付`;
+            }
+        }
+
+        if (displayItemList.length === 0) {
             container.innerHTML = `
                 <div class="bg-white rounded-2xl p-10 flex flex-col items-center justify-center border border-gray-100 shadow-sm text-gray-400">
                     <i class="ph ph-receipt text-4xl mb-2 text-gray-300"></i>
-                    <p class="text-xs font-medium">在 ${month} 自然月内暂无符合条件的有效下单记录</p>
+                    <p class="text-xs font-medium">在 ${month} 统计周期内暂无符合条件的下单记录</p>
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = orderItemList.map(r => `
+        container.innerHTML = displayItemList.map(r => {
+            let statusBadge = '';
+            if (r.status === 'paid') {
+                statusBadge = `<span class="text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-[2px] rounded text-[10px] font-bold">已支付</span>`;
+            } else {
+                if (r.isFullRefund) {
+                    statusBadge = `<span class="text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-[2px] rounded text-[10px] font-bold flex items-center gap-0.5"><i class="ph-bold ph-arrow-u-up-left"></i> 未支付 (整单退款)</span>`;
+                } else {
+                    statusBadge = `<span class="text-slate-600 bg-slate-100 border border-slate-200 px-2 py-[2px] rounded text-[10px] font-bold">未支付</span>`;
+                }
+            }
+
+            return `
             <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-gray-100 flex gap-3 items-center press-active">
                 <img src="${r.img}" class="w-[64px] h-[64px] rounded-xl object-cover border border-gray-100 shrink-0">
                 <div class="flex-1 min-w-0">
                     <div class="font-bold text-[13.5px] text-gray-900 leading-snug mb-1 line-clamp-1">${r.productName}</div>
                     <div class="text-[10.5px] text-gray-500 mb-2 flex items-center justify-between">
                         <span>下单时间：${r.orderTime}</span>
-                        <span class="text-emerald-600 bg-emerald-50 px-1.5 py-[1px] rounded text-[9.5px] font-bold">有效订单</span>
+                        ${statusBadge}
                     </div>
                     <div class="flex justify-between items-center text-[11px] pt-1.5 border-t border-gray-50">
                         <span class="text-gray-400 text-[10px]">单号: ${r.orderId}</span>
@@ -1944,9 +1980,11 @@
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
+    // --- 系统公告 ---
     function initNoticeFilters() {
         document.querySelectorAll('#notice-filters .notice-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1970,6 +2008,71 @@
                 </div>
                 <h3 class="text-[13.5px] font-bold text-gray-900 mb-1.5 leading-snug">${n.title}</h3>
                 <p class="text-[11.5px] text-gray-500 leading-relaxed">${n.summary}</p>
+            </div>
+        `).join('');
+    }
+
+    // --- 原 CRM 一期导航桥接 (保护原有页面) ---
+    function navToTeamFilter(filterStr) {
+        navTo('page-team-list');
+    }
+    function renderSubordinatesList() {
+        const container = document.getElementById('team-list');
+        if (!container) return;
+        container.innerHTML = MOCK.subordinates.map(s => `
+            <div class="card p-3.5 mb-2.5 flex items-center justify-between cursor-pointer" onclick="navTo('page-subordinate-detail', ${s.id})">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-700 text-white flex items-center justify-center font-bold">${s.name.charAt(0)}</div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-800">${s.name} <span class="tag ${s.tagClass}">${s.statusTag}</span></div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">业绩 ¥${s.sales} | 客户 ${s.customers}人</div>
+                    </div>
+                </div>
+                <i class="ph ph-caret-right text-gray-400"></i>
+            </div>
+        `).join('');
+    }
+    function renderSubordinateDetail(id) {
+        const s = MOCK.subordinates.find(x => x.id === id) || MOCK.subordinates[0];
+        const container = document.getElementById('subordinate-detail-content');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="card mb-3">
+                <div class="font-bold text-sm mb-1">${s.name}</div>
+                <div class="text-xs text-gray-500">当前等级：${s.level}</div>
+            </div>
+        `;
+    }
+    function renderBrowseList() {
+        const container = document.getElementById('browse-list-content');
+        if (!container) return;
+        container.innerHTML = MOCK.customers.map(c => `
+            <div class="card p-3.5 mb-2">
+                <div class="font-bold text-xs">${c.name}</div>
+                <div class="text-xs text-gray-500">${c.behavior}</div>
+            </div>
+        `).join('');
+    }
+    function renderCustomerDetail(id) {
+        const c = MOCK.customers.find(x => x.id === id) || MOCK.customers[0];
+        const container = document.getElementById('customer-detail-content');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="p-4 pt-12">
+                <div class="card text-center">
+                    <div class="font-bold text-base">${c.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${c.behavior}</div>
+                </div>
+            </div>
+        `;
+    }
+    function renderOrderList() {
+        const container = document.getElementById('order-list-content');
+        if (!container) return;
+        container.innerHTML = MOCK.orders.map(o => `
+            <div class="card p-3.5 mb-2 flex justify-between items-center">
+                <div class="text-xs font-bold">${o.name} - ${o.product}</div>
+                <button class="btn-primary text-xs py-1 px-3" onclick="showToast('回访完成')">回访</button>
             </div>
         `).join('');
     }
