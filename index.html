@@ -640,69 +640,167 @@ td.l{text-align:left;font-weight:600}
 .bm-modal .mc{margin-top:12px;border:none;background:#F0F1F5;color:#5A6070;font-size:13px;font-weight:600;font-family:inherit;padding:9px 0;width:100%;border-radius:12px;cursor:pointer}
 </style>
 <style data-pv="structure-remind" disabled>
-:root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15;--ok:#2BA471;--warn:#E5484D}
+:root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15;--ok:#2BA471;--warn:#E5484D;--blue:#3B82F6}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-
 .bm-page{max-width:420px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:28px}
 .nav{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.back{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:18px;flex:none}
+.back{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:18px;flex:none;cursor:pointer}
 .nav .tt{font-size:17px;font-weight:700}.nav .ss{font-size:11px;opacity:.85;margin-top:1px}
 .card{background:#fff;border-radius:16px;margin:12px 12px 0;padding:16px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
 .ct{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;margin-bottom:12px}
 .ct .bar{width:4px;height:16px;border-radius:2px;background:var(--o)}
 .ct .tip{font-size:11px;color:var(--gray);font-weight:400;margin-left:auto}
-#chart{width:100%;height:260px}
-.health{display:flex;gap:10px;margin-top:2px}
-.hi{flex:1;border-radius:14px;padding:13px 12px;background:var(--tint)}
-.hi .v{font-size:20px;font-weight:800}
-.hi .v.good{color:var(--ok)}.hi .v.warn{color:var(--warn)}.hi .v.mid{color:var(--o)}
-.hi .l{font-size:11px;color:var(--gray);margin-top:2px}
-.sug{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #F5F6FA;align-items:flex-start}
-.sug:last-child{border-bottom:none;padding-bottom:2px}
-.sug .ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;font-size:15px;font-weight:800}
-.sug .ic.r{background:#FDECEC;color:var(--warn)}
-.sug .ic.y{background:#FFF3E0;color:var(--o)}
-.sug .ic.g{background:#E8F5EE;color:var(--ok)}
-.sug .tx{flex:1}
-.sug .tx .t{font-size:13.5px;font-weight:700}
-.sug .tx .d{font-size:12px;color:#5A6070;line-height:1.65;margin-top:3px}
+/* 直属业绩 */
+.p-perf{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.p-perf .cell{border-radius:12px;padding:11px 6px;background:var(--tint);text-align:center;min-width:0}
+.p-perf .l{font-size:11px;font-weight:700;color:var(--deep)}
+.p-perf .v{font-size:18px;font-weight:800;color:var(--o);margin-top:3px}
+.p-perf .v small{font-size:11px;font-weight:700}
+.p-perf .d{font-size:10px;color:var(--gray);margin-top:2px}
+/* 直属状态 六宫格 */
+.p-status{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.p-status .cell{border-radius:13px;background:#FAFBFD;border:1px solid #F0F1F5;padding:13px 12px;position:relative;cursor:pointer;transition:transform .12s}
+.p-status .cell:active{transform:scale(.98)}
+.p-status .cell.clickable{background:linear-gradient(135deg,#FFF9F3 0%,#FFF1E6 100%);border-color:#FFE4CE}
+.p-status .l{font-size:11px;color:var(--gray);font-weight:600}
+.p-status .v{font-size:22px;font-weight:800;color:var(--ink);margin-top:4px;line-height:1.1}
+.p-status .v .sub{font-size:12px;color:var(--gray);font-weight:600;margin-left:2px}
+.p-status .cell.clickable .v{color:var(--o)}
+.p-status .note{font-size:10px;color:#9AA0AC;margin-top:5px;line-height:1.35}
+/* 直属业绩统计 */
+.p-stat .row{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #F5F6FA}
+.p-stat .row:last-child{border-bottom:none}
+.p-stat .av{width:36px;height:36px;border-radius:10px;background:var(--tint);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex:none}
+.p-stat .info{flex:1;min-width:0}
+.p-stat .n{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.p-stat .m{font-size:10.5px;color:var(--gray);margin-top:2px}
+.p-stat .kv{display:flex;align-items:flex-start;gap:8px;font-size:10.5px;line-height:1.7;margin-top:5px}
+.p-stat .kv .k{flex:none;width:34px;color:var(--gray);font-weight:600}
+.p-stat .kv .v{flex:1;min-width:0;color:#3A3F4E;word-break:break-all}
+.p-stat .kv .na{color:#B0B6C2;font-weight:600;background:#F2F4F8;border-radius:6px;padding:0 6px;font-size:10px;display:inline-block;margin:0 2px}
+/* 状态徽章（与 sub-card .tag 配色一致，结构上保持独立以避免样式冲突） */
+.p-stat .stag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;border:1px solid;line-height:1.4}
+.p-stat .stag.s-active{color:#2BA471;border-color:#B7E4CF;background:#EDF9F1}
+.p-stat .stag.s-non-active{color:#E5484D;border-color:#F7C5C6;background:#FDF2F3}
+.p-stat .stag.s-inactive{color:#8A90A0;border-color:#D8DCE4;background:#F2F4F8}
+.p-stat .stag.s-abnormal{color:#FF6A00;border-color:#FFD9B8;background:#FFF6EE}
+.p-stat .stag.s-sys{color:#2BA471;border-color:#B7E4CF;background:#EDF9F1}
+.p-stat .stag.s-mall{color:#8A90A0;border-color:#D8DCE4;background:#F2F4F8}
+/* 分组小标题与分隔线（体系维度 / 商城维度分组说明） */
+.p-stat .cap{font-size:10.5px;color:#B0B6C2;font-weight:600;padding:2px 0 4px}
+.p-stat .sdiv{height:1px;background:#F0F1F5;margin:10px 0 8px}
+.p-stat .vals .na-v{color:#B0B6C2;font-size:12px;font-weight:700}
+.p-stat .vals{text-align:right;flex:none;padding-top:2px}
+.p-stat .vals .vv{font-size:14px;font-weight:800;color:var(--o)}
+.p-stat .vals .vl{font-size:10px;color:var(--gray);margin-top:1px}
+/* 底部入口列表 */
+.p-links{margin-top:12px}
+.p-link{background:#fff;border-radius:16px;margin:12px 12px 0;padding:15px 16px;display:flex;align-items:center;gap:11px;box-shadow:0 4px 16px rgba(31,26,13,.05);cursor:pointer}
+.p-link .av{width:32px;height:32px;border-radius:9px;background:var(--tint);color:var(--o);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px;font-weight:800}
+.p-link .n{flex:1;font-size:14px;font-weight:700;color:var(--ink)}
+.p-link .ar{color:#C4C9D4;font-size:16px}
 .explain{background:var(--tint);border-radius:14px;margin:14px 12px 0;padding:14px 16px}
 .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
 .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
 </style>
+<style data-pv="page-sub-list" disabled>
+:root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15;--ok:#2BA471;--warn:#E5484D;--line:#FFE2E8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.bm-page{max-width:420px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:28px}
+.nav{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.back{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:18px;flex:none;cursor:pointer}
+.nav .tt{font-size:17px;font-weight:700}.nav .ss{font-size:11px;opacity:.85;margin-top:1px}
+/* 搜索 + 筛选 */
+.sub-searchbar{margin:12px 12px 0;background:#fff;border-radius:12px;border:1px solid #ECEFF4;padding:10px 12px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(31,26,13,.04)}
+.sub-searchbar svg{flex:none}
+.sub-searchbar input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:13px;color:var(--ink);font-family:inherit}
+.sub-searchbar input::placeholder{color:#B0B6C2}
+.sub-tabs{display:flex;gap:8px;margin:11px 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.sub-tabs::-webkit-scrollbar{display:none}
+.sub-tab{flex:none;padding:6px 12px;border-radius:14px;background:#fff;border:1px solid transparent;font-size:12.5px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit;transition:.15s}
+.sub-tab.on{background:var(--tint);color:var(--o);border-color:#FFD9B8}
+/* 活跃状态二级筛选：分段控件，仅在「活跃状态」Tab 可见 */
+.sub-aseg{display:flex;gap:8px;margin:9px 12px 0;align-items:center}
+.sub-achip{flex:none;padding:6px 14px;border-radius:14px;background:#fff;border:1px solid #ECEFF4;font-size:12.5px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit;transition:.15s}
+.sub-achip.on{background:var(--tint);color:var(--o);border-color:#FFD9B8}
+.sub-time{display:flex;justify-content:space-between;align-items:center;margin:9px 12px 0;background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 2px 8px rgba(31,26,13,.04);font-size:12.5px;color:var(--ink)}
+.sub-time .l{display:flex;align-items:center;gap:5px;color:var(--gray)}
+.sub-time .r{color:var(--ink);font-weight:600}
+/* 卡片 */
+.sub-cards{margin:11px 12px 0;padding-bottom:24px}
+.sub-card{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(31,26,13,.04)}
+.sub-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.sub-card .code{font-size:15px;font-weight:800;color:var(--o)}
+.sub-card .tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid}
+.sub-card .tag.active{color:var(--ok);border-color:#B7E4CF;background:#EDF9F1}
+.sub-card .tag.non-active{color:var(--warn);border-color:#F7C5C6;background:#FDF2F3}
+.sub-card .tag.inactive{color:var(--gray);border-color:#D8DCE4;background:#F2F4F8}
+.sub-card .tag.abnormal{color:var(--o);border-color:#FFD9B8;background:#FFF6EE}
+.sub-card .main{display:flex;gap:11px;align-items:flex-start}
+.sub-card .avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#F2F4F8;flex:none}
+.sub-card .avatar-txt{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#FFB063,var(--o));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex:none}
+.sub-card .info{flex:1;min-width:0}
+.sub-card .name{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.sub-card .phone{font-size:12px;color:var(--gray);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sub-card .copy{padding:2px 7px;border:1px solid var(--warn);border-radius:8px;color:var(--warn);background:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit}
+.sub-card .meta{font-size:11px;color:var(--gray);line-height:1.65}
+.sub-card .meta span{color:#3A3F4E}
+.sub-card .arrow{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#C4C9D4;flex:none;margin-top:10px}
+.sub-empty{padding:44px 0;text-align:center}
+.sub-empty .ic{width:56px;height:56px;border-radius:50%;background:#F2F4F8;display:flex;align-items:center;justify-content:center;margin:0 auto 11px;color:#B0B6C2}
+.sub-empty .t{font-size:13px;font-weight:700;color:var(--ink)}
+.sub-empty .d{font-size:11.5px;color:var(--gray);margin-top:4px}
+/* 时间筛选弹层 */
+.sub-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:130;display:none;align-items:flex-end}
+.sub-mask.on{display:flex}
+.sub-picker{width:100%;background:#fff;border-radius:16px 16px 0 0;padding:12px 0 24px;max-height:70vh;overflow-y:auto}
+.sub-picker .ph{padding:10px 16px;font-size:14px;font-weight:800;color:var(--ink);border-bottom:1px solid #F2F4F8}
+.sub-picker .opt{padding:13px 16px;font-size:13px;color:var(--ink);border-bottom:1px solid #F5F6FA;cursor:pointer}
+.sub-picker .opt.on{color:var(--o);font-weight:700;background:var(--tint)}
+</style>
 <style data-pv="fan-remind" disabled>
-:root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
+:root{--fr-red:#E63950;--ink:#1A1C1E;--gray:#8A90A0;--bg:#F5F6FA}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
 .bm-page{max-width:420px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:28px}
-.nav{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.back{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:18px;flex:none}
-.nav .tt{font-size:17px;font-weight:700}.nav .ss{font-size:11px;opacity:.85;margin-top:1px}
-.card{background:#fff;border-radius:16px;margin:12px 12px 0;padding:16px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
-.ct{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;margin-bottom:12px}
-.ct .bar{width:4px;height:16px;border-radius:2px;background:var(--o)}
-.ct .tip{font-size:11px;color:var(--gray);font-weight:400;margin-left:auto}
-.stats{display:flex;flex-wrap:wrap;gap:10px}
-.st{width:calc(50% - 5px);border-radius:14px;padding:13px 14px;background:var(--tint)}
-.st .v{font-size:20px;font-weight:800}
-.st .l{font-size:11px;color:var(--gray);margin-top:2px}
-.seg{display:flex;background:#F0F1F5;border-radius:12px;padding:3px;margin-top:12px}
-.seg button{flex:1;border:none;background:transparent;font-size:12.5px;color:#5A6070;padding:8px 0;border-radius:10px;font-family:inherit}
-.seg button.on{background:#fff;color:var(--o);font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-.frow{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #F5F6FA}
-.frow:last-child{border-bottom:none}
-.fav{width:40px;height:40px;border-radius:50%;background:var(--tint);color:var(--o);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
-.finfo{flex:1;min-width:0}
-.finfo .n{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
-.finfo .n .code{font-size:10.5px;color:var(--gray);background:#F0F1F5;border-radius:8px;padding:1px 7px;font-weight:500}
-.finfo .p{font-size:11.5px;color:var(--gray);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fval{text-align:right;flex:none}
-.fval .v{font-size:14px;font-weight:800;color:var(--o)}
-.fval .l{font-size:10px;color:var(--gray)}
-.badge{font-size:10px;color:#fff;background:var(--o);border-radius:8px;padding:1px 6px;font-weight:600}
-.explain{background:var(--tint);border-radius:14px;margin:14px 12px 0;padding:14px 16px}
-.explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
-.explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
+.fr-nav{background:#fff;padding:calc(env(safe-area-inset-top) + 12px) 14px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:10;border-bottom:1px solid #F0F1F5}
+.fr-back{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:20px;flex:none;cursor:pointer;text-decoration:none}
+.fr-nav .tt{font-size:17px;font-weight:800;color:var(--ink)}
+.fr-pill{margin-left:auto;border:1px solid #F3B6C0;background:#FDECEF;color:var(--fr-red);font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 10px;cursor:pointer}
+.fr-stat{background:#fff;border-radius:16px;margin:12px 12px 0;padding:16px 4px;display:flex;box-shadow:0 4px 16px rgba(31,26,13,.05)}
+.fr-stat .cell{flex:1;text-align:center}
+.fr-stat .cell+.cell{border-left:1px solid #F2F4F8}
+.fr-stat .v{font-size:24px;font-weight:800;color:var(--ink)}
+.fr-stat .v.red{color:var(--fr-red)}
+.fr-stat .l{font-size:11px;color:var(--gray);margin-top:3px}
+.fr-tabs{display:flex;gap:8px;margin:12px 12px 0;flex-wrap:wrap}
+.fr-tabs button{border:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#3A3F4E;background:#EDEFF3;border-radius:999px;padding:7px 14px;cursor:pointer}
+.fr-tabs button.on{background:#1A1C1E;color:#fff;font-weight:700}
+.fr-list{margin:2px 12px 0}
+.fr-card{background:#fff;border-radius:16px;margin-top:10px;padding:14px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
+.fr-head{display:flex;align-items:center;gap:10px}
+.fr-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#FFD3DB,#FF8FA3);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+.fr-id{font-size:15px;font-weight:800;color:var(--ink)}
+.fr-code{font-size:11px;color:var(--gray);margin-top:2px}
+.fr-badge{margin-left:auto;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:#E7F8EF;color:#18A058;flex:none}
+.fr-badge.warn{background:#FFF3E0;color:#E8890C}
+.fr-badge.danger{background:#FDECEF;color:var(--fr-red)}
+.fr-dates{display:flex;justify-content:space-between;font-size:11.5px;color:#5A6070;margin:10px 0 8px}
+.fr-bar{height:5px;border-radius:3px;background:#EEF0F4;overflow:hidden}
+.fr-bar i{display:block;height:100%;border-radius:3px;background:#2BB673}
+.fr-bar i.warn{background:#FF9500}
+.fr-bar i.danger{background:var(--fr-red)}
+.fr-empty{text-align:center;color:var(--gray);font-size:12.5px;padding:36px 0}
+.fr-rule{background:#fff;border-radius:16px;margin:14px 12px 0;padding:15px 14px 15px 17px;box-shadow:0 4px 16px rgba(31,26,13,.05);position:relative;overflow:hidden}
+.fr-rule:before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--fr-red)}
+.fr-rt{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:var(--ink)}
+.fr-step{display:flex;gap:10px;margin-top:13px}
+.fr-step .no{width:20px;height:20px;border-radius:50%;color:#fff;font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
+.fr-step .bt{font-size:13.5px;font-weight:800;color:var(--ink)}
+.fr-step .bd{font-size:12px;line-height:1.75;color:#5A6070;margin-top:3px}
+.fr-step .bd b{color:var(--fr-red);font-weight:700}
+.fr-flash{animation:frflash 1.1s ease 2}
+@keyframes frflash{0%,100%{box-shadow:0 4px 16px rgba(31,26,13,.05)}50%{box-shadow:0 0 0 3px rgba(230,57,80,.35)}}
 </style>
 <style data-pv="team-performance-remind" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--line:#FFF1E6;--deep:#B23A15}
@@ -753,6 +851,12 @@ td.l{text-align:left;font-weight:600}
 .explain{background:var(--tint);border-radius:14px;margin:14px 12px 0;padding:14px 16px}
 .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
 .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
+/* 本月团队总业绩：核心数据区（视觉权重高于其他指标：更大字号 / 更醒目橙色 / 更大展示面积） */
+.hero{background:linear-gradient(135deg,#FFF6EE 0%,#FFE9D6 100%);border:1px solid #FFD9B8;border-radius:14px;padding:14px 16px 13px;text-align:center;margin-bottom:11px}
+.hero .hl{font-size:12.5px;font-weight:700;color:#B23A15;letter-spacing:.02em}
+.hero .hv{font-size:31px;font-weight:800;color:#FF5F00;line-height:1.12;margin-top:5px;letter-spacing:-.01em}
+.hero .hv .cur{font-size:19px;font-weight:800;margin-right:1px}
+.hero .hd{font-size:11px;color:#8A90A0;margin-top:5px}
 </style>
 <style data-pv="page-personal-performance" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
@@ -895,32 +999,34 @@ td.l{text-align:left;font-weight:600}
 .bm-page .card{background:#fff;border-radius:16px;margin:12px 12px 0;padding:16px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
 .bm-page .ct{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;margin-bottom:12px}
 .bm-page .ct .bar{width:4px;height:16px;border-radius:2px;background:var(--o)}
-.bm-page .st{border-radius:14px;padding:13px 12px;background:var(--tint)}
-.bm-page .st .ic{width:30px;height:30px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-.bm-page .st .l{font-size:11.5px;color:var(--gray)}
-.bm-page .st .v{font-size:20px;font-weight:800;margin-top:3px}
-.bm-page .st .d{font-size:10.5px;color:#9AA0AC;margin-top:4px}
+.bm-page .ct .tip{font-size:11px;color:var(--gray);font-weight:400;margin-left:auto}
 .bm-page .explain{background:var(--tint);border-radius:14px;margin:14px 12px 16px;padding:14px 16px}
 .bm-page .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
 .bm-page .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
-
-:root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
-.bm-page .nav{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;padding:calc(env(safe-inset-top,14px) + 14px) 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.bm-page .back{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:18px;flex:none;cursor:pointer}
-.bm-page .nav .tt{font-size:17px;font-weight:700}
-.bm-page .nav .ss{font-size:11px;opacity:.85;margin-top:1px}
-.bm-page .card{background:#fff;border-radius:16px;margin:12px 12px 0;padding:16px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
-.bm-page .ct{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;margin-bottom:12px}
-.bm-page .ct .bar{width:4px;height:16px;border-radius:2px;background:var(--o)}
-.bm-page .st{border-radius:14px;padding:13px 12px;background:var(--tint)}
-.bm-page .st .ic{width:30px;height:30px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-.bm-page .st .l{font-size:11.5px;color:var(--gray)}
-.bm-page .st .v{font-size:20px;font-weight:800;margin-top:3px}
-.bm-page .st .d{font-size:10.5px;color:#9AA0AC;margin-top:4px}
-.bm-page .explain{background:var(--tint);border-radius:14px;margin:14px 12px 16px;padding:14px 16px}
-.bm-page .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
-.bm-page .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
-.bm-page .sug{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #F5F6FA;align-items:flex-start}.bm-page .sug:last-child{border-bottom:none}.bm-page .sug .ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;font-size:15px;font-weight:800}.bm-page .sug .ic.r{background:#FDECEC;color:#E5484D}.bm-page .sug .ic.y{background:#FFF3E0;color:#FF6A00}.bm-page .sug .ic.g{background:#E8F5EE;color:#2BA471}.bm-page .sug .tx{flex:1}.bm-page .sug .t{font-size:13.5px;font-weight:700}.bm-page .sug .d{font-size:12px;color:#5A6070;line-height:1.65;margin-top:3px}</style>
+/* —— 本月重点套组概览 —— */
+.bm-page .psrsum{display:flex;gap:10px}
+.bm-page .psrsum .cell{flex:1;text-align:center;border-radius:13px;padding:11px 4px;background:var(--tint)}
+.bm-page .psrsum .v{font-size:20px;font-weight:800;color:var(--o)}
+.bm-page .psrsum .l{font-size:10.5px;color:var(--gray);margin-top:3px;line-height:1.3}
+/* —— 套组卡片 —— */
+.bm-page .psrlist{margin:2px 12px 0}
+.bm-page .psrkit{background:#fff;border-radius:16px;margin-top:11px;padding:14px;box-shadow:0 4px 16px rgba(31,26,13,.05)}
+.bm-page .psrkit .khd{display:flex;align-items:flex-start;gap:10px}
+.bm-page .psrkit .kicon{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#FFB063,#FF6A00);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.bm-page .psrkit .kinfo{flex:1;min-width:0}
+.bm-page .psrkit .kname{font-size:14.5px;font-weight:800;color:var(--ink);line-height:1.35}
+.bm-page .psrkit .kid{font-size:10.5px;color:var(--gray);margin-top:3px}
+.bm-page .psrstats{display:flex;gap:8px;margin-top:12px}
+.bm-page .psrstats .cell{flex:1;text-align:center;background:#FAFBFD;border:1px solid #F0F1F5;border-radius:12px;padding:9px 3px}
+.bm-page .psrstats .v{font-size:17px;font-weight:800;color:var(--ink)}
+.bm-page .psrstats .v.warn{color:var(--o)}
+.bm-page .psrstats .l{font-size:10px;color:var(--gray);margin-top:3px;line-height:1.3}
+.bm-page .psrbtns{display:flex;gap:9px;margin-top:13px}
+.bm-page .psrbtn{flex:1;height:38px;border-radius:19px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 8px;text-align:center}
+.bm-page .psrbtn.ghost{background:#fff;color:var(--o);border:1px solid #FFD9B8}
+.bm-page .psrbtn.primary{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;border:none;box-shadow:0 4px 10px rgba(255,106,0,.22)}
+.bm-page .psrbtn.done{background:#F2F4F8;color:#B0B6C2;border:none;cursor:not-allowed}
+</style>
 <style data-pv="page-promotion-remind" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
 .bm-page .nav{background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;padding:calc(env(safe-inset-top,14px) + 14px) 14px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
@@ -938,6 +1044,42 @@ td.l{text-align:left;font-weight:600}
 .bm-page .explain{background:var(--tint);border-radius:14px;margin:14px 12px 16px;padding:14px 16px}
 .bm-page .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
 .bm-page .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
+.bm-page .ct .tip{font-size:11px;color:var(--gray);font-weight:400;margin-left:auto}
+/* —— 促销活动提醒：代理名称 / Code 搜索框 —— */
+.bm-page .prsearch{margin:12px 12px 0;height:40px;background:#fff;border:1px solid #ECEFF4;border-radius:12px;display:flex;align-items:center;gap:8px;padding:0 10px 0 12px;box-shadow:0 2px 8px rgba(31,26,13,.04)}
+.bm-page .prsearch .prsicon{flex:none}
+.bm-page .prsearch .prsinput{flex:1;min-width:0;height:100%;border:none;outline:none;background:transparent;font-size:13px;color:#23283A;font-family:inherit;padding:0}
+.bm-page .prsearch .prsinput::placeholder{color:#B0B6C2}
+.bm-page .prsearch .prsclear{flex:none;display:none;width:20px;height:20px;padding:0;border:none;border-radius:50%;background:#EDEFF4;color:#8A90A0;font-size:11px;line-height:1;align-items:center;justify-content:center;cursor:pointer;font-family:inherit}
+.bm-page .prsearch.has-value .prsclear{display:flex}
+/* —— 促销活动提醒：空状态 —— */
+.bm-page .prempty{padding:36px 0 30px;text-align:center}
+.bm-page .prempty .pei{width:52px;height:52px;border-radius:50%;background:#F2F4F8;display:flex;align-items:center;justify-content:center;margin:0 auto 11px}
+.bm-page .prempty .pet{font-size:13px;font-weight:700;color:#3A3F4E}
+.bm-page .prempty .ped{font-size:11.5px;color:#9AA0AC;margin-top:4px}
+.bm-page .prempty .peb{margin-top:13px;border:none;background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;font-size:12.5px;font-weight:700;padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit}
+/* —— 促销活动提醒：直属下级明细列表 —— */
+.bm-page .prlist{margin:11px 12px 0}
+/* —— 促销活动提醒：直属下级权益卡片 —— */
+.bm-page .prsub{border:1px solid #F1F3F7;border-radius:14px;padding:13px;margin-top:11px;background:#fff}
+.bm-page .prsub:first-child{margin-top:0}
+.bm-page .prhd{display:flex;align-items:center;gap:10px}
+.bm-page .prav{flex:none;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#FFB063,#FF6A00);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bm-page .prnm{font-size:14.5px;font-weight:800;line-height:1.25;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.bm-page .prlv{font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:20px;background:#FFF6EE;color:#B23A15;border:1px solid #FFD9B8}
+.bm-page .prcd{font-size:11px;color:var(--gray);margin-top:4px}
+.bm-page .prcd b{color:#3A3F4E;font-weight:700}
+.bm-page .prm{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:11px;background:#FAFBFD;border-radius:11px;padding:10px 4px}
+.bm-page .prm .m{text-align:center}
+.bm-page .prm .ml{font-size:10px;color:var(--gray);line-height:1.35}
+.bm-page .prm .mv{font-size:15.5px;font-weight:800;margin-top:4px;color:#3A3F4E}
+.bm-page .prm .mv.hot{color:#E5484D}
+.bm-page .prm .mv.warn{color:#FF6A00}
+.bm-page .prexp{margin-top:9px;font-size:10.5px;color:#9AA0AC;line-height:1.6}
+.bm-page .prbtn{margin-top:11px;width:100%;height:38px;border-radius:11px;border:none;font-size:13.5px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#FFA136,#FF5F00);color:#fff;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:opacity .15s}
+.bm-page .prbtn:active{opacity:.85}
+.bm-page .prbtn.ghost{background:#F2F4F8;color:#A8AEBB;cursor:default}
+.bm-page .prbtn.ghost:active{opacity:1}
 </style>
 <style data-pv="page-user-behavior-remind" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
@@ -1425,81 +1567,114 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
 
 <div id="page-structure-remind" class="page sub-page" data-pv="structure-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
   <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
-<div class="bm-page">
-  <div class="nav">
-    <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-    <div><div class="tt">人员结构提醒</div><div class="ss">现有团队年龄结构 vs 健康模型</div></div>
+    <div class="nav">
+      <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
+      <div><div class="tt">直属管理</div><div class="ss">我的 · 直属下级管理</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="bar"></span>直属业绩<span class="tip">当月累计</span></div>
+      <div class="p-perf">
+        <div class="cell"><div class="l">当月业绩</div><div class="v"><small>¥</small>3108.5</div><div class="d">已入账 · 未入账 0</div></div>
+        <div class="cell"><div class="l">当月订单</div><div class="v">22</div><div class="d">已入账 · 未入账 22</div></div>
+        <div class="cell"><div class="l">当月新增</div><div class="v">1</div><div class="d">直属新增长</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="bar"></span>直属状态</div>
+      <div class="p-status" id="pStatus"></div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="bar"></span>直系业绩统计</div>
+      <div class="p-stat" id="pStatList"></div>
+    </div>
+
+    <div class="p-links">
+      <div class="p-link" onclick="showToast('原型入口：直属购买商品列表')"><div class="av">购</div><div class="n">直属购买商品列表</div><div class="ar">›</div></div>
+      <div class="p-link" onclick="showToast('原型入口：下级开卡时间筛选')"><div class="av">卡</div><div class="n">下级开卡时间筛选</div><div class="ar">›</div></div>
+      <div class="p-link" onclick="showToast('原型入口：下级未下单时间筛选')"><div class="av">单</div><div class="n">下级未下单时间筛选</div><div class="ar">›</div></div>
+      <div class="p-link" onclick="showToast('原型入口：直属优化列表')"><div class="av">优</div><div class="n">直属优化列表</div><div class="ar">›</div></div>
+      <div class="p-link" onclick="showToast('原型入口：直属庭秘密体系业绩查询')"><div class="av">秘</div><div class="n">直属庭秘密体系业绩查询</div><div class="ar">›</div></div>
+      <div class="p-link" onclick="showToast('原型入口：新增代理排名')"><div class="av">排</div><div class="n">新增代理排名</div><div class="ar">›</div></div>
+    </div>
+
+    <div class="explain">
+      <div class="et">说明</div>
+      <p id="pExplain">原型演示数据 · 直属管理第一期：总数、活跃/非活跃、金卡、本月新增长、已冻结、未激活六项为当前直属下级快照；点击总数或活跃/非活跃可进入直属列表查看明细；其余入口为占位入口，待后续迭代。</p>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="ct"><span class="bar"></span>年龄结构对比<span class="tip">健康模型 vs 你的团队</span></div>
-    <div id="chart"></div>
+<div id="page-sub-list" class="page sub-page" data-pv="page-sub-list" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
+  <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
+    <div class="nav">
+      <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
+      <div><div class="tt">直属列表</div><div class="ss">我的 · 直属下级明细</div></div>
+    </div>
+
+    <div class="sub-searchbar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="#B0B6C2" stroke-width="1.8" fill="none"/><path d="M15.5 15.5L21 21" stroke="#B0B6C2" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input type="text" id="subSearchInput" placeholder="请输入经销商姓名/优惠码/手机号" autocomplete="off" oninput="subSearch()">
+    </div>
+
+    <div class="sub-tabs" id="subTabs"></div>
+
+    <div class="sub-aseg" id="subActiveSeg" style="display:none"></div>
+
+    <div class="sub-time" onclick="subTimeOpen()">
+      <div class="l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8A90A0" stroke-width="1.6" fill="none"/><path d="M12 7v5l3 3" stroke="#8A90A0" stroke-width="1.6" stroke-linecap="round"/></svg> 上次购买时间</div>
+      <div class="r" id="subTimeLabel">上次购买：全部日期</div>
+    </div>
+
+    <div class="sub-cards" id="subCards"></div>
   </div>
 
-  <div class="card">
-    <div class="ct"><span class="bar"></span>结构健康度</div>
-    <div class="health">
-      <div class="hi"><div class="v mid">6.8%</div><div class="l">18-24 潜力层占比<br>（健康线 15%）</div></div>
-      <div class="hi"><div class="v good">42.6%</div><div class="l">25-35 中坚层占比<br>（健康线 45%）</div></div>
-      <div class="hi"><div class="v warn">31.2%</div><div class="l">46+ 高龄层占比<br>（健康线 ≤12%）</div></div>
+  <div class="sub-mask" id="subMask" onclick="subTimeClose()">
+    <div class="sub-picker" onclick="event.stopPropagation()">
+      <div class="ph">按「上次购买时间」筛选</div>
+      <div class="opt on" data-val="all" onclick="subTimePick('all')">全部日期</div>
+      <div class="opt" data-val="7" onclick="subTimePick('7')">近 7 天</div>
+      <div class="opt" data-val="30" onclick="subTimePick('30')">近 30 天</div>
+      <div class="opt" data-val="90" onclick="subTimePick('90')">近 90 天</div>
+      <div class="opt" data-val="180" onclick="subTimePick('180')">近 180 天</div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="ct"><span class="bar"></span>建议与提醒</div>
-    <div class="sug">
-      <div class="ic r">!</div>
-      <div class="tx"><div class="t">高龄层占比超标 19.2 个百分点</div><div class="d">46 岁以上成员占 31.2%，远高于健康模型（≤12%）。该层复购周期长、线上转化弱，建议引导其向「消费型会员」运营，把派单流量优先分给中坚层。</div></div>
-    </div>
-    <div class="sug">
-      <div class="ic y">↑</div>
-      <div class="tx"><div class="t">18-24 潜力层缺口 8.2 个百分点</div><div class="d">年轻层是私域裂变的主力（占健康模型 15%）。建议通过短视频种草、校园/宝妈社群拉新，并给予新开卡 30 天首单的专项激励。</div></div>
-    </div>
-    <div class="sug">
-      <div class="ic g">✓</div>
-      <div class="tx"><div class="t">25-35 中坚层基本达标</div><div class="d">占比 42.6%，接近健康线 45%。该层是业绩与复购核心，保持当前派单与培训资源投入，重点提升人均客单。</div></div>
-    </div>
-    <div class="sug">
-      <div class="ic y">＋</div>
-      <div class="tx"><div class="t">建议下季度纳新目标</div><div class="d">若 3 个月内新招 18-30 岁代理 80 人（当前月均 15 人），可将潜力层拉回健康线，同时稀释高龄层占比约 4 个百分点。</div></div>
-    </div>
-  </div>
-
-  <div class="explain">
-    <div class="et">说明</div>
-    <p>1. 健康模型基于社交电商团队大盘沉淀：18-24 潜力层 15%、25-35 中坚层 45%、36-45 稳定层 28%、46+ 层 ≤12%；<br>2. 现有结构为你的下级代理实名年龄分布（按身份证口径），每月自动对比一次；<br>3. 提醒规则：任一层级偏离健康线 ±5 个百分点即触发提醒，并给出可执行的纳新 / 运营建议。</p>
   </div>
 </div>
-  </div>
 </div>
 
 <div id="page-fan-remind" class="page sub-page" data-pv="fan-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
   <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
 <div class="bm-page">
-  <div class="nav">
-    <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-    <div><div class="tt">客户粉丝提醒</div><div class="ss">非代理 temp 账号购买洞察</div></div>
+  <div class="fr-nav">
+    <a class="fr-back" href="javascript:void(0)" onclick="goBack()">‹</a>
+    <div class="tt">我的粉丝</div>
+    <div class="fr-pill" onclick="fanRule()">染色 30 天</div>
   </div>
 
-  <div class="card">
-    <div class="ct"><span class="bar"></span>购买总览<span class="tip" id="rangeTip">近 6 个月</span></div>
-    <div class="stats">
-      <div class="st"><div class="v" id="s1">328</div><div class="l">购买粉丝数（temp 账号）</div></div>
-      <div class="st"><div class="v" id="s2">1,074 件</div><div class="l">累计购买数量</div></div>
-      <div class="st"><div class="v" id="s3">¥96,520</div><div class="l">累计消费金额</div></div>
-      <div class="st"><div class="v" id="s4">¥294</div><div class="l">人均消费</div></div>
+  <div class="fr-stat">
+    <div class="cell"><div class="v" id="fanS1">0</div><div class="l">染色中（人）</div></div>
+    <div class="cell"><div class="v red" id="fanS2">0</div><div class="l">7 天内解绑</div></div>
+    <div class="cell"><div class="v red" id="fanS3">0</div><div class="l">今日解绑</div></div>
+  </div>
+
+  <div class="fr-tabs" id="fanTabs"></div>
+  <div class="fr-list" id="fanList"></div>
+
+  <div class="fr-rule" id="fanRuleCard">
+    <div class="fr-rt"><svg width="15" height="15" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#E63950" stroke-width="1.8"/><path d="M11 10v5" stroke="#E63950" stroke-width="1.8" stroke-linecap="round"/><circle cx="11" cy="7" r="1.2" fill="#E63950"/></svg>染色规则说明</div>
+    <div class="fr-step">
+      <div class="no" style="background:#3B82F6">1</div>
+      <div><div class="bt">染色绑定</div><div class="bd">消费者经你的专属链接<b>首次成交</b>，即绑定到你的名下并进入绑定期，有效期为 <b>30 天</b>。</div></div>
     </div>
-    <div class="seg" id="seg"></div>
-  </div>
-
-  <div class="card">
-    <div class="ct"><span class="bar"></span>高价值粉丝 TOP<span class="tip">按消费金额排序</span></div>
-    <div id="list"></div>
-  </div>
-
-  <div class="explain">
-    <div class="et">说明</div>
-    <p>1. 统计对象为非代理的 temp 账号客户（code 形如 tempXXXXXXX），即「粉丝 / 散客」，不占代理业绩口径；<br>2. 默认统计近 6 个月，可切换近 1 / 3 个月；展示购买数量、金额与最近一次购买时间；<br>3. 连续 60 天未复购的粉丝将触发「流失预警」，建议通过礼包 / 生日礼触达；「转代理」标记为近 30 天内由 temp 升级为代理的账号，提示你的招募转化成果。</p>
+    <div class="fr-step">
+      <div class="no" style="background:#9CA3AF">2</div>
+      <div><div class="bt">到期释放</div><div class="bd">绑定期满且期间<b>无新成交</b>，染色自动释放，该消费者后续成交不再归属你。</div></div>
+    </div>
+    <div class="fr-step">
+      <div class="no" style="background:#FF8F1F">3</div>
+      <div><div class="bt">复购续期</div><div class="bd">绑定期内消费者<b>再次成交</b>，有效期<b>顺延 / 续期</b>，无需重新绑定。</div></div>
+    </div>
   </div>
 </div>
   </div>
@@ -1514,12 +1689,12 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
   </div>
 
   <div class="card">
-    <div class="ct"><span class="bar"></span>查看视角<span class="tip" id="roleTip"></span></div>
-    <div class="seg" id="roleSeg"></div>
-  </div>
-
-  <div class="card">
     <div class="ct"><span class="bar"></span>当月概况<span class="live"><i></i>实时 · 当月</span></div>
+    <div class="hero">
+      <div class="hl">本月团队总业绩</div>
+      <div class="hv"><span class="cur">¥</span><span id="sPerf">26,500.01</span></div>
+      <div class="hd">含 <span id="sPerfN">363</span> 位有业绩下级 · 实时（当月）口径</div>
+    </div>
     <div class="sumstrip">
       <div class="su"><div class="v" id="sTotal">363</div><div class="l" id="sTotalL">当月有业绩下级</div></div>
       <div class="su"><div class="v" style="color:var(--o)" id="sUp">41</div><div class="l" id="sUpL">本月临门升档（差 ≤ ¥500）</div></div>
@@ -1593,6 +1768,28 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
   </div>
 </div>
 
+<div id="page-product-sales-remind" class="page sub-page" data-pv="page-product-sales-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
+  <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
+    <div class="nav">
+      <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
+      <div><div class="tt">产品销售提醒</div><div class="ss">本月重点套组 · 直属下级购买提醒</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="bar"></span>本月重点套组概览<span class="tip" id="psrTip"></span></div>
+      <div class="psrsum" id="psrSum"></div>
+    </div>
+
+    <div class="psrlist" id="psrList"></div>
+
+    <div class="explain">
+      <div class="et">口径与数据说明</div>
+      <p id="psrExplain"></p>
+    </div>
+  </div>
+  <div id="psToast" style="display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:120;opacity:0;transition:opacity .22s ease;pointer-events:none;white-space:nowrap"></div>
+</div>
+
 <div id="page-kit-monthly" class="page sub-page" data-pv="page-kit-monthly" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
   <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
     <div class="nav">
@@ -1616,50 +1813,27 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
   </div>
 </div>
 
-<div id="page-product-sales-remind" class="page sub-page" data-pv="page-product-sales-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
-  <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
-    <div class="nav">
-      <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-      <div><div class="tt">产品销售提醒</div><div class="ss">总提醒 · 产品销售异常提醒</div></div>
-    </div>
-    <div class="card">
-      <div class="ct"><span class="bar"></span>页面说明</div>
-      <p style="font-size:13px;color:#5A6070;line-height:1.85;margin:4px 0 0;">本页面为<strong style="color:#FF6A00;">「产品销售提醒」</strong>的演示原型，用于补齐 17 个经营入口的跳转闭环。功能目标与跳转关系已按新版「我的」页面规划对齐，等待真实业务接口联调后即可接入。</p>
-    </div>
-<div class="card">
-      <div class="ct"><span class="bar"></span>近期产品销售提醒</div>
-      <div class="sug"><div class="ic r">!</div><div class="tx"><div class="t">氨基酸洁面双支装 · 销量骤降</div><div class="d">近 7 日销量较上 7 日下降 38%，建议结合活动促销或推送</div></div></div>
-      <div class="sug"><div class="ic y">!</div><div class="tx"><div class="t">胶原冻干粉套盒 · 库存预警</div><div class="d">当前库存仅剩 14 套，预计 5 日内售罄，建议尽快补货</div></div></div>
-      <div class="sug"><div class="ic g">✓</div><div class="tx"><div class="t">焕活多肽修护套组 · 复购率高</div><div class="d">30 日复购率达 41%，建议设置套组专属优惠锁定客户</div></div></div>
-    </div>
-    <div class="explain">
-      <div class="et">说明</div>
-      <p>演示页面 · 数据为占位值，待真实接口接入后由后端返回填充。请勿将演示数据视为真实业务数据。</p>
-    </div>
-  </div>
-</div>
-
 <div id="page-promotion-remind" class="page sub-page" data-pv="page-promotion-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
   <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
     <div class="nav">
       <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-      <div><div class="tt">促销活动提醒</div><div class="ss">总提醒 · 促销活动节奏提醒</div></div>
+      <div><div class="tt">促销活动提醒</div><div class="ss">总提醒 · 下级权益到期提醒</div></div>
     </div>
-    <div class="card">
-      <div class="ct"><span class="bar"></span>页面说明</div>
-      <p style="font-size:13px;color:#5A6070;line-height:1.85;margin:4px 0 0;">本页面为<strong style="color:#FF6A00;">「促销活动提醒」</strong>的演示原型，用于补齐 17 个经营入口的跳转闭环。功能目标与跳转关系已按新版「我的」页面规划对齐，等待真实业务接口联调后即可接入。</p>
+
+    <div class="prsearch" id="prSearchBox">
+      <svg class="prsicon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="#B0B6C2" stroke-width="1.8" fill="none"/><path d="M15.5 15.5L21 21" stroke="#B0B6C2" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="prSearchInput" class="prsinput" type="text" placeholder="搜索代理名称或 Code" autocomplete="off" oninput="prSearch(this.value)">
+      <button id="prSearchClear" class="prsclear" type="button" onclick="prSearch('')" aria-label="清除搜索">✕</button>
     </div>
-<div class="card">
-      <div class="ct"><span class="bar"></span>近期促销活动</div>
-      <div class="sug"><div class="ic y">!</div><div class="tx"><div class="t">双十一预热 · 倒计时 12 天</div><div class="d">建议提前 1 周完成重点套组库存检查与备货目标分解</div></div></div>
-      <div class="sug"><div class="ic r">!</div><div class="tx"><div class="t">上期活动效果未达预期</div><div class="d">"国庆满 500 减 80" 活动转化率仅 6.2%，建议优化触达人群</div></div></div>
-      <div class="sug"><div class="ic g">✓</div><div class="tx"><div class="t">本周新增 2 场直播排期</div><div class="d">周三 20:00、周六 20:00，建议提前 24 小时推送提醒</div></div></div>
-    </div>
+
+    <div id="prSubList" class="prlist"></div>
+
     <div class="explain">
-      <div class="et">说明</div>
-      <p>演示页面 · 数据为占位值，待真实接口接入后由后端返回填充。请勿将演示数据视为真实业务数据。</p>
+      <div class="et">口径与数据说明</div>
+      <p id="prExplain"></p>
     </div>
   </div>
+  <div id="prToast" style="display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:120;opacity:0;transition:opacity .22s ease;pointer-events:none;white-space:nowrap"></div>
 </div>
 
 <div id="page-user-behavior-remind" class="page sub-page" data-pv="page-user-behavior-remind" style="display:flex;flex-direction:column;background:#F5F6FA;z-index:10;">
@@ -1896,7 +2070,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                     </div>
                     <div style="font-size:11.5px;font-weight:700;color:#1A1C1E;">促销活动</div>
                 </div>
-                <div onclick="navTo('page-user-behavior-remind')" style="padding:11px 8px;border-radius:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
+                <div onclick="navTo('page-my-customers')" style="padding:11px 8px;border-radius:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
                     <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#FFF6EE,#FFE3C4);display:flex;align-items:center;justify-content:center;">
                         <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M3 11l9-7 9 7v9h-6v-6h-6v6H3v-9z" stroke="#FF6A00" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
                     </div>
@@ -1953,7 +2127,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                     <div style="width:38px;height:38px;border-radius:12px;background:#FFF6EE;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><path d="M3.5 8.5l15-3.5v4.5l-15 3.5v-4.5z" stroke="#FF6A00" stroke-width="1.6" stroke-linejoin="round"/><circle cx="8.5" cy="14.5" r="3" stroke="#FF6A00" stroke-width="1.6"/></svg></div>
                     <span style="font-size:10.5px;color:#3A3F4E;">折扣专区</span>
                 </div>
-                <div onclick="showToast('我的粉丝 - 原型未实现')" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:4px 0;">
+                <div onclick="navTo('page-fan-remind')" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:4px 0;">
                     <div style="width:38px;height:38px;border-radius:12px;background:#FFF6EE;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#FF6A00" stroke-width="1.6"/><path d="M3.5 18.5c1-4.5 3.3-6.5 5.5-6.5s4.5 2 5.5 6.5" stroke="#FF6A00" stroke-width="1.6" stroke-linecap="round"/></svg></div>
                     <span style="font-size:10.5px;color:#3A3F4E;">我的粉丝</span>
                 </div>
@@ -2373,7 +2547,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
             { id: 5, name: '赵六', level: '中级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'orange', sales: 4200, salesGoal: 5000, customers: 11, customersGoal: 12, statusMsg: '接近目标，可定向帮扶', activeTime: '1小时前' },
             { id: 6, name: '小林', level: '初级成员', statusTag: '成长中', tagClass: 'tag-orange', img: 'teal', sales: 2800, salesGoal: 3000, customers: 8, customersGoal: 10, statusMsg: '分享活跃上升中', activeTime: '3小时前' }
         ],
-        // 直属下级档案
+        // 直属下级档案（第一期人员结构改造复用该数据源）
         myCustomersList: [
             { 
                 id: 1001, 
@@ -2381,6 +2555,14 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                 code: 'AAXG048688', 
                 level: 'E档', 
                 img: 'pink',
+                phone: '18312345678',
+                status: 'active',
+                isGold: true,
+                isFrozen: false,
+                isNewThisMonth: false,
+                lastOnline: '2026-10-18 14:30',
+                lastPurchase: '2026-10-10 10:20',
+                openCardTime: '2024-03-15',
                 monthlySales: {
                     '2026-10': { sales: 269, tingmimiPersonal: 269, tingmimiDirect: 0, tingmimiTeam: 269, baokuanPersonal: 0, baokuanDirect: 0 },
                     '2026-09': { sales: 580, tingmimiPersonal: 380, tingmimiDirect: 100, tingmimiTeam: 580, baokuanPersonal: 100, baokuanDirect: 0 }
@@ -2392,6 +2574,14 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                 code: 'AAXG059123', 
                 level: 'B档', 
                 img: 'purple',
+                phone: '15987654321',
+                status: 'non-active',
+                isGold: false,
+                isFrozen: false,
+                isNewThisMonth: false,
+                lastOnline: '2026-08-20 09:15',
+                lastPurchase: '2026-06-12 16:40',
+                openCardTime: '2023-11-02',
                 monthlySales: {
                     '2026-10': { sales: 5800, tingmimiPersonal: 3200, tingmimiDirect: 1500, tingmimiTeam: 5800, baokuanPersonal: 600, baokuanDirect: 200 },
                     '2026-09': { sales: 4900, tingmimiPersonal: 2900, tingmimiDirect: 1200, tingmimiTeam: 4900, baokuanPersonal: 500, baokuanDirect: 300 }
@@ -2403,6 +2593,14 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                 code: 'AAXG066782', 
                 level: 'D档', 
                 img: 'blue',
+                phone: '18811112222',
+                status: 'inactive',
+                isGold: false,
+                isFrozen: false,
+                isNewThisMonth: true,
+                lastOnline: '暂无数据',
+                lastPurchase: '暂无数据',
+                openCardTime: '2026-10-05',
                 monthlySales: {
                     '2026-10': { sales: 1200, tingmimiPersonal: 1200, tingmimiDirect: 0, tingmimiTeam: 1200, baokuanPersonal: 100, baokuanDirect: 0 },
                     '2026-09': { sales: 900, tingmimiPersonal: 900, tingmimiDirect: 0, tingmimiTeam: 900, baokuanPersonal: 0, baokuanDirect: 0 }
@@ -2414,6 +2612,14 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                 code: 'AAXG011223', 
                 level: 'S档', 
                 img: 'orange',
+                phone: '13999998888',
+                status: 'abnormal',
+                isGold: true,
+                isFrozen: false,
+                isNewThisMonth: false,
+                lastOnline: '2025-12-10 11:00',
+                lastPurchase: '2025-11-11 13:25',
+                openCardTime: '2022-05-20',
                 monthlySales: {
                     '2026-10': { sales: 24500, tingmimiPersonal: 5000, tingmimiDirect: 12000, tingmimiTeam: 24500, baokuanPersonal: 3000, baokuanDirect: 8000 },
                     '2026-09': { sales: 21000, tingmimiPersonal: 4000, tingmimiDirect: 11000, tingmimiTeam: 21000, baokuanPersonal: 2000, baokuanDirect: 4000 }
@@ -3170,196 +3376,323 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
             `
         },
         'page-structure-remind': {
-            title: '人员结构提醒｜功能说明',
-            pageName: '人员结构提醒',
-            statusTag: '原型 · 演示页',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            title: '直属管理｜功能说明',
+            pageName: '直属管理',
+            statusTag: '已开发 · 原型数据',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">团队人员结构健康度评估与建议</p>
+                <p class="doc-p">直属管理第一期：查看直属下级总人数、活跃/非活跃状态及对应人员明细。</p>
                 <div class="doc-sec-title">二、主要展示内容</div>
                 <ul class="doc-list">
-                    <li>查看健康度</li>
-                    <li>查看建议项</li>
-                    <li>查看明细</li>
+                    <li>直属业绩：当月业绩 / 当月订单 / 当月新增（复用现有演示数据）</li>
+                    <li>直属状态六宫格：总数、活跃/非活跃、金卡、本月新增长、已冻结、未激活</li>
+                    <li>直系业绩统计：<b>按体系 / 商城维度汇总</b>，每行一个维度 —— 图标 + 名称、订单数（已入账 / 未入账）、业绩（已入账 / 未入账）；<b>不展示人员姓名 / Code / 活跃状态</b>等人员级信息</li>
+                    <li>底部入口：直属购买商品列表、下级开卡时间筛选、下级未下单时间筛选、直属优化列表等占位入口</li>
                 </ul>
                 <div class="doc-sec-title">三、关键交互</div>
-                <p class="doc-p">图表 + 建议列表</p>
-                <div class="doc-sec-title">四、跳转关系</div>
+                <ul class="doc-list">
+                    <li>点击「总数」：进入直属列表并默认选中「全部」</li>
+                    <li>点击「活跃/非活跃」：进入直属列表并<b>直接进入「活跃状态」筛选</b>（默认活跃，可切换非活跃），不再回落到「全部」</li>
+                    <li>其余四项当前仅展示数量，不跳转独立页面</li>
+                </ul>
+                <div class="doc-sec-title">四、待业务确认 / 数据缺口</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 人员结构提醒（page-structure-remind）。
+                        ① <b>「已入账 / 未入账」拆分字段与「订单数」字段缺失</b>：当前演示数据只有体系维度的业绩金额（<code>tingmimiDirect</code> / <code>baokuanDirect</code>），订单数与入账拆分均如实标记「待接入」；<br>
+                        ② <b>商城主数据缺失</b>：原型中无「完美纪元 / Ai美丽商城」等商城底表，商城维度（庭秘密商城 / Ai美丽商城 / 完美纪元商城）为占位行，待接口接入后填充；现有数字均来自体系维度（庭秘密 / 爆款）的<b>直系口径</b>真实汇总（各直属下级当月直系字段求和），未虚构；<br>
+                        ③ <b>活跃 / 非活跃的时间阈值未定义</b>：沿用人员状态字段 <code>status</code>，时间口径由可配置筛选承载，阈值需业务确认。
+                    </div>
+                </div>
+                <div class="doc-sec-title">五、跳转关系</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        我的 → 总提醒 → 人员结构提醒（page-structure-remind）→ 直属管理首页；<br>
+                        直属管理 → 点击总数 / 活跃非活跃 → 直属列表（page-sub-list）。
                     </div>
                 </div>
                 <div class="h-4"></div>
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-structure-remind</code>，CSS 通过 <code>[data-pv="structure-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
+                <p class="doc-p">页面容器 <code>#page-structure-remind</code>，CSS 通过 <code>[data-pv="structure-remind"]</code> 动态注入；初始化入口 <code>initPage_structure_remind()</code>。数据复用 <code>MOCK.myCustomersList</code>，新增字段 <code>status / phone / isGold / isFrozen / isNewThisMonth / lastOnline / lastPurchase / openCardTime</code>。</p>
+                <div class="doc-sec-title">二、当前实现状态</div>
+                <ul class="doc-list">
+                    <li>页面框架：✅ 已完成（已替换为直属管理首页）</li>
+                    <li>数据接入：⚠️ 原型模拟数据（4 位直属下级）</li>
+                    <li>图表渲染：—（无图表）</li>
+                    <li>直属列表：✅ 新增共用容器 <code>#page-sub-list</code></li>
+                </ul>
+                <div class="doc-sec-title">三、字段数据模型</div>
+                <ul class="doc-list">
+                    <li><code>myCustomersList[].status</code>：active / non-active / inactive / abnormal</li>
+                    <li><code>isGold / isFrozen / isNewThisMonth</code>：布尔标记</li>
+                    <li><code>phone / lastOnline / lastPurchase / openCardTime</code>：列表展示字段</li>
+                </ul>
+                <div class="h-4"></div>
+            `
+        },
+        'page-sub-list': {
+            title: '直属列表｜功能说明',
+            pageName: '直属列表',
+            statusTag: '已开发 · 原型数据',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
+            biz: `
+                <div class="doc-sec-title">一、功能目标</div>
+                <p class="doc-p">查看直属下级明细，支持搜索、状态 Tab 筛选（含活跃状态二级筛选）、按「上次购买时间」筛选、复制手机号、进入人员详情。</p>
+                <div class="doc-sec-title">二、主要展示内容</div>
+                <ul class="doc-list">
+                    <li>搜索框：按姓名 / Code / 手机号模糊匹配</li>
+                    <li>四个状态 Tab：全部、<b>活跃状态</b>、未激活卡、异常卡（含人数统计，人数随搜索 / 时间筛选联动）</li>
+                    <li>「活跃状态」Tab 下的二级分段控件：活跃 / 非活跃（各自带人数，切换后列表同步刷新）</li>
+                    <li>时间筛选：按「上次购买时间」筛选，全部日期 / 近 7 天 / 近 30 天 / 近 90 天 / 近 180 天</li>
+                    <li>人员卡片：Code、状态标签、头像/姓名首字、姓名、手机号（掩码 + 复制）、上次在线、上次购买、开卡时间、详情箭头</li>
+                </ul>
+                <div class="doc-sec-title">三、关键交互</div>
+                <ul class="doc-list">
+                    <li>入口决定默认状态：直属管理「总数」→ 全部 Tab；「活跃 / 非活跃」→ 活跃状态 Tab（默认活跃，不再回落到全部）</li>
+                    <li>活跃 / 非活跃切换、Tab 切换、搜索、时间筛选均实时更新列表与人数</li>
+                    <li>时间筛选与状态筛选叠加生效，时间口径严格为「上次购买时间」（不使用开卡时间 / 上次在线时间）</li>
+                    <li>点击卡片 / 箭头：进入原有直属下级详情页 <code>page-subordinate-customer-detail</code></li>
+                    <li>点击复制按钮：尝试写入剪贴板，失败时给出原型反馈</li>
+                    <li>从详情返回后保留 Tab、二级状态、搜索词、时间筛选及滚动位置（同一会话内）</li>
+                </ul>
+                <div class="doc-sec-title">四、待业务确认</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        活跃 / 非活跃当前沿用人员状态字段 <code>status</code> 判定；「距上次购买 N 天算非活跃」的<b>时间阈值尚未有明确业务口径</b>，现以可配置的时间筛选交互承载（近 7 / 30 / 90 / 180 天），阈值需业务确认后固化。
+                    </div>
+                </div>
+                <div class="doc-sec-title">五、跳转关系</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        直属管理 → 直属列表（page-sub-list，默认 Tab 由入口决定）→ 人员详情（page-subordinate-customer-detail）；返回统一回到直属管理。
+                    </div>
+                </div>
+                <div class="h-4"></div>
+            `,
+            dev: `
+                <div class="doc-sec-title">一、容器与标识</div>
+                <p class="doc-p">页面容器 <code>#page-sub-list</code>，CSS 通过 <code>[data-pv="page-sub-list"]</code> 动态注入；初始化入口 <code>initPage_page_sub_list()</code>；与「总数 / 活跃状态入口」共用同一容器（<b>不创建第二套列表</b>）。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
                     <li>页面框架：✅ 已完成</li>
-                    <li>数据接入：⏳ 等待真实接口</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>数据接入：⚠️ 原型模拟数据（复用 MOCK.myCustomersList）</li>
+                    <li>搜索 / Tab / 二级活跃筛选 / 时间筛选 / 复制 / 详情跳转：✅ 已实现</li>
+                    <li>每次进入均重新渲染：✅（<code>window.__BMREENTER['page-sub-list'] = true</code>，修复「二次进入停留在上次 Tab」的问题）</li>
                 </ul>
-                <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
+                <div class="doc-sec-title">三、共享状态</div>
+                <ul class="doc-list">
+                    <li><code>SUB_LIST_TAB</code>：all / active / inactive / abnormal</li>
+                    <li><code>SUB_ACTIVE_STATE</code>：active / non-active（仅「活跃状态」Tab 生效）</li>
+                    <li><code>SUB_LIST_QUERY</code>：搜索关键词</li>
+                    <li><code>SUB_LIST_TIME</code>：all / 7 / 30 / 90 / 180，作用于 <code>SUB_TIME_FIELD = 'lastPurchase'</code></li>
+                </ul>
                 <div class="h-4"></div>
             `
         },
         'page-product-sales-remind': {
             title: '产品销售提醒｜功能说明',
             pageName: '产品销售提醒',
-            statusTag: '原型 · 演示页',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            statusTag: '已开发 · 原型模拟推送',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">产品销售异常（骤降 / 库存 / 复购）提醒</p>
+                <p class="doc-p">监控本月重点套组的销售情况，查看已购买 / 尚未购买的直属下级人数，并通过固定话术模板向未购买下级批量推送购买提醒。</p>
                 <div class="doc-sec-title">二、主要展示内容</div>
                 <ul class="doc-list">
-                    <li>查看异常产品</li>
-                    <li>查看建议处理</li>
-                    <li>查看历史</li>
+                    <li>本月重点套组概览：套组数 / 直属下级总数 / 今日已提醒套组数</li>
+                    <li>每个套组卡片：套组名称 + 套组 ID、本月累计销量（件）、已购买直属下级人数、尚未购买直属下级人数</li>
+                    <li>每个卡片两个操作：查看购买人员、一键提醒未购买下级（提醒后变为「今日已提醒」）</li>
+                    <li><b>不展示未购买人员名单</b>，未购买明细列表不在第一期范围</li>
                 </ul>
-                <div class="doc-sec-title">三、关键交互</div>
-                <p class="doc-p">建议列表</p>
-                <div class="doc-sec-title">四、跳转关系</div>
+                <div class="doc-sec-title">三、统计口径（复用「本月重点」）</div>
+                <ul class="doc-list">
+                    <li>本月重点套组：沿用运营每月初指定的套组清单（<code>KIT_MONTHLY_PLAN</code>，按套组 ID 读取）</li>
+                    <li>销量 / 已购买人数：沿用当月订单聚合结果 <code>monthlySales</code> / <code>buyerCount</code>（去重人数），未重新定义规则</li>
+                    <li>尚未购买人数 = 直属下级总数 − 本套组已购买去重人数；同一人对同一套组只计一种状态，不同套组分别计算</li>
+                    <li>统计范围仅为当前用户的<b>直属下级</b>，不含间接下级</li>
+                </ul>
+                <div class="doc-sec-title">四、关键交互</div>
+                <ul class="doc-list">
+                    <li>「查看购买人员」：跳转现有「本月重点」页面 <code>page-kit-monthly</code>（传递套组 ID；该页暂不支持按 ID 定位，故先正常进入，未为本次需求重构该页）</li>
+                    <li>「一键提醒未购买下级」：按当前套组筛选未购买下级 → 固定模板生成消息 → 批量推送 → Toast「今日提醒下级成功」→ 按钮变为「今日已提醒」并禁用</li>
+                    <li>未购买人数为 0：不执行推送，提示「暂无需要提醒的下级」</li>
+                    <li>同一套组同一自然日仅成功提醒一次，跨自然日自动重置；不同套组状态互不影响</li>
+                    <li>推送失败 / 部分失败：不显示成功 Toast，也不标记按钮</li>
+                </ul>
+                <div class="doc-sec-title">五、跳转关系</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 产品销售提醒（page-product-sales-remind）。
+                        我的 → 总提醒 → 产品销售（page-product-sales-remind）→ 查看购买人员 → 本月重点（page-kit-monthly）。
                     </div>
                 </div>
                 <div class="h-4"></div>
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-product-sales-remind</code>，CSS 通过 <code>[data-pv="product-sales-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
+                <p class="doc-p">页面容器 <code>#page-product-sales-remind</code>，CSS 通过 <code>[data-pv="page-product-sales-remind"]</code> 动态注入；初始化入口 <code>initPage_product_sales_remind()</code>。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
-                    <li>页面框架：✅ 已完成</li>
-                    <li>数据接入：⏳ 等待真实接口</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>页面框架与套组卡片：✅ 已完成</li>
+                    <li>数据接入：⚠️ 原型演示数据（复用「本月重点」全局共享常量 <code>KIT_MONTHLY_PLAN</code> / <code>KIT_MONTHLY_ORDERS</code> / <code>KIT_MONTHLY_MONTH</code>，未重复维护第二套购买数据）</li>
+                    <li>尚未购买人数：直属下级池由当月订单反推 + 4 位未购买任何套组的演示下级</li>
+                    <li><b>批量提醒：⚠️ 原型模拟推送</b>——当前 HTML 无真实消息推送接口，仅模拟生成消息与下发结果、显示 Toast 并切换按钮，<b>未真实发送微信消息或系统通知</b></li>
                 </ul>
-                <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
+                <div class="doc-sec-title">三、状态与模板</div>
+                <ul class="doc-list">
+                    <li><code>PSR_REMINDED</code>：{ 套组ID: 'YYYY-MM-DD' }，按套组 + 自然日去重；真实接入后应<b>以服务端提醒记录为准</b></li>
+                    <li><code>PSR_MSG_TPL</code>：固定消息模板，变量 <code>{{商品名称}}</code> / <code>{{已售出件数}}</code> 取自当前套组数据，未写死</li>
+                    <li><code>psrPush()</code>：模拟推送函数，真实接入时替换为本函数即可，页面交互不变</li>
+                    <li><code>PSR_FORCE_FAIL</code>：调试开关（true / 'partial'），仅用于验证失败分支，接入真实接口后移除</li>
+                </ul>
+                <div class="doc-sec-title">四、接入真实推送还缺少</div>
+                <ul class="doc-list">
+                    <li>批量消息推送接口（入参：套组 ID、未购买下级 Code 列表、消息内容；出参：成功 / 失败名单）</li>
+                    <li>服务端「当日已提醒记录」查询（用于跨端一致的自然日去重）</li>
+                    <li>直属下级主数据接口（当前原型池为演示值）</li>
+                </ul>
                 <div class="h-4"></div>
             `
         },
         'page-promotion-remind': {
             title: '促销活动提醒｜功能说明',
             pageName: '促销活动提醒',
-            statusTag: '原型 · 演示页',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            statusTag: '已开发 · 原型数据',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">促销活动节奏与效果提醒</p>
+                <p class="doc-p">查看直属下级名下「未使用」的优惠券 / 礼包，识别即将到期的权益（3 天内 / 7 天内），并对下级发起一键提醒，避免权益过期浪费。</p>
                 <div class="doc-sec-title">二、主要展示内容</div>
                 <ul class="doc-list">
-                    <li>查看即将开始的活动</li>
-                    <li>查看往期效果</li>
-                    <li>查看排期</li>
+                    <li>代理名称 / Code 搜索框：实时模糊筛选直属下级，不区分英文大小写，无结果时展示空状态并提供清除入口</li>
+                    <li>直属下级明细列表：代理头像（姓名首字）、姓名、代理 Code、未使用优惠券数、未使用礼包数、3 天内到期数、7 天内到期数、最近到期时间</li>
+                    <li>一键提醒按钮：仅当该下级存在 3 天 / 7 天内到期权益时可用</li>
+                    <li>已移除：顶部「数据概况」汇总卡片、代理档位标签</li>
                 </ul>
                 <div class="doc-sec-title">三、关键交互</div>
-                <p class="doc-p">建议列表</p>
-                <div class="doc-sec-title">四、跳转关系</div>
+                <ul class="doc-list">
+                    <li>入口：我的 → 总提醒 → 促销活动，进入后直接看到搜索框与直属下级明细列表</li>
+                    <li>搜索：输入关键词实时筛选；清空后恢复完整列表；搜索仅影响展示，不改原始数据，也不丢失提醒状态</li>
+                    <li>一键提醒：点击后 Toast「今日提醒下级成功」，按钮变为「今日已提醒」并置灰，同一自然日不可重复点击</li>
+                    <li>无到期权益的下级：按钮位置展示「暂无待提醒权益」</li>
+                    <li>返回：橙色导航栏左侧返回键，回到「我的」页面并保留原状态</li>
+                </ul>
+                <div class="doc-sec-title">四、统计口径</div>
+                <ul class="doc-list">
+                    <li>仅统计「未使用且未过期」的权益；已使用 / 已过期 / 已作废均不计入</li>
+                    <li>按真实到期时间字段计算剩余小时数：0 &lt; h ≤ 72 记入「3 天内」，0 &lt; h ≤ 168 记入「7 天内」</li>
+                    <li>「3 天内」是「7 天内」的子集，二者为包含关系，不重复累加</li>
+                </ul>
+                <div class="doc-sec-title">五、跳转关系</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 促销活动提醒（page-promotion-remind）。
+                        我的 → 总提醒 → 促销活动（page-promotion-remind）。
                     </div>
                 </div>
                 <div class="h-4"></div>
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-promotion-remind</code>，CSS 通过 <code>[data-pv="promotion-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
+                <p class="doc-p">页面容器 <code>#page-promotion-remind</code>，CSS 通过 <code>[data-pv="page-promotion-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突；初始化入口为 <code>initPage_page_promotion_remind()</code>。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
                     <li>页面框架：✅ 已完成</li>
-                    <li>数据接入：⏳ 等待真实接口</li>
+                    <li>数据接入：⚠️ 原型模拟数据（PR_ASSETS），到期时间按「距当前时刻 N 小时」生成</li>
                     <li>图表渲染：—（无图表）</li>
+                    <li>一键提醒：⚠️ 前端模拟，不调用消息推送接口</li>
                 </ul>
                 <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
+                <ul class="doc-list">
+                    <li><code>name / code</code>：复用现有直属下级档案 <code>MOCK.myCustomersList</code>（不再展示 level 档位）</li>
+                    <li><code>coupons[] / packs[]</code>：权益底表，字段 <code>name</code>、<code>status</code>（unused / used / expired / revoked）、<code>expireAt</code>（真实到期时间戳）</li>
+                    <li><code>PR_REMINDED</code>：{ subId: 'YYYY-MM-DD' }，用于同一自然日提醒去重</li>
+                    <li><code>PR_QUERY</code>：搜索关键词，仅作用于 <code>prRender()</code> 的列表筛选，不写回原始数据</li>
+                </ul>
+                <div class="doc-sec-title">四、待接入能力</div>
+                <ul class="doc-list">
+                    <li>权益底表接口（券 / 礼包名称、数量、真实到期时间）</li>
+                    <li>一键提醒推送接口（当前仅前端模拟 Toast 与按钮状态流转）</li>
+                    <li>提醒记录持久化（当前为内存态，刷新页面后重置）</li>
+                </ul>
                 <div class="h-4"></div>
             `
         },
         'page-user-behavior-remind': {
-            title: '用户行为提醒｜功能说明',
-            pageName: '用户行为提醒',
-            statusTag: '链路入口',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            title: '用户行为提醒｜说明（入口已迁移）',
+            pageName: '用户行为提醒（入口已迁移）',
+            statusTag: '已迁移',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
             biz: `
-                <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">客户行为洞察（活跃 / 加购 / 新客），并作为「我的客户」二级入口，引导上级快速进入直属下级管理。</p>
-                <div class="doc-sec-title">二、本页主要展示内容</div>
-                <ul class="doc-list">
-                    <li>近期客户行为摘要（低活客户 / 加购未付款 / 新客首单率）</li>
-                    <li>直属下级、本月浏览、本月加购三项数字概览</li>
-                    <li>「我的客户」二级入口大按钮，点击后跳转到直属下级列表</li>
-                </ul>
-                <div class="doc-sec-title">三、完整跳转链路</div>
+                <div class="doc-sec-title">一、入口说明</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 用户行为提醒（page-user-behavior-remind）<br>
-                        → 我的客户（page-my-customers）<br>
+                        「用户行为提醒」是入口标签名。<br>
+                        点击「我的 → 总提醒 → 用户行为」入口后，<strong>直接展示原「我的客户」列表页面</strong>，没有中间跳板页。
+                    </div>
+                </div>
+                <div class="doc-sec-title">二、正确跳转链路</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        我的 → 总提醒 → 用户行为（入口）<br>
+                        → <strong>我的客户</strong>（page-my-customers，直接展示）<br>
                         → 直属下级详情（page-subordinate-customer-detail）<br>
                         → 浏览与加购 / 本月下单（详情页内双 Tab）。
                     </div>
                 </div>
-                <div class="doc-sec-title">四、范围约束</div>
+                <div class="doc-sec-title">三、范围约束</div>
                 <p class="doc-p">数据范围严格限定为<strong>直属下级</strong>，不包含间接下级或团队全员。</p>
                 <div class="h-4"></div>
             `,
             dev: `
-                <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-user-behavior-remind</code>，CSS 通过 <code>[data-pv="user-behavior-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
-                <div class="doc-sec-title">二、当前实现状态</div>
+                <div class="doc-sec-title">一、入口跳转关系</div>
+                <p class="doc-p">入口 <code>div</code>（位于「总提醒」5 入口网格中）已改为 <code>navTo('page-my-customers')</code>，点击后直接激活 <code>#page-my-customers</code> 并触发其渲染与文档联动。</p>
+                <div class="doc-sec-title">二、本壳页面用途</div>
+                <p class="doc-p"><code>#page-user-behavior-remind</code> 容器已不再被任何入口跳转，作为<strong>保留占位</strong>以避免影响总提醒模块结构与其它提醒模块。如未来「用户行为提醒」需要独立功能（如低活客户/加购未付/新客洞察摘要），可直接在此容器内填充内容并启用其 data-pv 样式块。</p>
+                <div class="doc-sec-title">三、当前实现状态</div>
                 <ul class="doc-list">
-                    <li>页面框架：✅ 已完成（含二级入口 CTA 按钮）</li>
-                    <li>客户行为摘要：⏳ 演示占位（等待真实接口）</li>
-                    <li>二级入口：✅ 已迁移「我的客户」直达</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>入口跳转：✅ 已改为直接进入我的客户</li>
+                    <li>中间页：❌ 不存在（已移除 CTA）</li>
+                    <li>原壳页面：保留不动（不影响总提醒模块结构）</li>
                 </ul>
-                <div class="doc-sec-title">三、跳转对接</div>
-                <p class="doc-p">CTA 按钮调用 <code>navTo('page-my-customers')</code>，进入直属下级列表页，列表/搜索/月份/详情/Tab 全功能由 <code>page-my-customers</code> 与 <code>page-subordinate-customer-detail</code> 子页面承载。</p>
                 <div class="h-4"></div>
             `
         },
         'page-fan-remind': {
-            title: '客户粉丝提醒｜功能说明',
-            pageName: '客户粉丝提醒',
-            statusTag: '原型 · 演示页',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            title: '我的粉丝｜功能说明',
+            pageName: '我的粉丝',
+            statusTag: '已开发 · 原型数据',
+            statusClass: 'text-green-700 bg-green-50 border-green-200',
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">客户粉丝动态、互动与转化提醒</p>
+                <p class="doc-p">查看名下「染色 30 天」绑定的粉丝（temp 账号口径），掌握染色中 / 即将解绑 / 今日解绑动态，理解染色规则。</p>
                 <div class="doc-sec-title">二、主要展示内容</div>
                 <ul class="doc-list">
-                    <li>切换视角</li>
-                    <li>切换区间</li>
-                    <li>查看粉丝明细</li>
+                    <li>顶部统计：染色中（人）/ 7 天内解绑 / 今日解绑（7 天内解绑含今日到期）</li>
+                    <li>状态 Tab：全部 / 即将解绑（剩余 1~7 天）/ 今日解绑（今日到期），胶囊含人数，互斥统计</li>
+                    <li>粉丝卡：头像、账号 ID、temp 账号、绑定日期、解绑日期、剩余天数徽章、染色进度条（>7 天绿 / 4~7 天橙 / ≤3 天红）</li>
+                    <li>染色规则说明：① 染色绑定（首次成交即绑定 30 天）② 到期释放（期满无新成交自动释放）③ 复购续期（期内再次成交顺延 / 续期）</li>
                 </ul>
                 <div class="doc-sec-title">三、关键交互</div>
-                <p class="doc-p">图表 + 列表</p>
+                <p class="doc-p">Tab 切换实时过滤列表与人数（含空状态）；导航右侧「染色 30 天」点击滚动至规则卡并闪烁高亮；返回键回到总提醒。</p>
                 <div class="doc-sec-title">四、跳转关系</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 客户粉丝提醒（page-fan-remind）。
+                        我的 → 总提醒 → 客户粉丝 → 我的粉丝（page-fan-remind，直达无中间页）；我的 → 常用工具 → 我的粉丝 同样直达本页。
                     </div>
                 </div>
                 <div class="h-4"></div>
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-fan-remind</code>，CSS 通过 <code>[data-pv="fan-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
+                <p class="doc-p">页面容器 <code>#page-fan-remind</code>，CSS 通过 <code>[data-pv="fan-remind"]</code> 动态注入；入口函数 <code>initPage_fan_remind()</code>。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
-                    <li>页面框架：✅ 已完成</li>
-                    <li>数据接入：⏳ 等待真实接口</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>页面框架与交互：✅ 已完成</li>
+                    <li>数据接入：⏳ 演示数据（染色基准日固定 2026-10-19，粉丝为 temp 账号演示口径）</li>
                 </ul>
                 <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
+                <p class="doc-p">粉丝：账号 ID、temp 编码、绑定时间、解绑时间、剩余天数、状态（染色中 / 即将解绑 / 今日解绑）；统计：染色中 / 7 天内解绑 / 今日解绑。</p>
                 <div class="h-4"></div>
             `
         },
@@ -4991,65 +5324,385 @@ function close(){document.getElementById('htMask').classList.remove('on')}
 window.htPick=pick;window.htView=view;window.htClose=close;
 renderTabs();renderList();renderExplain();
 }
+/* ===== 直属管理首页（原人员结构提醒改造） ===== */
 function initPage_structure_remind(){
+  const subs = (typeof MOCK !== 'undefined' && MOCK.myCustomersList) ? MOCK.myCustomersList : [];
+  const stats = {
+    total: subs.length,
+    active: subs.filter(c => c.status === 'active').length,
+    nonActive: subs.filter(c => c.status === 'non-active').length,
+    inactive: subs.filter(c => c.status === 'inactive').length,
+    abnormal: subs.filter(c => c.status === 'abnormal').length,
+    gold: subs.filter(c => c.isGold).length,
+    newThisMonth: subs.filter(c => c.isNewThisMonth).length,
+    frozen: subs.filter(c => c.isFrozen).length
+  };
 
-const bands=['18-24','25-30','31-35','36-40','41-45','46+'];
-const model=[15,28,17,20,8,12],now=[6.8,24.5,18.1,14.6,4.8,31.2];
-const _el=document.getElementById('chart');
-if(typeof echarts==='undefined'){_el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#B9BECA;font-size:13px">图表组件加载失败，请检查网络后刷新</div>'}
-else{
-const c=echarts.init(_el);
-c.setOption({color:['#C9CEDA','#FF6A00'],
- tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>v+'%'},
- legend:{data:['健康模型','你的团队'],top:0,itemWidth:12,itemHeight:8,textStyle:{fontSize:11,color:'#8A90A0'}},
- grid:{left:8,right:8,top:30,bottom:0,containLabel:true},
- xAxis:{type:'category',data:bands,axisLabel:{fontSize:10.5,color:'#8A90A0'},axisLine:{lineStyle:{color:'#E8EAF0'}},axisTick:{show:false}},
- yAxis:{type:'value',name:'占比%',nameTextStyle:{fontSize:10,color:'#8A90A0'},splitLine:{lineStyle:{color:'#F0F1F5'}},axisLabel:{fontSize:10,color:'#8A90A0'}},
- series:[{name:'健康模型',type:'bar',barWidth:11,itemStyle:{borderRadius:[4,4,0,0]},data:model},
-         {name:'你的团队',type:'bar',barWidth:11,itemStyle:{borderRadius:[4,4,0,0]},data:now}]});
-}
-window.addEventListener('resize',()=>{try{c.resize()}catch(e){}});
+  const statusHTML = `
+    <div class="cell clickable" onclick="subGoListAll()">
+      <div class="l">总数</div>
+      <div class="v">${stats.total}<span class="sub">人</span></div>
+      <div class="note">点击查看全部直属下级</div>
+    </div>
+    <div class="cell clickable" onclick="subGoListActive()">
+      <div class="l">活跃 / 非活跃</div>
+      <div class="v">${stats.active}<span class="sub">/${stats.nonActive}</span></div>
+      <div class="note">点击进入活跃状态筛选</div>
+    </div>
+    <div class="cell">
+      <div class="l">金卡</div>
+      <div class="v">${stats.gold}<span class="sub">人</span></div>
+      <div class="note">标识为金卡的直属下级</div>
+    </div>
+    <div class="cell">
+      <div class="l">本月新增长</div>
+      <div class="v">${stats.newThisMonth}<span class="sub">人</span></div>
+      <div class="note">本月新增长</div>
+    </div>
+    <div class="cell">
+      <div class="l">已冻结</div>
+      <div class="v">${stats.frozen}<span class="sub">人</span></div>
+      <div class="note">账户已冻结</div>
+    </div>
+    <div class="cell">
+      <div class="l">未激活</div>
+      <div class="v">${stats.inactive}<span class="sub">人</span></div>
+      <div class="note">未激活卡</div>
+    </div>
+  `;
+  const pStatus = document.getElementById('pStatus');
+  if (pStatus) pStatus.innerHTML = statusHTML;
 
-var __N=["_el", "bands", "c", "model"];var __B={};
-__N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
-window.__BMPAGE="structure-remind";window.__BMFUNCS=__B;
+  // 直系业绩统计：按「体系 / 商城」维度汇总，每行一个维度，不再出现人员级信息
+  // 口径沿用现有字段：monthlySales[月].tingmimiDirect（庭秘密直系）、baokuanDirect（爆款直系），
+  // 在各直属下级之间求和；订单数与「已入账 / 未入账」拆分当前无数据，统一标记「待接入」，不虚构。
+  const month = (typeof MOCK !== 'undefined' && MOCK.currentMonth) || '2026-10';
+  const sumField = f => subs.reduce((acc, c) => acc + Number(((c.monthlySales || {})[month] || {})[f] || 0), 0);
+  const money = v => '¥' + Number(v || 0).toLocaleString();
+  const naLine = k => `<div class="kv"><span class="k">${k}</span><span class="v">已入账 <b class="na">待接入</b> · 未入账 <b class="na">待接入</b></span></div>`;
+
+  // 现有体系维度：真实汇总（直系口径）
+  const SYS_ROWS = [
+    { name: '庭秘密', icon: '秘', field: 'tingmimiDirect' },
+    { name: '爆款',   icon: '爆', field: 'baokuanDirect' }
+  ];
+  // 商城维度：当前原型无商城主数据，仅占位展示，待接口接入
+  const MALL_ROWS = [
+    { name: '庭秘密商城', icon: '庭' },
+    { name: 'Ai美丽商城', icon: '美' },
+    { name: '完美纪元商城', icon: '纪' }
+  ];
+
+  let statRows = `<div class="cap">体系维度 · 现有数据真实汇总（直系口径）</div>`;
+  statRows += SYS_ROWS.map(s => `
+      <div class="row">
+        <div class="av">${s.icon}</div>
+        <div class="info">
+          <div class="n">${s.name}<span class="stag s-sys">体系维度</span></div>
+          ${naLine('订单数')}
+          ${naLine('业绩')}
+        </div>
+        <div class="vals">
+          <div class="vv">${money(sumField(s.field))}</div>
+          <div class="vl">直系业绩合计</div>
+        </div>
+      </div>
+  `).join('');
+  statRows += `<div class="sdiv"></div><div class="cap">商城维度 · 待接口接入（当前原型无商城汇总数据）</div>`;
+  statRows += MALL_ROWS.map(m => `
+      <div class="row">
+        <div class="av">${m.icon}</div>
+        <div class="info">
+          <div class="n">${m.name}<span class="stag s-mall">商城占位</span></div>
+          ${naLine('订单数')}
+          ${naLine('业绩')}
+        </div>
+        <div class="vals">
+          <div class="vv na-v">待接入</div>
+          <div class="vl">商城业绩汇总</div>
+        </div>
+      </div>
+  `).join('');
+  const pStatList = document.getElementById('pStatList');
+  if (pStatList) pStatList.innerHTML = statRows || '<div class="row"><div style="padding:10px 0;font-size:12px;color:#8A90A0">暂无业绩数据</div></div>';
+
+  const ex = document.getElementById('pExplain');
+  if (ex) ex.innerHTML = '原型演示数据 · ①「直系业绩统计」按体系维度做直系口径真实汇总：庭秘密直系与爆款直系取自各直属下级 monthlySales 当月直系字段求和；② 订单数、以及订单数 / 业绩的「已入账 · 未入账」拆分字段当前演示数据缺失，统一标记「待接入」，未虚构；③ 商城维度（庭秘密商城 / Ai美丽商城 / 完美纪元商城）当前原型无商城主数据，仅占位展示，待接口接入后填充数字。';
 }
+
+/* ===== 直属列表页（全部 / 非活跃卡 / 未激活卡 / 异常卡 共用容器） ===== */
+var SUB_LIST_TAB = 'all';           // all | active | inactive | abnormal
+var SUB_ACTIVE_STATE = 'active';    // 「活跃状态」二级筛选：active（活跃）| non-active（非活跃）
+var SUB_LIST_QUERY = '';
+var SUB_LIST_TIME = 'all';          // all | 7 | 30 | 90 | 180 —— 统一按「上次购买时间」筛选
+var SUB_TIME_FIELD = 'lastPurchase';// 时间筛选字段：上次购买（不使用开卡时间 / 上次在线时间）
+
+const SUB_TABS = [
+  { key: 'all', label: '全部' },
+  { key: 'active', label: '活跃状态' },
+  { key: 'inactive', label: '未激活卡' },
+  { key: 'abnormal', label: '异常卡' }
+];
+
+function subMaskPhone(p){ return p ? p.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '--'; }
+function subTagClass(s){
+  if (s === 'active') return 'active';
+  if (s === 'non-active') return 'non-active';
+  if (s === 'inactive') return 'inactive';
+  return 'abnormal';
+}
+function subTagText(s){
+  if (s === 'active') return '活跃卡';
+  if (s === 'non-active') return '非活跃卡';
+  if (s === 'inactive') return '未激活卡';
+  return '异常卡';
+}
+function subWithinDays(dateStr, days){
+  if (!dateStr || dateStr === '暂无数据') return false;
+  const d = new Date(dateStr.replace(/-/g, '/'));
+  if (isNaN(d)) return false;
+  return (Date.now() - d.getTime()) <= days * 86400000;
+}
+function subListData(){
+  return (typeof MOCK !== 'undefined' && MOCK.myCustomersList) ? MOCK.myCustomersList : [];
+}
+
+/* 基础筛选：搜索 + 时间（状态之外的条件），Tab 人数与二级人数均以该结果为基数，保证「人数 = 筛选结果」 */
+function subBaseFiltered(){
+  let list = subListData();
+  // 搜索筛选（姓名 / Code / 手机号）
+  const q = SUB_LIST_QUERY.trim().toLowerCase();
+  if (q) list = list.filter(c => (c.name || '').toLowerCase().includes(q) || (c.code || '').toLowerCase().includes(q) || (c.phone || '').includes(q));
+  // 时间筛选：严格按「上次购买时间」，不使用开卡时间或上次在线时间
+  if (SUB_LIST_TIME !== 'all') {
+    const days = Number(SUB_LIST_TIME);
+    list = list.filter(c => subWithinDays(c[SUB_TIME_FIELD], days));
+  }
+  return list;
+}
+
+function subListFilter(){
+  let list = subBaseFiltered();
+  // Tab 筛选
+  if (SUB_LIST_TAB === 'active') list = list.filter(c => c.status === SUB_ACTIVE_STATE); // 活跃状态：按二级选择的活跃 / 非活跃
+  else if (SUB_LIST_TAB === 'inactive') list = list.filter(c => c.status === 'inactive');
+  else if (SUB_LIST_TAB === 'abnormal') list = list.filter(c => c.status === 'abnormal');
+  return list;
+}
+
+function subListTabCounts(){
+  const base = subBaseFiltered();
+  return {
+    all: base.length,
+    // 「活跃状态」为筛选模式，覆盖活跃 + 非活跃两类人员，明细人数见二级筛选
+    active: base.filter(c => c.status === 'active' || c.status === 'non-active').length,
+    inactive: base.filter(c => c.status === 'inactive').length,
+    abnormal: base.filter(c => c.status === 'abnormal').length
+  };
+}
+
+/* 二级筛选人数：与当前 Tab / 搜索 / 时间条件下的筛选结果保持一致 */
+function subActiveCounts(){
+  const base = subBaseFiltered();
+  return {
+    active: base.filter(c => c.status === 'active').length,
+    'non-active': base.filter(c => c.status === 'non-active').length
+  };
+}
+
+function subRenderTabs(){
+  const counts = subListTabCounts();
+  const el = document.getElementById('subTabs');
+  if (!el) return;
+  el.innerHTML = SUB_TABS.map(t => {
+    const on = t.key === SUB_LIST_TAB ? ' on' : '';
+    return `<div class="sub-tab${on}" onclick="subSwitchTab('${t.key}')">${t.label}(${counts[t.key]})</div>`;
+  }).join('');
+}
+
+/* 「活跃状态」Tab 下的二级筛选：活跃 / 非活跃（仅在该 Tab 显示） */
+function subRenderActiveSeg(){
+  const el = document.getElementById('subActiveSeg');
+  if (!el) return;
+  if (SUB_LIST_TAB !== 'active') { el.innerHTML = ''; el.style.display = 'none'; return; }
+  const c = subActiveCounts();
+  el.style.display = 'flex';
+  el.innerHTML =
+    `<div class="sub-achip${SUB_ACTIVE_STATE === 'active' ? ' on' : ''}" onclick="subSwitchActive('active')">活跃(${c.active})</div>` +
+    `<div class="sub-achip${SUB_ACTIVE_STATE === 'non-active' ? ' on' : ''}" onclick="subSwitchActive('non-active')">非活跃(${c['non-active']})</div>`;
+}
+
+function subRenderCards(){
+  const list = subListFilter();
+  const el = document.getElementById('subCards');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="sub-empty">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="#B0B6C2" stroke-width="1.8" fill="none"/><path d="M15.5 15.5L21 21" stroke="#B0B6C2" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="t">未找到相关直属下级</div>
+        <div class="d">请切换 Tab、调整时间筛选或清空搜索</div>
+      </div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="sub-card" onclick="subGoDetail(${c.id})">
+      <div class="top">
+        <div class="code">${c.code}</div>
+        <div class="tag ${subTagClass(c.status)}">${subTagText(c.status)}</div>
+      </div>
+      <div class="main">
+        <div class="avatar-txt">${c.name.charAt(0)}</div>
+        <div class="info">
+          <div class="name">会员姓名：${c.name}</div>
+          <div class="phone">手机号：${subMaskPhone(c.phone)} <button type="button" class="copy" onclick="event.stopPropagation(); subCopyPhone('${c.phone}')">复制</button></div>
+          <div class="meta">上次在线：<span>${c.lastOnline || '暂无数据'}</span></div>
+          <div class="meta">上次购买：<span>${c.lastPurchase || '暂无数据'}</span></div>
+          <div class="meta">开卡时间：<span>${c.openCardTime || '暂无数据'}</span></div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function subRenderAll(){
+  subRenderTabs();
+  subRenderActiveSeg();
+  subRenderCards();
+  const inp = document.getElementById('subSearchInput');
+  if (inp && inp.value !== SUB_LIST_QUERY) inp.value = SUB_LIST_QUERY;
+  const tl = document.getElementById('subTimeLabel');
+  if (tl) {
+    const map = { all: '全部日期', 7: '近 7 天', 30: '近 30 天', 90: '近 90 天', 180: '近 180 天' };
+    tl.textContent = '上次购买：' + (map[SUB_LIST_TIME] || '全部日期');
+  }
+}
+
+window.subSearch = function(){
+  const inp = document.getElementById('subSearchInput');
+  SUB_LIST_QUERY = inp ? inp.value : '';
+  subRenderAll();
+};
+window.subSwitchTab = function(key){
+  SUB_LIST_TAB = key;
+  // 进入「活跃状态」时，默认落在「活跃」，避免展示为空或回落到全部
+  if (key === 'active' && SUB_ACTIVE_STATE !== 'active' && SUB_ACTIVE_STATE !== 'non-active') SUB_ACTIVE_STATE = 'active';
+  subRenderAll();
+};
+/* 二级筛选：活跃 / 非活跃 */
+window.subSwitchActive = function(state){
+  if (state !== 'active' && state !== 'non-active') return;
+  SUB_ACTIVE_STATE = state;
+  subRenderAll();
+};
+window.subTimeOpen = function(){ const m = document.getElementById('subMask'); if(m) m.classList.add('on'); };
+window.subTimeClose = function(){ const m = document.getElementById('subMask'); if(m) m.classList.remove('on'); };
+window.subTimePick = function(val){
+  SUB_LIST_TIME = String(val);
+  document.querySelectorAll('#subMask .opt').forEach(o => o.classList.toggle('on', o.dataset.val === SUB_LIST_TIME));
+  subTimeClose();
+  subRenderAll();
+};
+/* 直属管理入口：总数 → 全部 Tab */
+window.subGoListAll = function(){ SUB_LIST_TAB = 'all'; SUB_ACTIVE_STATE = 'active'; SUB_LIST_QUERY = ''; SUB_LIST_TIME = 'all'; navTo('page-sub-list'); };
+/* 直属管理入口：活跃 / 非活跃 → 直接进入「活跃状态」筛选（默认活跃），不再回落到全部 */
+window.subGoListActive = function(){ SUB_LIST_TAB = 'active'; SUB_ACTIVE_STATE = 'active'; SUB_LIST_QUERY = ''; SUB_LIST_TIME = 'all'; navTo('page-sub-list'); };
+window.subCopyPhone = function(phone){
+  const ok = function(){ showToast('复制成功：' + phone); };
+  const fail = function(){ showToast('复制反馈：' + phone); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(phone).then(ok).catch(fail);
+  } else {
+    try {
+      const ta = document.createElement('textarea'); ta.value = phone; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok();
+    } catch(e) { fail(); }
+  }
+};
+window.subGoDetail = function(id){ navTo('page-subordinate-customer-detail', id); };
+window.subGoListAll = function(){ SUB_LIST_TAB = 'all'; SUB_ACTIVE_STATE = 'active'; SUB_LIST_QUERY = ''; SUB_LIST_TIME = 'all'; navTo('page-sub-list'); };
+/* 直属管理入口：活跃 / 非活跃 → 直接进入「活跃状态」筛选（默认活跃），不再回落到全部 */
+window.subGoListActive = function(){ SUB_LIST_TAB = 'active'; SUB_ACTIVE_STATE = 'active'; SUB_LIST_QUERY = ''; SUB_LIST_TIME = 'all'; navTo('page-sub-list'); };
+
+/* 兼容旧命名（历史代码中若仍调用 subGoListNonActive，等价于进入活跃状态筛选） */
+window.subGoListNonActive = function(){ window.subGoListActive(); };
+
+function initPage_page_sub_list(){ subRenderAll(); }
+
 function initPage_fan_remind(){
 
-const RANGES=[['近1个月',1],['近3个月',3],['近6个月',6]];
-let cur=2;
-const DATA={
- 0:{n:86,qty:268,amt:24310,rows:[
-  ['temp1008621','860',2,1268,'2026-10-12'],['temp1008503','520',1,699,'2026-10-11'],['temp1008496','415',3,596,'2026-10-10'],['temp1008477','388',1,399,'2026-10-08'],['temp1008461','310',2,286,'2026-10-05']]},
- 1:{n:194,qty:612,amt:55680,rows:[
-  ['temp1008621','860',5,3168,'2026-10-12'],['temp1008512','645',4,2396,'2026-09-28'],['temp1008488','530',3,1899,'2026-09-19'],['temp1008461','310',5,1520,'2026-09-15'],['temp1008439','275',3,1290,'2026-09-02']]},
- 2:{n:328,qty:1074,amt:96520,rows:[
-  ['temp1008621','860',8,4866,'2026-10-12'],['temp1008512','645',9,4538,'2026-10-02'],['temp1008488','530',7,3629,'2026-09-19'],['temp1008540','470',6,3180,'2026-09-05'],['temp1008461','310',8,2860,'2026-08-22']]}
+/* 原型演示数据：染色粉丝（沿用 temp 账号口径）。
+   基准日固定为 2026-10-19（保证演示数字稳定），真实联调时替换为接口返回。 */
+const FANS=[
+ {num:'18100072175',bind:'2026-10-19'},
+ {num:'13710023845',bind:'2026-10-02'},
+ {num:'15023456789',bind:'2026-09-25'},
+ {num:'18657129830',bind:'2026-09-22'},
+ {num:'18922457016',bind:'2026-09-20'},
+ {num:'13166098237',bind:'2026-09-19'}
+];
+const TABS=[['all','全部'],['soon','即将解绑'],['today','今日解绑']];
+let FAN_TAB='all';
+function d(s){const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])}
+function addDays(dt,n){const x=new Date(dt.getTime());x.setDate(x.getDate()+n);return x}
+function fmt(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}
+const TODAY=d('2026-10-19');
+function fans(){
+ return FANS.map(function(f){
+  const bind=d(f.bind),unbind=addDays(bind,30);
+  const left=Math.round((unbind.getTime()-TODAY.getTime())/864e5);
+  const tab=left<=0?'today':(left<=7?'soon':'all');
+  return {num:f.num,bind:fmt(bind),unbind:fmt(unbind),left:left,tab:tab};
+ });
+}
+/* 剩余 >7 天绿色；4~7 天橙色；≤3 天红色 */
+function fanLevel(left){return left>7?'':(left>=4?'warn':'danger')}
+function fanBadge(left){return left<=0?'今日解绑':'剩 '+left+' 天'}
+function fanCounts(){
+ const a=fans();
+ return {all:a.length,soon:a.filter(function(x){return x.tab==='soon'}).length,today:a.filter(function(x){return x.tab==='today'}).length};
+}
+function renderStats(){
+ const a=fans(),c=fanCounts();
+ document.getElementById('fanS1').textContent=c.all;
+ document.getElementById('fanS2').textContent=a.filter(function(x){return x.left<=7}).length;
+ document.getElementById('fanS3').textContent=c.today;
+}
+function renderTabs(){
+ const c=fanCounts();
+ document.getElementById('fanTabs').innerHTML=TABS.map(function(t){
+  return '<button class="'+(FAN_TAB===t[0]?'on':'')+'" onclick="fanSwitchTab(\''+t[0]+'\')">'+t[1]+' '+c[t[0]]+'</button>';
+ }).join('');
+}
+function renderList(){
+ const rows=fans().filter(function(x){return FAN_TAB==='all'||x.tab===FAN_TAB});
+ const el=document.getElementById('fanList');
+ if(!rows.length){el.innerHTML='<div class="fr-empty">暂无相关粉丝</div>';return}
+ el.innerHTML=rows.map(function(f){
+  const lv=fanLevel(f.left),pct=Math.max(0,Math.min(100,Math.round(f.left/30*100)));
+  return '<div class="fr-card">'
+   +'<div class="fr-head">'
+   +'<div class="fr-av">'+f.num.slice(-2)+'</div>'
+   +'<div><div class="fr-id">'+f.num+'</div><div class="fr-code">temp'+f.num+'</div></div>'
+   +'<div class="fr-badge '+lv+'">'+fanBadge(f.left)+'</div>'
+   +'</div>'
+   +'<div class="fr-dates"><span>绑定 '+f.bind+'</span><span>解绑 '+f.unbind+'</span></div>'
+   +'<div class="fr-bar"><i class="'+lv+'" style="width:'+pct+'%"></i></div>'
+   +'</div>';
+ }).join('');
+}
+function renderAll(){renderStats();renderTabs();renderList()}
+window.fanSwitchTab=function(t){FAN_TAB=t;renderTabs();renderList()};
+window.fanRule=function(){
+ const el=document.getElementById('fanRuleCard');
+ if(!el)return;
+ el.scrollIntoView({behavior:'smooth',block:'center'});
+ el.classList.remove('fr-flash');void el.offsetWidth;el.classList.add('fr-flash');
 };
-function renderSeg(){
- document.getElementById('seg').innerHTML=RANGES.map((r,i)=>`<button class="${i===cur?'on':''}" onclick="pick(${i})">${r[0]}</button>`).join('');
-}
-function pick(i){cur=i;renderSeg();renderAll()}
-function renderAll(){
- const d=DATA[cur];
- document.getElementById('rangeTip').textContent=RANGES[cur][0];
- document.getElementById('s1').textContent=d.n;
- document.getElementById('s2').textContent=d.qty.toLocaleString()+' 件';
- document.getElementById('s3').textContent='¥'+d.amt.toLocaleString();
- document.getElementById('s4').textContent='¥'+Math.round(d.amt/d.n);
- document.getElementById('list').innerHTML=d.rows.map(r=>`
-  <div class="frow">
-    <div class="fav">粉</div>
-    <div class="finfo">
-      <div class="n">${r[1]} <span class="code">${r[0]}</span>${r[3]>=8?'<span class="badge">可转代理</span>':''}</div>
-      <div class="p">最近购买 ${r[4]} · 累计 ${r[2]} 件</div>
-    </div>
-    <div class="fval"><div class="v">¥${r[3].toLocaleString()}</div><div class="l">累计金额</div></div>
-  </div>`).join('');
-}
-renderSeg();renderAll();
+renderAll();
 
-var __N=["DATA", "RANGES", "cur", "d", "pick", "renderAll", "renderSeg"];var __B={};
+var __N=["FANS","TABS","FAN_TAB","fans","fanCounts","fanLevel","fanBadge","renderAll","renderList","renderStats","renderTabs"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
 window.__BMPAGE="fan-remind";window.__BMFUNCS=__B;
 }
@@ -5064,15 +5717,17 @@ const TIERS=[
  {k:'C',bg:'#FFCE9B',next:'B档',gap:800},
  {k:'B',bg:'#FFB873',next:'A档',gap:1500},
  {k:'A',bg:'#FF6A00',next:null,gap:0}];
+/* teamPerf = 本月团队总业绩（元）。演示数值：agent 口径复用原型已有的「本月团队业绩 ¥26,500.01」；
+   founder 口径为全公司演示值。真实接口接入后由后端按月聚合返回，请勿视为真实业务数据。 */
 const DATA={
- agent:{counts:[152,104,62,34,11],totalL:'当月有业绩下级',upL:'本月临门升档（差 ≤ ¥500）',
+ agent:{counts:[152,104,62,34,11],totalL:'当月有业绩下级',upL:'本月临门升档（差 ≤ ¥500）',teamPerf:26500.01,
   M:{
   E:[['13200217','蒋星野','136****8890',86],['13200226','韩沐晴','158****1109',95],['13200234','曹子墨','189****5523',102],['13200241','糜语芙','133****9074',108]],
   D:[['13200195','郑楚然','139****6671',212],['13200203','冯乐瑶','151****3328',268],['13200209','秦子墨','137****5566',305]],
   C:[['13200152','赵蔓青','150****9902',615],['13200169','孙一诺','188****4415',702],['13200176','陆知遥','136****8843',760]],
   B:[['13200133','王梓涵','137****5540',980],['13200147','李嘉树','186****3217',1230]],
   A:[['13200101','林晓雅','138****2261',12600],['13200240','谢雨桐','133****9074',9800]]}},
- founder:{counts:[5776,3952,2356,1292,418],totalL:'当月有业绩人数（全公司）',upL:'本月临门升档（差 ≤ ¥500）',
+ founder:{counts:[5776,3952,2356,1292,418],totalL:'当月有业绩人数（全公司）',upL:'本月临门升档（差 ≤ ¥500）',teamPerf:986500,
   M:{
   E:[['88000217','纪风眠','151****5520',86],['88000226','宦晚晴','186****1147',95],['88000234','寇星阑','133****8825',102]],
   D:[['88000195','柏静姝','158****3317',218],['88000203','彭奕昂','137****9968',272]],
@@ -5080,8 +5735,13 @@ const DATA={
   B:[['88000133','白书瑶','159****3356',1010],['88000147','傅泽楷','150****8841',1260]],
   A:[['88000101','沈曼如','136****4410',13800],['88000118','顾言蹊','187****7723',10600]]}}};
 function fmt(n){return n.toLocaleString()}
+/* 金额格式化：统一两位小数，用于「本月团队总业绩」 */
+function fmtMoney(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function renderRoleSeg(){
- document.getElementById('roleSeg').innerHTML=ROLES.map(r=>`<button class="${r[0]===role?'on':''}" onclick="pickRole('${r[0]}')">${r[1]}</button>`).join('');
+ /* 「查看视角」卡片已按需求移除；保留本函数以兼容可能的依赖，容器不存在时静默跳过 */
+ const el=document.getElementById('roleSeg');
+ if(!el) return;
+ el.innerHTML=ROLES.map(r=>`<button class="${r[0]===role?'on':''}" onclick="pickRole('${r[0]}')">${r[1]}</button>`).join('');
 }
 let openTier=-1;
 function toggleTier(i){openTier=openTier===i?-1:i;renderTiers()}
@@ -5112,11 +5772,14 @@ function pickRole(r){
  role=r;renderRoleSeg();
  const d=DATA[role];
  openTier=-1;
- document.getElementById('roleTip').textContent=r==='agent'?'代理视角 · 直属下级':'创始人视角 · 全公司（不含自己）';
+ const rt=document.getElementById('roleTip'); if(rt) rt.textContent=r==='agent'?'代理视角 · 直属下级':'创始人视角 · 全公司（不含自己）';
  document.getElementById('sTotalL').textContent=d.totalL;
  document.getElementById('sUpL').textContent=d.upL;
  const total=d.counts.reduce((a,b)=>a+b,0);
  document.getElementById('sTotal').textContent=fmt(total);
+ /* 本月团队总业绩（核心指标）+ 其口径说明人数，随视角联动 */
+ const pe=document.getElementById('sPerf'); if(pe) pe.textContent=fmtMoney(d.teamPerf);
+ const pn=document.getElementById('sPerfN'); if(pn) pn.textContent=fmt(total);
  const up=TIERS.reduce((s,t,i)=>s+((t.next&&t.gap<=500)?d.counts[i]:0),0);
  document.getElementById('sUp').textContent=fmt(up);
  renderTiers();
@@ -5139,18 +5802,10 @@ window.__BMPAGE="team-performance-remind";window.__BMFUNCS=__B;
 }
 function initPage_personal_performance(){}
 function initPage_team_performance(){}
-/* bmLoad 按 data-pv="page-kit-monthly" 推导为 initPage_page_kit_monthly */
-function initPage_page_kit_monthly(){
-/* ===========================================================================
-   本月重点套组销售 · 演示数据
-   —— 两套数据分离：
-      ① KIT_PLAN 运营本月「指定套组清单」（套组 ID 决定展示范围）
-      ② ORDERS   当前自然月「订单数据」（决定当月销量 / 下单人数 / 下单人员）
-   两者通过 kitId 关联；未在清单内的套组不会被自动加入。
-   数据均为演示值，等待真实接口联调后替换，请勿视为真实业务数据。
-   =========================================================================== */
-const MONTH='2026-10';
-const KIT_PLAN=[
+/* ===== 本月重点套组：运营指定清单 + 当月订单聚合（提升为全局共享），
+   供「本月重点套组销售」页与「总提醒 → 产品销售」复用同一口径，避免重复维护第二套数据 ===== */
+const KIT_MONTHLY_MONTH='2026-10';
+const KIT_MONTHLY_PLAN=[
  {kitId:'A001',kitName:'焕活多肽修护套组（30天装）'},
  {kitId:'A002',kitName:'胶原蛋白肽饮 · 礼盒装'},
  {kitId:'A005',kitName:'雪莲焕白面霜 + 精华组合'},
@@ -5161,7 +5816,7 @@ const KIT_PLAN=[
    说明：同一名下级多次购买已按订单口径汇总为一条；monthlySales = Σ 购买套数，
         buyerCount = 去重后人数 = buyers 行数。各套组的 buyers 互不相同，
         「未购买本套组的下级」不会出现在本套组列表中。 */
-const ORDERS={
+const KIT_MONTHLY_ORDERS={
  A001:{monthlySales:41,buyerCount:12,buyers:[
   ['13200101','林晓雅','138****2261',8],['13200118','陈思远','159****0833',6],
   ['13200133','王梓涵','137****5540',5],['13200147','李嘉树','186****3217',4],
@@ -5186,6 +5841,21 @@ const ORDERS={
   ['13200268','顾南笙','150****4406',1]]},
  A013:{monthlySales:0,buyerCount:0,buyers:[]}
 };
+/* bmLoad 按 data-pv="page-kit-monthly" 推导为 initPage_page_kit_monthly */
+function initPage_page_kit_monthly(){
+/* ===========================================================================
+   本月重点套组销售 · 演示数据
+   —— 两套数据分离：
+      ① KIT_PLAN 运营本月「指定套组清单」（套组 ID 决定展示范围）
+      ② ORDERS   当前自然月「订单数据」（决定当月销量 / 下单人数 / 下单人员）
+   两者通过 kitId 关联；未在清单内的套组不会被自动加入。
+   数据均为演示值，等待真实接口联调后替换，请勿视为真实业务数据。
+   =========================================================================== */
+/* 数据已提升为全局共享常量（KIT_MONTHLY_MONTH / KIT_MONTHLY_PLAN / KIT_MONTHLY_ORDERS），
+   供「总提醒 → 产品销售」页复用同一口径，本页仅做引用，不重复维护第二套数据。 */
+const MONTH=KIT_MONTHLY_MONTH;
+const KIT_PLAN=KIT_MONTHLY_PLAN;
+const ORDERS=KIT_MONTHLY_ORDERS;
 let openIdx=-1;
 function statOf(id){return ORDERS[id]||{monthlySales:0,buyerCount:0,buyers:[]}}
 function renderExplain(){
@@ -5227,20 +5897,331 @@ function toggle(i){openIdx=openIdx===i?-1:i;renderList()}
 window.kmToggle=toggle;
 renderList();renderExplain();
 }
-function initPage_product_sales_remind(){}
-function initPage_promotion_remind(){}
+/* ===== 产品销售提醒：本月重点套组 · 直属下级未购买批量提醒 ===== */
+var PSR_REMINDED = {};   // { 套组ID: 'YYYY-MM-DD' } 同一套组同一自然日仅成功提醒一次，跨日自动重置
+/* 固定消息模板：仅替换 {{商品名称}} 与 {{已售出件数}} 两个变量（第一期不做 AI 话术生成） */
+var PSR_MSG_TPL = '温馨提醒：{{商品名称}}目前已售出{{已售出件数}}件啦！本月重点套组正在热销中，还没有购买的伙伴可以了解一下商品详情，根据自己的实际需求及时选购哦！';
+var PSR_FORCE_FAIL = false; // 调试开关：true = 全部失败，'partial' = 部分失败；仅用于验证失败分支，真实接入时移除
+
+/* bmLoad 按 data-pv="page-product-sales-remind" 推导为 initPage_page_product_sales_remind */
+function initPage_page_product_sales_remind(){
+/* 数据全部复用「本月重点套组销售」的全局共享常量，不重复维护第二套购买数据 */
+const PLAN = (typeof KIT_MONTHLY_PLAN !== 'undefined') ? KIT_MONTHLY_PLAN : [];
+const ORDERS = (typeof KIT_MONTHLY_ORDERS !== 'undefined') ? KIT_MONTHLY_ORDERS : {};
+const MONTH = (typeof KIT_MONTHLY_MONTH !== 'undefined') ? KIT_MONTHLY_MONTH : '2026-10';
+/* 未购买过任何本月重点套组的直属下级（原型补充数据），用于体现「尚未购买人数」 */
+const PSR_EXTRA_SUBS = [
+  { code: '13200301', name: '项心怡', phone: '135****0011' },
+  { code: '13200315', name: '程一诺', phone: '139****0022' },
+  { code: '13200328', name: '夏沐然', phone: '186****0033' },
+  { code: '13200342', name: '谢听澜', phone: '188****0044' }
+];
+/* 直属下级池：购买过至少一个套组的人员由当月订单反推（Code/昵称/手机号与「本月重点」一致），
+   加上未购买任何套组的下级；购买状态由订单推导，不额外造一套购买记录。 */
+var SUBS = null;
+function psrSubs(){
+  if (SUBS) return SUBS;
+  var map = {};
+  Object.keys(ORDERS).forEach(function(kid){
+    (ORDERS[kid].buyers || []).forEach(function(b){
+      if (!map[b[0]]) map[b[0]] = { code: b[0], name: b[1], phone: b[2], kits: [] };
+      if (map[b[0]].kits.indexOf(kid) < 0) map[b[0]].kits.push(kid);
+    });
+  });
+  SUBS = Object.keys(map).map(function(k){ return map[k]; });
+  PSR_EXTRA_SUBS.forEach(function(x){ SUBS.push({ code: x.code, name: x.name, phone: x.phone, kits: [] }); });
+  return SUBS;
+}
+/* 尚未购买该套组的直属下级（已购买者不推送） */
+function psrPending(kitId){
+  return (typeof psrSubs === 'function' ? psrSubs() : []).filter(function(s){ return s.kits.indexOf(kitId) < 0; });
+}
+function psrStat(kitId){ return ORDERS[kitId] || { monthlySales: 0, buyerCount: 0, buyers: [] }; }
+function psrToday(){ return prDayKey(Date.now()); }
+function psrMessage(kit){
+  var s = psrStat(kit.kitId);
+  return PSR_MSG_TPL.replace('{{商品名称}}', kit.kitName).replace('{{已售出件数}}', String(s.monthlySales));
+}
+function psrToast(msg){
+  var el = document.getElementById('psToast');
+  if (!el) return;
+  el.textContent = msg; el.style.display = 'block';
+  requestAnimationFrame(function(){ el.style.opacity = '1'; });
+  clearTimeout(psrToast._t);
+  psrToast._t = setTimeout(function(){
+    el.style.opacity = '0';
+    setTimeout(function(){ el.style.display = 'none'; }, 220);
+  }, 1900);
+}
+/* —— 原型模拟推送 ——
+   当前 HTML 无真实消息推送接口：此处仅模拟「按未购买名单批量下发」的结果，不发送任何微信消息或系统通知。
+   真实接入时只需替换本函数为接口调用（返回成功/失败名单），页面交互与状态流转保持不变。 */
+function psrPush(kitId, msg, people){
+  var failed = 0;
+  if (PSR_FORCE_FAIL === true) failed = people.length;
+  else if (PSR_FORCE_FAIL === 'partial') failed = Math.min(1, people.length);
+  window.__PSR_LAST = { kitId: kitId, msg: msg, total: people.length, success: people.length - failed, failed: failed, codes: people.map(function(p){ return p.code; }) };
+  return { total: people.length, success: people.length - failed, failed: failed };
+}
+function psrRender(){
+  var subs = psrSubs(), today = psrToday();
+  var tip = document.getElementById('psrTip');
+  if (tip) tip.textContent = MONTH + ' 自然月 · 运营指定';
+  var reminded = PLAN.filter(function(k){ return PSR_REMINDED[k.kitId] === today; }).length;
+  var sum = document.getElementById('psrSum');
+  if (sum) sum.innerHTML =
+     '<div class="cell"><div class="v">' + PLAN.length + '</div><div class="l">本月重点套组（个）</div></div>' +
+     '<div class="cell"><div class="v">' + subs.length + '</div><div class="l">直属下级总数（人）</div></div>' +
+     '<div class="cell"><div class="v">' + reminded + '</div><div class="l">今日已提醒（个）</div></div>';
+  var el = document.getElementById('psrList');
+  if (el) el.innerHTML = PLAN.map(function(k){
+    var s = psrStat(k.kitId), pending = psrPending(k.kitId);
+    var done = PSR_REMINDED[k.kitId] === today;
+    var btn = done
+      ? '<button class="psrbtn done" disabled>今日已提醒</button>'
+      : '<button class="psrbtn primary" onclick="psrRemind(\'' + k.kitId + '\')">一键提醒未购买下级</button>';
+    return '<div class="psrkit">' +
+      '<div class="khd"><div class="kicon">' + k.kitName.charAt(0) + '</div>' +
+      '<div class="kinfo"><div class="kname">' + k.kitName + '</div><div class="kid">套组 ID：' + k.kitId + '</div></div></div>' +
+      '<div class="psrstats">' +
+        '<div class="cell"><div class="v">' + s.monthlySales + '</div><div class="l">本月累计销量（件）</div></div>' +
+        '<div class="cell"><div class="v">' + s.buyerCount + '</div><div class="l">已购买直属下级（人）</div></div>' +
+        '<div class="cell"><div class="v warn">' + pending.length + '</div><div class="l">尚未购买直属下级（人）</div></div>' +
+      '</div>' +
+      '<div class="psrbtns">' +
+        '<button class="psrbtn ghost" onclick="psrView(\'' + k.kitId + '\')">查看购买人员</button>' + btn +
+      '</div></div>';
+  }).join('');
+  var ex = document.getElementById('psrExplain');
+  if (ex) ex.innerHTML =
+    '1. 统计范围：仅当前用户的<b>直属下级</b>（原型演示共 ' + subs.length + ' 人），不含间接下级；本月重点套组沿用「本月重点」运营指定清单（套组 ID），销量与已购买人数直接复用当月订单聚合结果（monthlySales / buyerCount），未重新定义口径；<br>' +
+    '2. 尚未购买人数 = 直属下级总数 − 本套组已购买去重人数；同一人对同一套组只计一种状态，不同套组分别计算（买了套组 A 不代表买了套组 B）；<br>' +
+    '3. 提醒消息为<b>固定模板</b>，仅替换「商品名称」「已售出件数」两个变量，均从当前套组实时读取，未写死示例值；第一期不做 AI 话术生成；<br>' +
+    '4. <b>批量提醒为原型模拟推送</b>：当前 HTML 无真实消息推送接口，点击后仅模拟生成消息与下发结果、显示 Toast 并切换按钮状态，<b>不会真实发送微信消息或系统通知</b>；<br>' +
+    '5. 同一套组同一自然日仅可成功提醒一次（跨自然日自动重置），不同套组状态相互独立；未购买人数为 0 时不执行推送并提示「暂无需要提醒的下级」；推送失败 / 部分失败不显示成功 Toast，也不标记按钮；<br>' +
+    '6. 「查看购买人员」跳转现有「本月重点」页面（page-kit-monthly），不新增购买人员列表页。';
+}
+/* 查看购买人员：复用现有「本月重点」页面（传递套组 ID，页面不支持定位时正常进入即可） */
+window.psrView = function(kitId){ navTo('page-kit-monthly', kitId); };
+window.psrRender = psrRender;   // 暴露重渲染入口（跨日 / 调试用）
+/* 一键提醒未购买下级 */
+window.psrRemind = function(kitId){
+  var kit = null;
+  PLAN.forEach(function(k){ if (k.kitId === kitId) kit = k; });
+  if (!kit) return;
+  var today = psrToday();
+  if (PSR_REMINDED[kitId] === today) { psrToast('今日已提醒，请勿重复推送'); return; }
+  var people = psrPending(kitId);
+  if (!people.length) { psrToast('暂无需要提醒的下级'); return; }
+  var msg = psrMessage(kit);
+  var res = psrPush(kitId, msg, people);          // 原型模拟推送
+  if (res.failed > 0) {                            // 失败 / 部分失败：不得标记成功
+    psrToast('提醒失败：' + res.failed + ' 人未成功，请稍后重试');
+    psrRender();
+    return;
+  }
+  PSR_REMINDED[kitId] = today;                     // 仅全部成功才写入当日记录
+  psrToast('今日提醒下级成功');
+  psrRender();
+};
+psrRender();
+}
+/* ===== 促销活动提醒：直属下级权益到期提醒（我的 → 总提醒 → 促销活动） ===== */
+var PR_WINDOW = { d3: 72, d7: 168 };          // 到期窗口（小时）：3天=72h，7天=168h，3天为7天子集
+var PR_REMINDED = {};                          // { 下级id: 'YYYY-MM-DD' } 同一自然日仅提醒一次
+var PR_QUERY = '';                             // 代理名称 / Code 搜索关键词（仅影响展示，不改原始数据）
+var PR_BELL = '<svg width="13" height="13" viewBox="0 0 22 22" fill="none" style="margin-right:5px"><path d="M11 3a5 5 0 00-5 5c0 4.2-1.6 5.4-1.6 5.4h13.2S16 12.2 16 8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linejoin="round"/><path d="M9.2 18a2.1 2.1 0 003.6 0" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/></svg>';
+/* 权益底表（原型数据）：offsetH = 距当前时刻的剩余小时数，初始化时换算为真实到期时间戳 expireAt */
+var PR_ASSETS = {
+  1001: {
+    coupons: [
+      { name: '满300减30通用券', status: 'unused', offsetH: 18 },
+      { name: '新人专享50元券', status: 'unused', offsetH: 150 },
+      { name: '套组立减80券', status: 'used', offsetH: 40 }
+    ],
+    packs: [
+      { name: '补水修护体验礼包', status: 'unused', offsetH: 55 },
+      { name: '爆款尝鲜礼包', status: 'expired', offsetH: -20 }
+    ]
+  },
+  1002: {
+    coupons: [
+      { name: '满500减80券', status: 'unused', offsetH: 9 },
+      { name: '满1000减150券', status: 'unused', offsetH: 300 },
+      { name: '老客回馈券', status: 'revoked', offsetH: 20 }
+    ],
+    packs: [
+      { name: '胶原冻干修护礼包', status: 'unused', offsetH: 66 },
+      { name: '焕活多肽礼包', status: 'unused', offsetH: 140 }
+    ]
+  },
+  1003: {
+    coupons: [
+      { name: '满200减20券', status: 'unused', offsetH: 400 },
+      { name: '生日礼券', status: 'used', offsetH: 60 }
+    ],
+    packs: [
+      { name: '面膜体验包', status: 'expired', offsetH: -5 }
+    ]
+  },
+  1004: {
+    coupons: [
+      { name: '尊享无门槛券', status: 'unused', offsetH: 6 },
+      { name: '满2000减300券', status: 'unused', offsetH: 30 },
+      { name: '满5000减800券', status: 'unused', offsetH: 120 }
+    ],
+    packs: [
+      { name: '年度尊享礼包', status: 'unused', offsetH: 96 },
+      { name: '直播专属礼包', status: 'revoked', offsetH: 48 }
+    ]
+  }
+};
+(function prBootstrap(){
+  var base = Date.now();
+  Object.keys(PR_ASSETS).forEach(function(id){
+    ['coupons','packs'].forEach(function(k){
+      (PR_ASSETS[id][k]||[]).forEach(function(a){ a.expireAt = base + a.offsetH * 3600000; });
+    });
+  });
+})();
+var PR_EXPLAIN = '1. 权益范围：仅统计直属下级名下「未使用且未过期」的优惠券与礼包；已使用、已过期、已作废的权益不计入任何统计；<br>' +
+ '2. 到期口径：以权益<b>真实到期时间字段</b>计算剩余小时数，0 &lt; 剩余小时 ≤ 72 记入「3 天内到期」，0 &lt; 剩余小时 ≤ 168 记入「7 天内到期」；「3 天内」是「7 天内」的子集，<b>不重复累加</b>；到期数量为优惠券与礼包的合计口径，未使用礼包另按单独项统计；<br>' +
+ '3. 搜索：支持按代理姓名或 Code 模糊匹配，不区分英文大小写，仅影响列表展示，不修改原始业务数据；清空关键词后恢复完整列表；<br>' +
+ '4. 一键提醒：仅当该下级存在 3 天或 7 天内到期权益时按钮可用；点击后提示「今日提醒下级成功」，按钮当日变为「今日已提醒」且不可重复点击；无待提醒权益的下级展示「暂无待提醒权益」；<br>' +
+ '5. 提醒频次：同一自然日内同一位下级仅可提醒一次，跨自然日后自动恢复；各下级的提醒状态相互独立，搜索与列表重渲染不会丢失已成功的提醒状态；<br>' +
+ '6. 原型数据说明：当前权益底表（券 / 礼包名称、数量、到期时间）为<b>原型模拟数据</b>，到期时间按「距当前时刻 N 小时」生成，仅用于验证统计口径与交互；真实到期时间需由后端权益接口返回后方可接入；<br>' +
+ '7. 提醒为前端模拟：点击「一键提醒」不会真实触达下级，不调用消息推送接口，仅演示交互与状态流转。';
+function prDayKey(ts){
+  var d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function prFmtTime(ts){
+  var d = new Date(ts);
+  return (d.getMonth()+1) + '月' + d.getDate() + '日 ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function prHuman(ts, now){
+  var mins = Math.round((ts - now) / 60000);
+  if (mins < 60) return Math.max(1, mins) + ' 分钟后';
+  var h = mins / 60, hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  if (mm === 60) { hh += 1; mm = 0; }
+  if (hh < 24) return mm ? hh + ' 小时 ' + mm + ' 分后' : hh + ' 小时后';
+  return Math.floor(hh / 24) + ' 天 ' + (hh % 24) + ' 小时后';
+}
+/* 单类权益汇总：未使用且未过期才计入；3天/7天为包含关系 */
+function prCalc(list, now){
+  var r = { unused: 0, d3: 0, d7: 0, soonest: null };
+  (list || []).forEach(function(a){
+    if (a.status !== 'unused') return;
+    var h = (a.expireAt - now) / 3600000;
+    if (!(h > 0)) return;
+    r.unused++;
+    if (r.soonest === null || a.expireAt < r.soonest) r.soonest = a.expireAt;
+    if (h <= PR_WINDOW.d7) r.d7++;
+    if (h <= PR_WINDOW.d3) r.d3++;
+  });
+  return r;
+}
+function prToast(msg){
+  var t = document.getElementById('prToast');
+  if (!t) return;
+  t.innerText = msg;
+  t.style.display = 'block';
+  t.style.opacity = '1';
+  clearTimeout(t.__t1); clearTimeout(t.__t2);
+  t.__t1 = setTimeout(function(){ t.style.opacity = '0'; }, 1800);
+  t.__t2 = setTimeout(function(){ t.style.display = 'none'; }, 2060);
+}
+function prRender(){
+  var listEl = document.getElementById('prSubList');
+  if (!listEl) return;
+  var now = Date.now();
+  var all = (typeof MOCK !== 'undefined' && MOCK.myCustomersList) ? MOCK.myCustomersList : [];
+  // 关键词筛选：姓名 或 Code 模糊匹配、不区分大小写；仅影响展示，不改原始数据
+  var q = (PR_QUERY || '').trim().toLowerCase();
+  var subs = q
+    ? all.filter(function(c){
+        return (c.name || '').toLowerCase().indexOf(q) >= 0 || (c.code || '').toLowerCase().indexOf(q) >= 0;
+      })
+    : all;
+
+  var box = document.getElementById('prSearchBox');
+  if (box) box.classList.toggle('has-value', PR_QUERY.length > 0);
+
+  var html;
+  if (!subs.length) {
+    html = '<div class="prempty">'
+      + '<div class="pei"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="#B0B6C2" stroke-width="1.8" fill="none"/><path d="M15.5 15.5L21 21" stroke="#B0B6C2" stroke-width="1.8" stroke-linecap="round"/></svg></div>'
+      + '<div class="pet">未找到相关代理</div>'
+      + '<div class="ped">请核对代理名称或 Code 后重新搜索</div>'
+      + '<button type="button" class="peb" onclick="prSearch(\'\')">清除搜索条件</button>'
+      + '</div>';
+  } else {
+    html = subs.map(function(c){
+      var A = PR_ASSETS[c.id] || { coupons: [], packs: [] };
+      var cp = prCalc(A.coupons, now), pk = prCalc(A.packs, now);
+      var d3 = cp.d3 + pk.d3, d7 = cp.d7 + pk.d7;
+      var canRemind = (d3 > 0 || d7 > 0);
+      var cand = [cp.soonest, pk.soonest].filter(function(x){ return x !== null; });
+      var soonest = cand.length ? Math.min.apply(null, cand) : null;
+      var reminded = PR_REMINDED[c.id] === prDayKey(now);
+      var btn = !canRemind
+        ? '<button type="button" class="prbtn ghost" disabled>暂无待提醒权益</button>'
+        : (reminded
+          ? '<button type="button" class="prbtn ghost" disabled>今日已提醒</button>'
+          : '<button type="button" class="prbtn" data-act="remind" data-sub="' + c.id + '" onclick="prRemind(' + c.id + ')">' + PR_BELL + '一键提醒</button>');
+      return '<div class="prsub" data-sub="' + c.id + '">'
+        + '<div class="prhd">'
+        +   '<div class="prav">' + c.name.charAt(0) + '</div>'
+        +   '<div style="flex:1;min-width:0">'
+        +     '<div class="prnm"><span>' + c.name + '</span></div>'
+        +     '<div class="prcd">Code: <b>' + c.code + '</b></div>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="prm">'
+        +   '<div class="m"><div class="ml">未使用<br>优惠券</div><div class="mv">' + cp.unused + '</div></div>'
+        +   '<div class="m"><div class="ml">未使用<br>礼包</div><div class="mv">' + pk.unused + '</div></div>'
+        +   '<div class="m"><div class="ml">3天内<br>到期</div><div class="mv' + (d3 > 0 ? ' hot' : '') + '">' + d3 + '</div></div>'
+        +   '<div class="m"><div class="ml">7天内<br>到期</div><div class="mv' + (d7 > 0 ? ' warn' : '') + '">' + d7 + '</div></div>'
+        + '</div>'
+        + '<div class="prexp">' + (soonest !== null ? '最近到期：' + prFmtTime(soonest) + '（' + prHuman(soonest, now) + '）' : '暂无在有效期内的待使用权益') + '</div>'
+        + btn
+        + '</div>';
+    }).join('');
+  }
+  listEl.innerHTML = html;
+
+  var ex = document.getElementById('prExplain');
+  if (ex) ex.innerHTML = PR_EXPLAIN;
+}
+/* 搜索：实时筛选，只影响列表展示；提醒状态存放于 PR_REMINDED，重渲染不丢失 */
+window.prSearch = function(v){
+  PR_QUERY = (v === null || v === undefined) ? '' : String(v);
+  var inp = document.getElementById('prSearchInput');
+  if (inp && inp.value !== PR_QUERY) inp.value = PR_QUERY;
+  prRender();
+};
+window.prRemind = function(id){
+  PR_REMINDED[id] = prDayKey(Date.now());
+  prRender();                 // 仅局部重渲染，不整页刷新
+  prToast('今日提醒下级成功');
+};
+function initPage_page_promotion_remind(){ prRender(); }
+function initPage_promotion_remind(){ prRender(); }
 function initPage_user_behavior_remind(){}
 /* ===== 经营模块业务页面动态加载引擎 ===== */
 window.__BMSTYLE = {};
 document.querySelectorAll('style[data-pv]').forEach(t => window.__BMSTYLE[t.dataset.pv] = t);
 window.__BMINITED = {};
 
+/* 需要在「每次进入」时重新渲染的页面（如带筛选状态的直属列表），
+   否则从直属管理不同入口进入时，页面会停留在上一次的 Tab / 筛选状态 */
+window.__BMREENTER = window.__BMREENTER || { 'page-sub-list': true, 'page-product-sales-remind': true };
 function bmLoad(key){
   if(!key) return;
   // 启用对应 style
   for(const k in window.__BMSTYLE) window.__BMSTYLE[k].disabled = (k!==key);
-  // 首次进入执行 init
-  if(!window.__BMINITED[key]){
+  // 首次进入、或标记为「每次进入都重渲染」的页面执行 init
+  if(!window.__BMINITED[key] || (window.__BMREENTER && window.__BMREENTER[key])){
     try{ eval('initPage_'+key.replace(/-/g,'_')+'()'); }catch(e){ console.warn('BM init '+key+':', e); }
     window.__BMINITED[key]=true;
   }else{
