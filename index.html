@@ -368,6 +368,17 @@ td.l{text-align:left;font-weight:600}
 .seg{display:flex;background:#F0F1F5;border-radius:12px;padding:3px}
 .seg button{flex:1;border:none;background:transparent;font-size:12.5px;color:#5A6070;padding:8px 0;border-radius:10px;font-family:inherit}
 .seg button.on{background:#fff;color:var(--o);font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+/* —— 演示前布局修复 ——
+   1) 金额卡片防越界：创始人视角长金额（¥1,643,000.62）在标准/更窄手机宽度下按容器宽度分级缩小字号，
+      完整显示不裁切、不撑破卡片、不超出手机边界；vsbox 允许 flex 收缩（min-width:0）；
+      极端窄容器时金额保底折行（overflow-wrap:anywhere）优于溢出屏幕。
+   2) 滚动加固：overscroll-behavior:contain 防滚动链干扰，仅作用于本页滚动容器。 */
+.bm-page{overscroll-behavior:contain}
+.vs{align-items:stretch}
+.vs .vsbox{min-width:0;container-type:inline-size}
+.vsbox .v{font-size:22px;overflow-wrap:anywhere}
+@container (max-width:190px){.vsbox .v{font-size:15px;letter-spacing:-.2px}}
+@container (max-width:80px){.vsbox .v{font-size:12px;letter-spacing:-.4px}}
 </style>
 <style data-pv="team-detail" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15;--ok:#2BA471}
@@ -542,20 +553,25 @@ td.l{text-align:left;font-weight:600}
 .minitable th{color:var(--gray);font-weight:500;text-align:left;padding:6px 3px;border-bottom:1px solid #EDEFF4;font-size:11px}
 .minitable td{padding:7px 3px;border-bottom:1px solid #F5F6FA;color:#3A3F4E}
 .minitable td .code{color:var(--gray)}
-.morebtn{margin-top:8px;text-align:right;font-size:12px;color:var(--o);font-weight:600}
 .dp{width:100%;height:190px}
 .explain{background:var(--tint);border-radius:14px;margin:14px 12px 0;padding:14px 16px}
 .explain .et{font-size:12.5px;font-weight:700;color:var(--deep);margin-bottom:6px}
 .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
 /* —— 2026 / 2025 双年度对比（本次新增，仅作用于本页） —— */
 .irow{align-items:flex-start}
-.yr{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);margin-top:3px;line-height:1.45}
-.yr .yk{flex:none;font-weight:700;color:#5A6070}
+/* 年度行：标签定宽 + 数字与单位强制同行，避免换行拆散；两行年度数据按列对齐 */
+.yr{display:flex;align-items:baseline;gap:7px;font-size:11px;color:var(--gray);margin-top:2px;line-height:1.5}
+.yr .yk{flex:none;width:30px;font-weight:700;color:#5A6070;font-size:10.5px}
 .yr.y26 .yk{color:var(--o)}
 .yr.y25 .yk{color:#8A90A0}
-.yr .yv{font-weight:700;color:#3A3F4E}
-.yr .sep{color:#D8DCE4}
-.ybox{margin-top:8px;padding-top:8px;border-top:1px dashed #E8EAF0}
+.yr .yv{white-space:nowrap;color:#3A3F4E}
+.yr .yv b{font-weight:700}
+.yr .sep{color:#D8DCE4;flex:none}
+.ybox{margin-top:6px;padding-top:7px;border-top:1px dashed #E8EAF0}
+/* 人均客单价：由销售金额 ÷ 购买人数得出（2026 年口径），区域定宽不随名称长度移动 */
+.ap{flex:none;text-align:right;margin-right:2px;min-width:66px}
+.ap .a{font-size:15px;font-weight:800;color:var(--o);white-space:nowrap}
+.ap .al{font-size:10px;color:var(--gray);margin-top:1px;white-space:nowrap}
 /* 人员表格：横向滚动容器，保证五列完整可辨 */
 .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px}
 .tblwrap .minitable{min-width:340px}
@@ -636,7 +652,6 @@ td.l{text-align:left;font-weight:600}
 .bm-modal .mp{margin-top:9px;display:flex;align-items:baseline;gap:8px}
 .bm-modal .mp .p{font-size:19px;font-weight:800;color:var(--r)}
 .bm-modal .mp .o{font-size:12px;color:#9AA0AC;text-decoration:line-through}
-.bm-modal .mtip{margin-top:10px;font-size:10.5px;color:#9AA0AC;line-height:1.6}
 .bm-modal .mc{margin-top:12px;border:none;background:#F0F1F5;color:#5A6070;font-size:13px;font-weight:600;font-family:inherit;padding:9px 0;width:100%;border-radius:12px;cursor:pointer}
 </style>
 <style data-pv="structure-remind" disabled>
@@ -839,7 +854,11 @@ td.l{text-align:left;font-weight:600}
 .minitable td .code{color:var(--gray)}
 .minitable .gp{color:var(--deep);font-weight:700}
 .minitable .perf{color:var(--o);font-weight:700}
-.morebtn{margin-top:8px;text-align:right;font-size:12px;color:var(--o);font-weight:600}
+/* 成员列表分页控件：上一页 / 页码下拉(可跳转) / 下一页，首末页按钮置灰 */
+.pgbar{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 0 4px;border-top:1px dashed #E8EAF0;margin-top:8px}
+.pgb{border:1px solid #E3E6EE;background:#fff;border-radius:10px;padding:5px 12px;font-size:12px;color:#5A6070;font-family:inherit;cursor:pointer}
+.pgb:disabled{color:#C4C9D4;border-color:#EFF1F5;cursor:default}
+.pgsel{border:1px solid #E3E6EE;background:#fff;border-radius:10px;padding:5px 8px;font-size:12px;color:#23283A;font-family:inherit;-webkit-appearance:none;appearance:none;padding-right:20px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%238A90A0' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
 .badge{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#B23A15;flex:none}
 .tinfo{flex:1;min-width:0}
 .tinfo .t1{font-size:14px;font-weight:700}
@@ -964,13 +983,18 @@ td.l{text-align:left;font-weight:600}
 .bm-page .explain p{margin:0;font-size:12px;line-height:1.7;color:#7A6A55}
 .bm-page .ct .tip{font-size:11px;color:var(--gray);font-weight:400;margin-left:auto}
 .bm-page .cp{font-size:12.5px;color:#5A6070;line-height:1.85;margin:0}
+.bm-page .cp .cp-more{display:block;margin-top:4px;font-size:11px;color:#9AA0AC}
 /* —— 本月重点套组销售：套组卡片 + 当月下单人员列表（复用历史榜单组件风格） —— */
 .bm-page .item{border-bottom:1px solid #F5F6FA;padding:13px 0}
 .bm-page .item:last-child{border-bottom:none}
 .bm-page .irow{display:flex;align-items:center;gap:11px;cursor:pointer}
 .bm-page .kid{flex:none;min-width:44px;height:24px;padding:0 7px;border-radius:8px;background:var(--tint);color:var(--deep);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .bm-page .iname{flex:1;min-width:0}
-.bm-page .iname .n{font-size:14px;font-weight:600;line-height:1.35}
+/* 商品名称：收起时单行省略（不换行、不挤压编号/销量/箭头）；
+   展开后复用 item.open 取消单行限制，完整名称自然换行（含长词强制断行），
+   使用 !important 确保展开态不受任何其他样式层叠影响 */
+.bm-page .iname .n{font-size:14px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bm-page .item.open .iname .n{white-space:normal !important;overflow:visible !important;text-overflow:clip !important;overflow-wrap:anywhere;word-break:break-word}
 .bm-page .iname .m{margin-top:4px;font-size:11.5px;color:var(--gray);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 .bm-page .iname .m b{color:#3A3F4E;font-weight:700}
 .bm-page .iname .m .dot{color:#D8DCE4}
@@ -1510,17 +1534,12 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
 <div class="bm-page">
   <div class="nav">
     <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-    <div><div class="tt">历史销售套组榜单</div><div class="ss">默认近 6 个月 Top10</div></div>
+    <div><div class="tt">历史销售套组榜单</div><div class="ss">按 2026 年销量排序 · 默认近 6 个月 Top10</div></div>
   </div>
 
   <div class="card">
     <div class="ct"><span class="bar"></span>套组销售 Top10<span class="tip" id="tip"></span></div>
     <div id="list"></div>
-  </div>
-
-  <div class="explain">
-    <div class="et">说明</div>
-    <p id="explain"></p>
   </div>
 </div>
 
@@ -1545,11 +1564,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     <div id="htList"></div>
   </div>
 
-  <div class="explain">
-    <div class="et">说明</div>
-    <p id="htExplain"></p>
-  </div>
-
 </div>
   </div>
   <div class="bm-mask" id="htMask" onclick="htClose()">
@@ -1558,7 +1572,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       <div class="mb">
         <div class="mn" id="htMName"></div>
         <div class="mp"><span class="p" id="htMPrice"></span><span class="o" id="htMOrigin"></span></div>
-        <div class="mtip">演示弹层 · 仅用于展示「查看」交互，非真实商城商品详情页</div>
         <button class="mc" onclick="htClose()">关闭</button>
       </div>
     </div>
@@ -1705,11 +1718,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     <div class="ct"><span class="bar"></span>各档位人数 · 距下一档差额</div>
     <div id="tierList"></div>
   </div>
-
-  <div class="explain">
-    <div class="et">说明</div>
-    <p id="explain"></p>
-  </div>
 </div>
 
 <div id="toast" style="display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.88);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:99"></div>
@@ -1781,11 +1789,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     </div>
 
     <div class="psrlist" id="psrList"></div>
-
-    <div class="explain">
-      <div class="et">口径与数据说明</div>
-      <p id="psrExplain"></p>
-    </div>
   </div>
   <div id="psToast" style="display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:120;opacity:0;transition:opacity .22s ease;pointer-events:none;white-space:nowrap"></div>
 </div>
@@ -1794,21 +1797,12 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
   <div class="bm-page" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;">
     <div class="nav">
       <a class="back" href="javascript:void(0)" onclick="goBack()">‹</a>
-      <div><div class="tt">本月重点套组销售</div><div class="ss">总产品 · 重点套组销售追踪</div></div>
-    </div>
-    <div class="card">
-      <div class="ct"><span class="bar"></span>统计口径<span class="tip" id="kmMonthTip">2026-10 自然月</span></div>
-      <p class="cp">1. 套组范围由 <b>运营本月指定清单</b> 决定，仅展示指定套组，不按历史销量自动筛选，也不自动补充其他热销商品；<br>2. <b>当月销量</b>＝该套组在当前自然月的有效销售数量；<b>当月下单人数</b>＝购买过该套组的去重下级人数（同一人多次购买时，销量累加、人数去重）；<br>3. 运营指定的套组当月若无订单，仍保留在清单中并展示 0 销量 / 0 下单人数。</p>
+      <div><div class="tt">本月重点套组销售</div><div class="ss">总产品 · 2026-10 自然月 · 运营指定</div></div>
     </div>
 
     <div class="card">
       <div class="ct"><span class="bar"></span>运营指定套组<span class="tip" id="kmTip"></span></div>
       <div id="kmList"></div>
-    </div>
-
-    <div class="explain">
-      <div class="et">数据接入状态</div>
-      <p id="kmExplain"></p>
     </div>
   </div>
 </div>
@@ -1827,11 +1821,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     </div>
 
     <div id="prSubList" class="prlist"></div>
-
-    <div class="explain">
-      <div class="et">口径与数据说明</div>
-      <p id="prExplain"></p>
-    </div>
   </div>
   <div id="prToast" style="display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:120;opacity:0;transition:opacity .22s ease;pointer-events:none;white-space:nowrap"></div>
 </div>
@@ -3281,14 +3270,27 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
                 <p class="doc-p">页面容器 <code>#page-kit-ranking</code>，CSS 通过 <code>[data-pv="kit-ranking"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
-                <div class="doc-sec-title">二、当前实现状态</div>
+                <div class="doc-sec-title">二、完整统计口径（手机端已移除说明卡，此处承载全部规则）</div>
+                <ul class="doc-list">
+                    <li><b>榜单范围</b>：近 6 / 12 / 18 个月三个周期可选，展示该周期内销量 Top10 套组</li>
+                    <li><b>排序规则</b>：按 2026 年销量（套数）降序，副标题「按 2026 年销量排序」；排序规则未随客单价调整</li>
+                    <li><b>年度对比</b>：卡片内同时给出 2026 与 2025 两个自然年度的销量、购买人数（两年度分别存储、分别渲染，非复制改标签）</li>
+                    <li><b>人均客单价 = 套组销售金额 ÷ 购买人数</b>（2026 年口径，显示 ¥ 整数）。<b>模拟金额说明</b>：当前原型无真实销售金额字段，演示数据新增 <code>amt2026 / amt2025</code>（＝销量套数 × 套组单价，单价 59~228 元），因此人均客单价＝人均套数 × 单价；真实金额口径需业务侧确认后由接口提供</li>
+                    <li><b>口径勘误记录</b>：最初版本曾把「销量 ÷ 人数」的套数值标成「客单价 ¥3/¥4」（单位错误）；2026-10-20 上午版改为「人均 X.X 套」（指标名错误）；本版恢复为正确的「人均客单价」金额指标，计算与单位已核对一致</li>
+                    <li><b>三维下钻</b>：人的维度（Top10 名单两年度购买套数）、地域维度（两年度环形图上下对比）、年龄维度（两年度分组柱状图）；年龄分布各项之和＝购买人数</li>
+                </ul>
+                <div class="doc-sec-title">三、演示数据说明</div>
+                <ul class="doc-list">
+                    <li>销量、购买人数、地域、年龄均为演示数据（2026-10-20 展示优化版已校准：人均购买套数按套组分布 2.4~4.6，2026 年人数高于 2025 年，各年度年龄分布之和与购买人数一致）</li>
+                    <li>Top10 人员名单为固定演示名单，与购买人数无绑定关系</li>
+                </ul>
+                <div class="doc-sec-title">四、当前实现状态</div>
                 <ul class="doc-list">
                     <li>页面框架：✅ 已完成</li>
                     <li>数据接入：⏳ 等待真实接口</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>图表渲染：✅ echarts 环形图 / 分组柱状图</li>
+                    <li>真实客单价口径：待业务侧确认（当前 amt2026/amt2025 为模拟金额，由接口提供真实金额后仅需替换字段）</li>
                 </ul>
-                <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
                 <div class="h-4"></div>
             `
         },
@@ -3300,15 +3302,22 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
                 <p class="doc-p">本月重点套组销售追踪</p>
-                <div class="doc-sec-title">二、主要展示内容</div>
+                <div class="doc-sec-title">二、完整统计口径（手机端仅保留简版提示）</div>
+                <ul class="doc-list">
+                    <li><b>套组范围</b>：由<b>运营本月指定清单</b>决定，仅展示指定套组，不按历史销量自动筛选，也不自动补充其他热销商品</li>
+                    <li><b>当月销量</b>＝该套组在当前自然月的有效销售数量</li>
+                    <li><b>当月下单人数</b>＝购买过该套组的去重下级人数（同一人多次购买时，销量累加、人数去重）</li>
+                    <li>运营指定的套组当月若无订单，仍保留在清单中并展示 0 销量 / 0 下单人数</li>
+                </ul>
+                <div class="doc-sec-title">三、主要展示内容</div>
                 <ul class="doc-list">
                     <li>运营本月指定套组清单（展示范围由运营指定的套组 ID 决定）</li>
                     <li>每个套组：当月销量、当月下单人数</li>
                     <li>展开后：当月实际购买该套组的下级名单</li>
                 </ul>
-                <div class="doc-sec-title">三、关键交互</div>
+                <div class="doc-sec-title">四、关键交互</div>
                 <p class="doc-p">套组卡片展开 / 收起；人员表格横向 + 纵向滚动；当月零销量套组保留并展示 0</p>
-                <div class="doc-sec-title">四、跳转关系</div>
+                <div class="doc-sec-title">五、跳转关系</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
                         我的 → 总产品 → 本月重点套组销售（page-kit-monthly）。
@@ -3372,6 +3381,12 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                 </ul>
                 <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
                 <p class="doc-p">每个商品：<code>{id, name, price, originalPrice, image}</code>。<br>售价与划线价为两个独立字段；图片当前为内置 SVG 占位图，不引用外部图片地址。</p>
+                <div class="doc-sec-title">四、演示数据说明（完整版，手机端仅保留简版）</div>
+                <ul class="doc-list">
+                    <li>三个榜单（爆款榜 / 热销榜 / 人气榜）各自维护独立演示数据，切换 Tab 整体替换列表与排名</li>
+                    <li>排名按各榜单 items 数组顺序渲染（1~8 名），无动态排序计算</li>
+                    <li>待接入真实榜单接口后，替换 <code>TABS</code> 中各榜单的 <code>items</code> 即可，渲染逻辑无需改动</li>
+                </ul>
                 <div class="h-4"></div>
             `
         },
@@ -3388,13 +3403,13 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                     <li>直属业绩：当月业绩 / 当月订单 / 当月新增（复用现有演示数据）</li>
                     <li>直属状态六宫格：总数、活跃/非活跃、金卡、本月新增长、已冻结、未激活</li>
                     <li>直系业绩统计：<b>按体系 / 商城维度汇总</b>，每行一个维度 —— 图标 + 名称、订单数（已入账 / 未入账）、业绩（已入账 / 未入账）；<b>不展示人员姓名 / Code / 活跃状态</b>等人员级信息</li>
-                    <li>底部入口：直属购买商品列表、下级开卡时间筛选、下级未下单时间筛选、直属优化列表等占位入口</li>
+                    <li>底部占位入口（直属购买商品列表 / 下级开卡时间筛选 / 下级未下单时间筛选 / 直属优化列表 / 庭秘密体系业绩查询 / 新增代理排名）已按 2026-10-20 整改删除：均为仅弹 Toast 的无实现入口，待功能实际开发后再恢复真实跳转入口</li>
                 </ul>
                 <div class="doc-sec-title">三、关键交互</div>
                 <ul class="doc-list">
                     <li>点击「总数」：进入直属列表并默认选中「全部」</li>
                     <li>点击「活跃/非活跃」：进入直属列表并<b>直接进入「活跃状态」筛选</b>（默认活跃，可切换非活跃），不再回落到「全部」</li>
-                    <li>其余四项当前仅展示数量，不跳转独立页面</li>
+                    <li>金卡 / 本月新增长 / 已冻结 / 未激活四项当前仅展示数量，不跳转独立页面</li>
                 </ul>
                 <div class="doc-sec-title">四、待业务确认 / 数据缺口</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
@@ -3531,7 +3546,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-product-sales-remind</code>，CSS 通过 <code>[data-pv="page-product-sales-remind"]</code> 动态注入；初始化入口 <code>initPage_product_sales_remind()</code>。</p>
+                <p class="doc-p">页面容器 <code>#page-product-sales-remind</code>，CSS 通过 <code>[data-pv="page-product-sales-remind"]</code> 动态注入；初始化入口 <code>initPage_page_product_sales_remind()</code>（由 <code>data-pv</code> 按 <code>initPage_</code> + key 推导命名）。页面已加入 <code>__BMREENTER</code> 重渲染清单，二次进入自动刷新提醒状态。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
                     <li>页面框架与套组卡片：✅ 已完成</li>
@@ -3583,8 +3598,15 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
                     <li>仅统计「未使用且未过期」的权益；已使用 / 已过期 / 已作废均不计入</li>
                     <li>按真实到期时间字段计算剩余小时数：0 &lt; h ≤ 72 记入「3 天内」，0 &lt; h ≤ 168 记入「7 天内」</li>
                     <li>「3 天内」是「7 天内」的子集，二者为包含关系，不重复累加</li>
+                    <li>到期数量为<b>优惠券与礼包的合计口径</b>；「未使用优惠券」「未使用礼包」另按单独项统计</li>
+                    <li>「最近到期时间」＝该下级全部有效在期权益中最早的到期时间（券与礼包取最小值），并附人性化倒计时</li>
                 </ul>
-                <div class="doc-sec-title">五、跳转关系</div>
+                <div class="doc-sec-title">五、模拟数据机制（完整版，手机端仅保留简版）</div>
+                <ul class="doc-list">
+                    <li>权益底表（券 / 礼包名称、数量、到期时间）为<b>原型模拟数据</b>：以 <code>offsetH</code>（距当前时刻 N 小时）初始化为真实时间戳 <code>expireAt</code>，仅用于验证统计口径与交互，展示内容与计算规则一致</li>
+                    <li>提醒为前端模拟：点击「一键提醒」不调用消息推送接口，不会真实触达下级，仅演示 Toast 与按钮状态流转；各下级提醒状态相互独立，搜索与重渲染不丢失已成功的提醒状态</li>
+                </ul>
+                <div class="doc-sec-title">六、跳转关系</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
                         我的 → 总提醒 → 促销活动（page-promotion-remind）。
@@ -3699,38 +3721,55 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         'page-team-performance-remind': {
             title: '团队业绩提醒｜功能说明',
             pageName: '团队业绩提醒',
-            statusTag: '原型 · 演示页',
-            statusClass: 'text-blue-700 bg-blue-50 border-blue-200',
+            statusTag: '已开发 · 原型数据',
+            statusClass: 'text-amber-700 bg-amber-50 border-amber-200',
             biz: `
                 <div class="doc-sec-title">一、功能目标</div>
-                <p class="doc-p">团队业绩目标完成度与成员排行</p>
+                <p class="doc-p">按档位展示直属下级团队的本月业绩结构，突出<b>本月团队总业绩</b>，并识别临门升档人群便于优先触达。</p>
                 <div class="doc-sec-title">二、主要展示内容</div>
                 <ul class="doc-list">
-                    <li>查看成员排行</li>
-                    <li>切换目标</li>
-                    <li>查看差距</li>
+                    <li><b>当月概况（核心）</b>：本月团队总业绩（¥，两位小数）+ 含 N 位有业绩下级（实时 · 当月口径），视觉上为页首 Hero 区突出展示</li>
+                    <li>当月有业绩下级人数、本月临门升档人数（差 ≤ ¥500）</li>
+                    <li>各档位人数 · 距下一档差额：A–E 五档列表，每档显示人数、距下一档人均差额；点击档位行展开该档成员名单（Code + 昵称 + 手机号 + 差额 / 当月业绩）</li>
                 </ul>
-                <div class="doc-sec-title">三、关键交互</div>
-                <p class="doc-p">列表 + 摘要</p>
-                <div class="doc-sec-title">四、跳转关系</div>
+                <div class="doc-sec-title">三、统计口径（完整版）</div>
+                <ul class="doc-list">
+                    <li>档位为 A–E 五档（E 最低、A 最高），按<b>当月业绩</b>归档；实时（当月）口径，当月有业绩即计入</li>
+                    <li>「距下一档还差 ¥X 起」＝该档成员当月业绩到下一档门槛的人均差额（按每人差距取最小值起算），用于锁定临门升档人群</li>
+                    <li>「本月临门升档」＝距下一档门槛差 ≤ ¥500 的人数合计，建议优先触达</li>
+                    <li>A 档为最高档，无下一档，显示「已达最高档」并展示成员当月业绩</li>
+                    <li>本月团队总业绩演示值 ¥26,500.01 复用原型「本月团队业绩」数据，真实接入后由后端按月聚合返回</li>
+                </ul>
+                <div class="doc-sec-title">四、已废弃功能</div>
                 <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
                     <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
-                        我的 → 总提醒 → 团队业绩提醒（page-team-performance-remind）。
+                        「查看视角」（代理视角 / 创始人视角切换）已按产品决策移除：页面固定为<b>代理视角 · 直属下级</b>口径；对应 UI、事件绑定、创始人演示数据与说明文案已彻底清理，不再保留隐藏交互代码。
+                    </div>
+                </div>
+                <div class="doc-sec-title">五、跳转关系</div>
+                <div class="doc-card border-l-4 border-l-[#E63950] bg-red-50/40">
+                    <div class="text-[11.5px] font-bold text-slate-800 leading-relaxed">
+                        我的 → 总提醒 → 团队业绩（page-team-performance-remind）。
                     </div>
                 </div>
                 <div class="h-4"></div>
             `,
             dev: `
                 <div class="doc-sec-title">一、容器与标识</div>
-                <p class="doc-p">页面容器 <code>#page-team-performance-remind</code>，CSS 通过 <code>[data-pv="team-performance-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。</p>
+                <p class="doc-p">页面容器 <code>#page-team-performance-remind</code>，CSS 通过 <code>[data-pv="team-performance-remind"]</code> 动态注入到 head，进入页面时注入、离开时移除以避免与其它经营模块冲突。初始化入口 <code>initPage_team_performance_remind()</code>。</p>
                 <div class="doc-sec-title">二、当前实现状态</div>
                 <ul class="doc-list">
-                    <li>页面框架：✅ 已完成</li>
-                    <li>数据接入：⏳ 等待真实接口</li>
-                    <li>图表渲染：—（无图表）</li>
+                    <li>页面框架：✅ 已完成（当月概况 Hero + 档位列表 + 展开名单）</li>
+                    <li>数据接入：⚠️ 原型演示数据（counts / 各档成员名单 / teamPerf）</li>
+                    <li>档位展开交互：✅ <code>window.tprToggle</code>（2026-10-20 修复：原 <code>toggleTier</code> 仅存在于 init 局部作用域，内联 onclick 报 ReferenceError，已暴露为全局并更名）</li>
+                    <li>查看视角：❌ 已彻底移除（含创始人演示数据，无残留死代码）</li>
                 </ul>
                 <div class="doc-sec-title">三、字段数据模型（按真实接口联调）</div>
-                <p class="doc-p">按业务侧字段定义补充。</p>
+                <ul class="doc-list">
+                    <li><code>counts[5]</code>：E→A 各档人数；<code>teamPerf</code>：本月团队总业绩（元）</li>
+                    <li><code>M{E..A}</code>：各档成员名单 <code>[code, 昵称, 手机号, 差额或当月业绩]</code></li>
+                    <li>待接入：档位门槛配置（各档归档标准）、团队业绩月聚合接口</li>
+                </ul>
                 <div class="h-4"></div>
             `
         },
@@ -3949,14 +3988,23 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     }
 
     function showToast(msg) {
-        const toastEl = document.getElementById('toast');
-        toastEl.innerText = msg;
-        toastEl.style.opacity = '1';
-        toastEl.style.pointerEvents = 'auto';
-        setTimeout(() => {
+        /* 修复：文档中存在多个重复 id="toast" 且均挂在页面容器内（display:none 祖先会导致永远不可见），
+           原实现仅改 opacity 不改 display。此处改为 body 级专属 toast，挂载后复用。 */
+        let toastEl = document.getElementById('bmGlobalToast');
+        if (!toastEl) {
+            toastEl = document.createElement('div');
+            toastEl.id = 'bmGlobalToast';
+            toastEl.style.cssText = 'display:none;position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(35,40,58,.9);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;z-index:120;opacity:0;transition:opacity .22s ease;pointer-events:none;white-space:nowrap;max-width:80vw';
+            document.body.appendChild(toastEl);
+        }
+        toastEl.textContent = msg;
+        toastEl.style.display = 'block';
+        requestAnimationFrame(function () { toastEl.style.opacity = '1'; });
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => {
             toastEl.style.opacity = '0';
-            toastEl.style.pointerEvents = 'none';
-        }, 1800);
+            setTimeout(() => { toastEl.style.display = 'none'; }, 220);
+        }, 1900);
     }
 
     function closeModal() {
@@ -4581,6 +4629,8 @@ window.addEventListener('resize',()=>renderPie());
 
 var __N=["COLORS", "DIST", "DIST_F", "MEMBERS", "MEMBERS_F", "MONTHS", "ROLES", "TIERS", "c", "curMonth", "d", "dist", "el", "getChart", "members", "pick", "pickRole", "pickTier", "r", "renderAll", "renderExplain", "renderMonths", "renderPie", "renderRoleSeg", "renderRows", "renderTiers", "role", "rows"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：视角/月份/档位切换按钮为内联 onclick，局部函数对全局不可见会导致点击失效，统一暴露 */
+window.pickRole=pickRole;window.pick=pick;window.pickTier=pickTier;
 window.__BMPAGE="team-consumption";window.__BMFUNCS=__B;
 }
 function initPage_performance_compare(){
@@ -4648,6 +4698,8 @@ window.addEventListener('resize',()=>{try{chart&&chart.resize()}catch(e){}});
 
 var __N=["ROLES", "TEAM", "TIERS", "TIER_DATA", "c", "chart", "d", "el", "getChart", "pickRole", "r", "renderChart", "renderExplain", "renderRoleSeg", "renderRows", "role", "t", "v"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：查看视角切换按钮内联 onclick，暴露 pickRole 保证可点击 */
+window.pickRole=pickRole;
 window.__BMPAGE="performance-compare";window.__BMFUNCS=__B;
 }
 function initPage_team_detail(){
@@ -4723,6 +4775,8 @@ renderRoleSeg();pickRole('agent');
 
 var __N=["DATA", "MEMBERS_A", "MEMBERS_F", "RANGES", "ROLES", "c", "cur", "d", "data", "el", "isActive", "members", "on", "pick", "pickRole", "r", "renderExplain", "renderRoleSeg", "renderRows", "renderSeg", "renderStats", "role"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：时间范围切换与 toast 提示按钮内联 onclick，统一暴露（toast 别名指向全局 showToast） */
+window.pick=pick;window.toast=showToast;
 window.__BMPAGE="team-detail";window.__BMFUNCS=__B;
 }
 function initPage_team_member_change(){
@@ -4795,6 +4849,8 @@ window.addEventListener('resize',()=>{try{const c=getChart();c&&c.resize()}catch
 
 var __N=["DATA", "MONTHS", "ROLES", "b", "c", "cur", "d", "diff", "el", "fmt", "getChart", "pick", "renderChart", "renderRows", "renderSeg", "renderStats"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：视角切换按钮内联 onclick，暴露 pick */
+window.pick=pick;
 window.__BMPAGE="team-member-change";window.__BMFUNCS=__B;
 }
 function initPage_team_consumption_trend(){
@@ -4879,6 +4935,8 @@ window.addEventListener('resize',()=>window._c&&window._c.resize());
 
 var __N=["METRICS", "RANGES", "ROLES", "SCALE", "c", "cur", "el", "fmt", "isAmt", "k", "mock", "n", "pick", "pickMetric", "pickRole", "r", "renderChart", "renderExplain", "renderMchips", "renderRoleSeg", "renderSeg", "s26", "sum", "up", "x", "y"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：视角/时间范围/指标切换按钮内联 onclick，统一暴露 */
+window.pickRole=pickRole;window.pick=pick;window.pickMetric=pickMetric;
 window.__BMPAGE="team-consumption-trend";window.__BMFUNCS=__B;
 }
 function initPage_team_performance_change(){
@@ -4984,6 +5042,8 @@ window.addEventListener('resize',()=>window._c&&window._c.resize());
 
 var __N=["D", "DATA", "METRICS", "RANGES", "ROLES", "TIERS", "a", "c", "cur", "el", "fmt", "getChart", "isTier", "mock", "pick", "pickMetric", "pickRole", "r", "renderChart", "renderExplain", "renderMchips", "renderRoleSeg", "renderSeg", "renderSum", "renderTable", "series", "t25", "up", "x", "y"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
+/* 演示前修复：视角/时间范围/指标切换按钮内联 onclick，统一暴露 */
+window.pickRole=pickRole;window.pick=pick;window.pickMetric=pickMetric;
 window.__BMPAGE="team-performance-change";window.__BMFUNCS=__B;
 }
 function initPage_kit_ranking(){
@@ -4993,130 +5053,130 @@ function initPage_kit_ranking(){
    地域 / 年龄 / 人员购买量均与 2026 分别存储、分别渲染，非复制改标签。 */
 const KIT_DATA=[
  [ /* 近6个月 */
-  {name:'焕活多肽修护套组（30天装）',sales2026:1862,n2026:512,sales2025:1578,n2025:461,
+  {name:'焕活多肽修护套组（30天装）',sales2026:1862,amt2026:238336,n2026:405,sales2025:1578,amt2025:201984,n2025:373,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',486],['浙江省',352],['江苏省',298],['四川省',236],['山东省',187],['其他',289]],geo2025:[['浙江省',296],['江苏省',224],['四川省',226],['山东省',148],['其他',427],['广东省',344]],
-   age2026:[['18-24',38],['25-30',142],['31-35',168],['36-40',96],['41-45',48],['46+',20]],age2025:[['18-24',26],['25-30',88],['31-35',133],['36-40',87],['41-45',70],['46+',57]]},
-  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:1541,n2026:430,sales2025:1376,n2025:398,
+   age2026:[['18-24',30],['25-30',112],['31-35',133],['36-40',76],['41-45',38],['46+',16]],age2025:[['18-24',21],['25-30',71],['31-35',108],['36-40',70],['41-45',57],['46+',46]]},
+  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:1541,amt2026:258888,n2026:482,sales2025:1376,amt2025:231168,n2025:467,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',402],['浙江省',301],['福建省',244],['江苏省',201],['湖南省',158],['其他',215]],geo2025:[['福建省',189],['江苏省',191],['湖南省',125],['其他',361],['广东省',292],['浙江省',250]],
-   age2026:[['18-24',30],['25-30',120],['31-35',150],['36-40',82],['41-45',34],['46+',14]],age2025:[['18-24',21],['25-30',85],['31-35',99],['36-40',86],['41-45',56],['46+',51]]},
-  {name:'雪莲焕白面霜 + 精华组合',sales2026:1387,n2026:398,sales2025:1137,n2025:352,
+   age2026:[['18-24',34],['25-30',135],['31-35',168],['36-40',92],['41-45',38],['46+',15]],age2025:[['18-24',25],['25-30',100],['31-35',116],['36-40',101],['41-45',66],['46+',59]]},
+  {name:'雪莲焕白面霜 + 精华组合',sales2026:1387,amt2026:316236,n2026:338,sales2025:1137,amt2025:259236,n2025:301,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',366],['广东省',344],['江苏省',252],['河南省',188],['安徽省',142],['其他',174]],geo2025:[['河南省',176],['安徽省',115],['其他',333],['浙江省',269],['广东省',230],['江苏省',174]],
-   age2026:[['18-24',24],['25-30',132],['31-35',140],['36-40',70],['41-45',24],['46+',8]],age2025:[['18-24',21],['25-30',65],['31-35',100],['36-40',70],['41-45',53],['46+',43]]},
-  {name:'燕窝酸平衡精华礼盒',sales2026:1204,n2026:352,sales2025:1047,n2025:323,
+   age2026:[['18-24',20],['25-30',112],['31-35',119],['36-40',59],['41-45',20],['46+',8]],age2025:[['18-24',18],['25-30',56],['31-35',86],['36-40',60],['41-45',45],['46+',36]]},
+  {name:'燕窝酸平衡精华礼盒',sales2026:1204,amt2026:226352,n2026:415,sales2025:1047,amt2025:196836,n2025:392,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',318],['江苏省',266],['浙江省',244],['四川省',176],['湖北省',132],['其他',155]],geo2025:[['江苏省',181],['浙江省',178],['四川省',148],['湖北省',125],['其他',278],['广东省',274]],
-   age2026:[['18-24',18],['25-30',118],['31-35',128],['36-40',62],['41-45',20],['46+',6]],age2025:[['18-24',16],['25-30',67],['31-35',84],['36-40',68],['41-45',44],['46+',44]]},
-  {name:'多肽紧致眼膜 · 30对装',sales2026:1102,n2026:326,sales2025:861,n2025:281,
+   age2026:[['18-24',21],['25-30',139],['31-35',151],['36-40',73],['41-45',24],['46+',7]],age2025:[['18-24',19],['25-30',81],['31-35',102],['36-40',83],['41-45',53],['46+',54]]},
+  {name:'多肽紧致眼膜 · 30对装',sales2026:1102,amt2026:107996,n2026:306,sales2025:861,amt2025:84378,n2025:260,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',298],['广东省',276],['江苏省',218],['山东省',164],['福建省',140],['其他',166]],geo2025:[['江苏省',164],['山东省',136],['福建省',115],['其他',255],['浙江省',251],['广东省',167]],
-   age2026:[['18-24',14],['25-30',108],['31-35',122],['36-40',58],['41-45',20],['46+',4]],age2025:[['18-24',16],['25-30',55],['31-35',79],['36-40',55],['41-45',44],['46+',32]]},
-  {name:'酵母修护洗护组合',sales2026:986,n2026:301,sales2025:896,n2025:281,
+   age2026:[['18-24',13],['25-30',101],['31-35',115],['36-40',54],['41-45',19],['46+',4]],age2025:[['18-24',15],['25-30',51],['31-35',73],['36-40',51],['41-45',41],['46+',29]]},
+  {name:'酵母修护洗护组合',sales2026:986,amt2026:86768,n2026:365,sales2025:896,amt2025:78848,n2025:361,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',276],['四川省',224],['浙江省',212],['江苏省',178],['辽宁省',126],['其他',144]],geo2025:[['江苏省',135],['辽宁省',115],['其他',255],['广东省',250],['四川省',166],['浙江省',163]],
-   age2026:[['18-24',20],['25-30',98],['31-35',104],['36-40',56],['41-45',18],['46+',5]],age2025:[['18-24',15],['25-30',58],['31-35',72],['36-40',61],['41-45',37],['46+',38]]},
-  {name:'雪莲补水面膜 · 25片',sales2026:913,n2026:288,sales2025:761,n2025:257,
+   age2026:[['18-24',24],['25-30',119],['31-35',126],['36-40',68],['41-45',22],['46+',6]],age2025:[['18-24',19],['25-30',75],['31-35',92],['36-40',78],['41-45',48],['46+',49]]},
+  {name:'雪莲补水面膜 · 25片',sales2026:913,amt2026:69388,n2026:269,sales2025:761,amt2025:57836,n2025:243,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',256],['浙江省',224],['河南省',186],['江苏省',162],['江西省',118],['其他',130]],geo2025:[['浙江省',171],['河南省',129],['江苏省',130],['江西省',85],['其他',246],['广东省',200]],
-   age2026:[['18-24',22],['25-30',92],['31-35',98],['36-40',50],['41-45',20],['46+',6]],age2025:[['18-24',15],['25-30',49],['31-35',74],['36-40',49],['41-45',39],['46+',31]]},
-  {name:'氨基酸洁面双支装',sales2026:845,n2026:272,sales2025:741,n2025:247,
+   age2026:[['18-24',21],['25-30',86],['31-35',92],['36-40',47],['41-45',19],['46+',4]],age2025:[['18-24',14],['25-30',46],['31-35',70],['36-40',46],['41-45',37],['46+',30]]},
+  {name:'氨基酸洁面双支装',sales2026:845,amt2026:49855,n2026:325,sales2025:741,amt2025:43719,n2025:310,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',242],['浙江省',208],['江苏省',184],['四川省',148],['陕西省',112],['其他',118]],geo2025:[['江苏省',124],['四川省',125],['陕西省',82],['其他',236],['广东省',191],['浙江省',162]],
-   age2026:[['18-24',18],['25-30',88],['31-35',94],['36-40',48],['41-45',18],['46+',6]],age2025:[['18-24',13],['25-30',53],['31-35',61],['36-40',53],['41-45',35],['46+',32]]},
-  {name:'胶原冻干粉套盒',sales2026:779,n2026:241,sales2025:623,n2025:210,
+   age2026:[['18-24',22],['25-30',105],['31-35',112],['36-40',57],['41-45',22],['46+',7]],age2025:[['18-24',16],['25-30',67],['31-35',77],['36-40',67],['41-45',44],['46+',39]]},
+  {name:'胶原冻干粉套盒',sales2026:779,amt2026:123082,n2026:205,sales2025:623,amt2025:98434,n2025:178,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',218],['广东省',204],['江苏省',168],['福建省',136],['广西',104],['其他',102]],geo2025:[['福建省',110],['广西',72],['其他',208],['浙江省',168],['广东省',144],['江苏省',108]],
-   age2026:[['18-24',10],['25-30',82],['31-35',88],['36-40',42],['41-45',16],['46+',3]],age2025:[['18-24',12],['25-30',39],['31-35',60],['36-40',42],['41-45',32],['46+',25]]},
-  {name:'焕采气垫组合',sales2026:702,n2026:225,sales2025:605,n2025:206,
+   age2026:[['18-24',9],['25-30',70],['31-35',75],['36-40',36],['41-45',14],['46+',1]],age2025:[['18-24',10],['25-30',33],['31-35',51],['36-40',36],['41-45',27],['46+',21]]},
+  {name:'焕采气垫组合',sales2026:702,amt2026:82836,n2026:226,sales2025:605,amt2025:71390,n2025:212,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',198],['江苏省',186],['浙江省',172],['湖南省',128],['云南省',102],['其他',92]],geo2025:[['江苏省',123],['浙江省',121],['湖南省',101],['云南省',85],['其他',189],['广东省',187]],
-   age2026:[['18-24',16],['25-30',76],['31-35',78],['36-40',38],['41-45',14],['46+',3]],age2025:[['18-24',10],['25-30',43],['31-35',54],['36-40',44],['41-45',28],['46+',27]]}
+   age2026:[['18-24',16],['25-30',76],['31-35',78],['36-40',38],['41-45',14],['46+',4]],age2025:[['18-24',10],['25-30',44],['31-35',56],['36-40',45],['41-45',29],['46+',28]]}
  ],
  [ /* 近12个月 */
-  {name:'焕活多肽修护套组（30天装）',sales2026:3468,n2026:1024,sales2025:2939,n2025:923,
+  {name:'焕活多肽修护套组（30天装）',sales2026:3468,amt2026:443904,n2026:754,sales2025:2939,amt2025:376192,n2025:694,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',986],['浙江省',742],['江苏省',618],['四川省',486],['山东省',389],['其他',598]],geo2025:[['浙江省',612],['江苏省',463],['四川省',467],['山东省',305],['其他',882],['广东省',712]],
-   age2026:[['18-24',86],['25-30',298],['31-35',336],['36-40',192],['41-45',84],['46+',28]],age2025:[['18-24',53],['25-30',176],['31-35',267],['36-40',175],['41-45',141],['46+',111]]},
-  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:3012,n2026:886,sales2025:2689,n2025:820,
+   age2026:[['18-24',63],['25-30',219],['31-35',247],['36-40',141],['41-45',62],['46+',22]],age2025:[['18-24',40],['25-30',132],['31-35',201],['36-40',132],['41-45',106],['46+',83]]},
+  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:3012,amt2026:506016,n2026:941,sales2025:2689,amt2025:451752,n2025:913,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',824],['浙江省',642],['福建省',502],['江苏省',436],['湖南省',338],['其他',472]],geo2025:[['福建省',400],['江苏省',404],['湖南省',264],['其他',763],['广东省',616],['浙江省',529]],
-   age2026:[['18-24',64],['25-30',262],['31-35',308],['36-40',168],['41-45',62],['46+',22]],age2025:[['18-24',43],['25-30',175],['31-35',204],['36-40',176],['41-45',115],['46+',107]]},
-  {name:'雪莲焕白面霜 + 精华组合',sales2026:2764,n2026:812,sales2025:2266,n2025:719,
+   age2026:[['18-24',68],['25-30',278],['31-35',327],['36-40',178],['41-45',66],['46+',24]],age2025:[['18-24',48],['25-30',195],['31-35',227],['36-40',196],['41-45',128],['46+',119]]},
+  {name:'雪莲焕白面霜 + 精华组合',sales2026:2764,amt2026:630192,n2026:674,sales2025:2266,amt2025:516648,n2025:601,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',752],['广东省',704],['江苏省',516],['河南省',388],['安徽省',296],['其他',362]],geo2025:[['河南省',362],['安徽省',237],['其他',685],['浙江省',553],['广东省',475],['江苏省',359]],
-   age2026:[['18-24',52],['25-30',272],['31-35',288],['36-40',142],['41-45',44],['46+',14]],age2025:[['18-24',43],['25-30',133],['31-35',205],['36-40',144],['41-45',109],['46+',85]]},
-  {name:'燕窝酸平衡精华礼盒',sales2026:2386,n2026:718,sales2025:2075,n2025:659,
+   age2026:[['18-24',43],['25-30',226],['31-35',239],['36-40',118],['41-45',37],['46+',11]],age2025:[['18-24',36],['25-30',111],['31-35',171],['36-40',120],['41-45',91],['46+',72]]},
+  {name:'燕窝酸平衡精华礼盒',sales2026:2386,amt2026:448568,n2026:823,sales2025:2075,amt2025:390100,n2025:778,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',652],['江苏省',546],['浙江省',498],['四川省',362],['湖北省',272],['其他',318]],geo2025:[['江苏省',371],['浙江省',366],['四川省',303],['湖北省',257],['其他',570],['广东省',562]],
-   age2026:[['18-24',38],['25-30',242],['31-35',262],['36-40',126],['41-45',40],['46+',10]],age2025:[['18-24',33],['25-30',137],['31-35',171],['36-40',139],['41-45',90],['46+',89]]},
-  {name:'多肽紧致眼膜 · 30对装',sales2026:2148,n2026:652,sales2025:1678,n2025:562,
+   age2026:[['18-24',44],['25-30',277],['31-35',300],['36-40',144],['41-45',46],['46+',12]],age2025:[['18-24',39],['25-30',162],['31-35',202],['36-40',164],['41-45',106],['46+',105]]},
+  {name:'多肽紧致眼膜 · 30对装',sales2026:2148,amt2026:210504,n2026:597,sales2025:1678,amt2025:164444,n2025:507,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',596],['广东省',552],['江苏省',436],['山东省',328],['福建省',280],['其他',332]],geo2025:[['江苏省',328],['山东省',272],['福建省',230],['其他',511],['浙江省',502],['广东省',333]],
-   age2026:[['18-24',30],['25-30',216],['31-35',244],['36-40',116],['41-45',38],['46+',8]],age2025:[['18-24',33],['25-30',109],['31-35',158],['36-40',110],['41-45',87],['46+',65]]},
-  {name:'酵母修护洗护组合',sales2026:1936,n2026:598,sales2025:1760,n2025:559,
+   age2026:[['18-24',27],['25-30',198],['31-35',223],['36-40',106],['41-45',35],['46+',8]],age2025:[['18-24',30],['25-30',98],['31-35',143],['36-40',99],['41-45',78],['46+',59]]},
+  {name:'酵母修护洗护组合',sales2026:1936,amt2026:170368,n2026:717,sales2025:1760,amt2025:154880,n2025:709,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',552],['四川省',448],['浙江省',424],['江苏省',356],['辽宁省',252],['其他',288]],geo2025:[['江苏省',271],['辽宁省',230],['其他',509],['广东省',500],['四川省',331],['浙江省',327]],
-   age2026:[['18-24',40],['25-30',196],['31-35',208],['36-40',112],['41-45',36],['46+',6]],age2025:[['18-24',30],['25-30',116],['31-35',143],['36-40',122],['41-45',74],['46+',74]]},
-  {name:'雪莲补水面膜 · 25片',sales2026:1802,n2026:574,sales2025:1502,n2025:512,
+   age2026:[['18-24',48],['25-30',235],['31-35',249],['36-40',134],['41-45',43],['46+',8]],age2025:[['18-24',38],['25-30',147],['31-35',181],['36-40',155],['41-45',94],['46+',94]]},
+  {name:'雪莲补水面膜 · 25片',sales2026:1802,amt2026:136952,n2026:530,sales2025:1502,amt2025:114152,n2025:480,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',512],['浙江省',448],['河南省',372],['江苏省',324],['江西省',236],['其他',260]],geo2025:[['浙江省',341],['河南省',258],['江苏省',260],['江西省',171],['其他',493],['广东省',398]],
-   age2026:[['18-24',44],['25-30',184],['31-35',196],['36-40',100],['41-45',40],['46+',10]],age2025:[['18-24',29],['25-30',98],['31-35',148],['36-40',97],['41-45',78],['46+',62]]},
-  {name:'氨基酸洁面双支装',sales2026:1672,n2026:538,sales2025:1467,n2025:489,
+   age2026:[['18-24',41],['25-30',170],['31-35',181],['36-40',92],['41-45',37],['46+',9]],age2025:[['18-24',27],['25-30',92],['31-35',139],['36-40',91],['41-45',73],['46+',58]]},
+  {name:'氨基酸洁面双支装',sales2026:1672,amt2026:98648,n2026:643,sales2025:1467,amt2025:86553,n2025:613,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',484],['浙江省',416],['江苏省',368],['四川省',296],['陕西省',224],['其他',236]],geo2025:[['江苏省',247],['四川省',250],['陕西省',163],['其他',472],['广东省',381],['浙江省',327]],
-   age2026:[['18-24',36],['25-30',176],['31-35',188],['36-40',96],['41-45',36],['46+',6]],age2025:[['18-24',26],['25-30',105],['31-35',122],['36-40',105],['41-45',69],['46+',62]]},
-  {name:'胶原冻干粉套盒',sales2026:1541,n2026:486,sales2025:1233,n2025:423,
+   age2026:[['18-24',43],['25-30',210],['31-35',225],['36-40',115],['41-45',43],['46+',7]],age2025:[['18-24',33],['25-30',132],['31-35',153],['36-40',132],['41-45',86],['46+',77]]},
+  {name:'胶原冻干粉套盒',sales2026:1541,amt2026:243478,n2026:406,sales2025:1233,amt2025:194814,n2025:353,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',436],['广东省',408],['江苏省',336],['福建省',272],['广西',208],['其他',204]],geo2025:[['福建省',220],['广西',144],['其他',416],['浙江省',336],['广东省',288],['江苏省',217]],
-   age2026:[['18-24',20],['25-30',164],['31-35',176],['36-40',84],['41-45',32],['46+',10]],age2025:[['18-24',25],['25-30',78],['31-35',120],['36-40',85],['41-45',64],['46+',51]]},
-  {name:'焕采气垫组合',sales2026:1398,n2026:452,sales2025:1205,n2025:415,
+   age2026:[['18-24',17],['25-30',137],['31-35',147],['36-40',70],['41-45',27],['46+',8]],age2025:[['18-24',21],['25-30',65],['31-35',100],['36-40',71],['41-45',53],['46+',43]]},
+  {name:'焕采气垫组合',sales2026:1398,amt2026:164964,n2026:451,sales2025:1205,amt2025:142190,n2025:423,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',396],['江苏省',372],['浙江省',344],['湖南省',256],['云南省',204],['其他',184]],geo2025:[['江苏省',246],['浙江省',243],['湖南省',201],['云南省',171],['其他',378],['广东省',372]],
-   age2026:[['18-24',32],['25-30',152],['31-35',156],['36-40',76],['41-45',28],['46+',8]],age2025:[['18-24',21],['25-30',86],['31-35',108],['36-40',88],['41-45',57],['46+',55]]}
+   age2026:[['18-24',32],['25-30',152],['31-35',156],['36-40',76],['41-45',28],['46+',7]],age2025:[['18-24',21],['25-30',88],['31-35',110],['36-40',90],['41-45',58],['46+',56]]}
  ],
  [ /* 近18个月 */
-  {name:'焕活多肽修护套组（30天装）',sales2026:4886,n2026:1462,sales2025:4141,n2025:1317,
+  {name:'焕活多肽修护套组（30天装）',sales2026:4886,amt2026:625408,n2026:1062,sales2025:4141,amt2025:530048,n2025:978,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',1386],['浙江省',1042],['江苏省',868],['四川省',686],['山东省',546],['其他',838]],geo2025:[['浙江省',859],['江苏省',650],['四川省',655],['山东省',429],['其他',1239],['广东省',1002]],
-   age2026:[['18-24',124],['25-30',428],['31-35',482],['36-40',272],['41-45',120],['46+',36]],age2025:[['18-24',75],['25-30',251],['31-35',381],['36-40',249],['41-45',201],['46+',160]]},
-  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:4321,n2026:1266,sales2025:3858,n2025:1172,
+   age2026:[['18-24',90],['25-30',311],['31-35',350],['36-40',198],['41-45',87],['46+',26]],age2025:[['18-24',56],['25-30',186],['31-35',283],['36-40',185],['41-45',149],['46+',119]]},
+  {name:'胶原蛋白肽饮 · 礼盒装',sales2026:4321,amt2026:725928,n2026:1350,sales2025:3858,amt2025:648144,n2025:1310,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',1178],['浙江省',918],['福建省',718],['江苏省',624],['湖南省',482],['其他',674]],geo2025:[['福建省',572],['江苏省',577],['湖南省',378],['其他',1091],['广东省',881],['浙江省',755]],
-   age2026:[['18-24',92],['25-30',376],['31-35',442],['36-40',240],['41-45',88],['46+',28]],age2025:[['18-24',61],['25-30',251],['31-35',291],['36-40',252],['41-45',165],['46+',152]]},
-  {name:'雪莲焕白面霜 + 精华组合',sales2026:3958,n2026:1168,sales2025:3244,n2025:1034,
+   age2026:[['18-24',98],['25-30',401],['31-35',471],['36-40',256],['41-45',94],['46+',30]],age2025:[['18-24',68],['25-30',281],['31-35',325],['36-40',282],['41-45',184],['46+',170]]},
+  {name:'雪莲焕白面霜 + 精华组合',sales2026:3958,amt2026:902424,n2026:965,sales2025:3244,amt2025:739632,n2025:860,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',1078],['广东省',1008],['江苏省',740],['河南省',556],['安徽省',424],['其他',518]],geo2025:[['河南省',519],['安徽省',340],['其他',981],['浙江省',793],['广东省',680],['江苏省',514]],
-   age2026:[['18-24',74],['25-30',390],['31-35',412],['36-40',204],['41-45',64],['46+',24]],age2025:[['18-24',61],['25-30',191],['31-35',295],['36-40',207],['41-45',157],['46+',123]]},
-  {name:'燕窝酸平衡精华礼盒',sales2026:3406,n2026:1032,sales2025:2962,n2025:947,
+   age2026:[['18-24',61],['25-30',322],['31-35',340],['36-40',169],['41-45',53],['46+',20]],age2025:[['18-24',51],['25-30',159],['31-35',245],['36-40',172],['41-45',131],['46+',102]]},
+  {name:'燕窝酸平衡精华礼盒',sales2026:3406,amt2026:640328,n2026:1174,sales2025:2962,amt2025:556856,n2025:1110,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',934],['江苏省',782],['浙江省',712],['四川省',518],['湖北省',390],['其他',456]],geo2025:[['江苏省',532],['浙江省',524],['四川省',435],['湖北省',368],['其他',817],['广东省',803]],
-   age2026:[['18-24',54],['25-30',348],['31-35',376],['36-40',180],['41-45',58],['46+',16]],age2025:[['18-24',48],['25-30',197],['31-35',246],['36-40',200],['41-45',130],['46+',126]]},
-  {name:'多肽紧致眼膜 · 30对装',sales2026:3064,n2026:938,sales2025:2394,n2025:809,
+   age2026:[['18-24',61],['25-30',396],['31-35',428],['36-40',205],['41-45',66],['46+',18]],age2025:[['18-24',56],['25-30',231],['31-35',288],['36-40',234],['41-45',152],['46+',149]]},
+  {name:'多肽紧致眼膜 · 30对装',sales2026:3064,amt2026:300272,n2026:851,sales2025:2394,amt2025:234612,n2025:723,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',854],['广东省',792],['江苏省',626],['山东省',470],['福建省',402],['其他',476]],geo2025:[['江苏省',470],['山东省',390],['福建省',331],['其他',733],['浙江省',720],['广东省',477]],
-   age2026:[['18-24',44],['25-30',310],['31-35',350],['36-40',166],['41-45',54],['46+',14]],age2025:[['18-24',47],['25-30',157],['31-35',228],['36-40',158],['41-45',126],['46+',93]]},
-  {name:'酵母修护洗护组合',sales2026:2768,n2026:862,sales2025:2516,n2025:806,
+   age2026:[['18-24',40],['25-30',281],['31-35',318],['36-40',151],['41-45',49],['46+',12]],age2025:[['18-24',42],['25-30',140],['31-35',204],['36-40',141],['41-45',113],['46+',83]]},
+  {name:'酵母修护洗护组合',sales2026:2768,amt2026:243584,n2026:1025,sales2025:2516,amt2025:221408,n2025:1013,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',792],['四川省',642],['浙江省',608],['江苏省',512],['辽宁省',362],['其他',414]],geo2025:[['江苏省',389],['辽宁省',330],['其他',731],['广东省',718],['四川省',476],['浙江省',468]],
-   age2026:[['18-24',58],['25-30',282],['31-35',298],['36-40',160],['41-45',52],['46+',12]],age2025:[['18-24',43],['25-30',167],['31-35',206],['36-40',176],['41-45',107],['46+',107]]},
-  {name:'雪莲补水面膜 · 25片',sales2026:2586,n2026:826,sales2025:2155,n2025:737,
+   age2026:[['18-24',69],['25-30',335],['31-35',354],['36-40',190],['41-45',62],['46+',15]],age2025:[['18-24',54],['25-30',210],['31-35',259],['36-40',221],['41-45',134],['46+',135]]},
+  {name:'雪莲补水面膜 · 25片',sales2026:2586,amt2026:196536,n2026:761,sales2025:2155,amt2025:163780,n2025:689,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',734],['浙江省',642],['河南省',534],['江苏省',466],['江西省',338],['其他',374]],geo2025:[['浙江省',490],['河南省',371],['江苏省',374],['江西省',245],['其他',707],['广东省',570]],
-   age2026:[['18-24',62],['25-30',264],['31-35',282],['36-40',144],['41-45',58],['46+',16]],age2025:[['18-24',42],['25-30',140],['31-35',213],['36-40',139],['41-45',112],['46+',91]]},
-  {name:'氨基酸洁面双支装',sales2026:2394,n2026:774,sales2025:2100,n2025:704,
+   age2026:[['18-24',57],['25-30',243],['31-35',260],['36-40',133],['41-45',53],['46+',15]],age2025:[['18-24',39],['25-30',131],['31-35',199],['36-40',130],['41-45',105],['46+',85]]},
+  {name:'氨基酸洁面双支装',sales2026:2394,amt2026:141246,n2026:921,sales2025:2100,amt2025:123900,n2025:878,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',694],['浙江省',598],['江苏省',528],['四川省',426],['陕西省',322],['其他',340]],geo2025:[['江苏省',355],['四川省',359],['陕西省',235],['其他',678],['广东省',548],['浙江省',469]],
-   age2026:[['18-24',52],['25-30',252],['31-35',270],['36-40',138],['41-45',52],['46+',10]],age2025:[['18-24',37],['25-30',150],['31-35',175],['36-40',151],['41-45',99],['46+',92]]},
-  {name:'胶原冻干粉套盒',sales2026:2208,n2026:698,sales2025:1766,n2025:607,
+   age2026:[['18-24',62],['25-30',300],['31-35',321],['36-40',164],['41-45',62],['46+',12]],age2025:[['18-24',46],['25-30',187],['31-35',218],['36-40',188],['41-45',123],['46+',116]]},
+  {name:'胶原冻干粉套盒',sales2026:2208,amt2026:348864,n2026:581,sales2025:1766,amt2025:279028,n2025:505,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['浙江省',626],['广东省',586],['江苏省',482],['福建省',390],['广西',298],['其他',294]],geo2025:[['福建省',316],['广西',207],['其他',597],['浙江省',482],['广东省',414],['江苏省',311]],
-   age2026:[['18-24',28],['25-30',236],['31-35',252],['36-40',120],['41-45',46],['46+',16]],age2025:[['18-24',36],['25-30',112],['31-35',173],['36-40',121],['41-45',92],['46+',73]]},
-  {name:'焕采气垫组合',sales2026:2004,n2026:648,sales2025:1728,n2025:594,
+   age2026:[['18-24',23],['25-30',196],['31-35',210],['36-40',100],['41-45',38],['46+',14]],age2025:[['18-24',30],['25-30',93],['31-35',144],['36-40',101],['41-45',77],['46+',60]]},
+  {name:'焕采气垫组合',sales2026:2004,amt2026:236472,n2026:646,sales2025:1728,amt2025:203904,n2025:606,
    buyers:[['13200101','林晓雅','138****2261',3,2],['13200118','陈思远','159****0833',2,1],['13200133','王梓涵','137****5540',2,2],['13200147','李嘉树','186****3217',1,1],['13200152','赵蔓青','150****9902',1,2],['13200169','孙一诺','188****4415',1,1],['13200170','周慕云','135****7788',1,1],['13200188','吴亦欢','177****2046',1,1],['13200195','郑楚然','139****6671',1,2],['13200203','冯乐瑶','151****3328',1,1]],
    geo2026:[['广东省',568],['江苏省',534],['浙江省',494],['湖南省',368],['云南省',292],['其他',264]],geo2025:[['江苏省',353],['浙江省',348],['湖南省',289],['云南省',245],['其他',543],['广东省',534]],
-   age2026:[['18-24',46],['25-30',218],['31-35',224],['36-40',108],['41-45',40],['46+',12]],age2025:[['18-24',30],['25-30',124],['31-35',155],['36-40',126],['41-45',81],['46+',78]]}
+   age2026:[['18-24',46],['25-30',217],['31-35',223],['36-40',108],['41-45',40],['46+',12]],age2025:[['18-24',31],['25-30',127],['31-35',158],['36-40',129],['41-45',83],['46+',78]]}
  ]
 ];
 /* ============================================================ */
@@ -5124,17 +5184,12 @@ const RANGES=[['近6个月',6],['近12个月',12],['近18个月',18]];
 let cur=0,openIdx=-1,tabIdx=0;
 const _charts={};
 function kits(){return KIT_DATA[cur]}
-function ap(k){return k.n2026>0?Math.round(k.sales2026/k.n2026):0}
+/* 人均客单价 = 套组销售金额 ÷ 购买人数（2026 年口径）；
+   销售金额为模拟字段 amt2026（= 套数 × 套组单价），真实金额口径待业务侧确认后替换 */
+function ap(k){return k.n2026>0?Math.round(k.amt2026/k.n2026):0}
 function disposeCharts(){
  Object.keys(_charts).forEach(function(id){try{if(_charts[id])_charts[id].dispose()}catch(e){}});
  Object.keys(_charts).forEach(function(id){delete _charts[id]});
-}
-function renderExplain(){
- document.getElementById('explain').innerHTML=
-  '1. 榜单展示近 6 个月销量 Top10 销售套组，同时给出 <b>2026 年</b>与 <b>2025 年</b>的销量、购买人数，便于同比对照；<br>'+
-  '2. 客单价 = 套组销售总和 ÷ 购买人数（按 2026 年口径）；点击右侧箭头展开三维下钻：<b>人的维度</b>（Top10 名单 2026 / 2025 购买套数）、<b>地域维度</b>（两年度环形图上下对比）、<b>年龄维度</b>（两年度分组柱状图）；<br>'+
-  '3. 榜单按 2026 年销量（套数）排序，金额为实付口径；<br>'+
-  '4. <b>演示数据说明</b>：2026 年沿用原演示数据，2025 年为独立构造的演示数据，地域 / 年龄 / 人员购买量分别存储与渲染，等待真实业务接口联调后替换。';
 }
 function renderList(){
  disposeCharts();
@@ -5148,11 +5203,11 @@ function renderList(){
      <div class="iname">
        <div class="n">${k.name}</div>
        <div class="ybox">
-         <div class="yr y26"><span class="yk">2026 年</span><span class="yv">销量 ${k.sales2026.toLocaleString()} 套</span><span class="sep">·</span><span class="yv">购买人数 ${k.n2026.toLocaleString()} 人</span></div>
-         <div class="yr y25"><span class="yk">2025 年</span><span class="yv">销量 ${k.sales2025.toLocaleString()} 套</span><span class="sep">·</span><span class="yv">购买人数 ${k.n2025.toLocaleString()} 人</span></div>
+         <div class="yr y26"><span class="yk">2026</span><span class="yv"><b>${k.sales2026.toLocaleString()}</b> 套</span><span class="sep">·</span><span class="yv"><b>${k.n2026.toLocaleString()}</b> 人</span></div>
+         <div class="yr y25"><span class="yk">2025</span><span class="yv"><b>${k.sales2025.toLocaleString()}</b> 套</span><span class="sep">·</span><span class="yv"><b>${k.n2025.toLocaleString()}</b> 人</span></div>
        </div>
      </div>
-     <div class="ap"><div class="a">¥${ap(k).toLocaleString()}</div><div class="al">客单价</div></div>
+     <div class="ap"><div class="a">¥${ap(k).toLocaleString()}</div><div class="al">人均客单价</div></div>
      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#C4C9D4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
    </div>
    <div class="detail">
@@ -5168,7 +5223,6 @@ function renderList(){
            <tbody>${k.buyers.map(function(b){return `<tr><td class="code">${b[0]}</td><td class="nw">${b[1]}</td><td class="code nw">${b[2]}</td><td class="q26">${b[3]} 套</td><td class="q25">${b[4]} 套</td></tr>`}).join('')}</tbody>
          </table>
        </div>
-       <div class="morebtn" onclick="event.stopPropagation();showToast('查看全部 ${k.n2026} 人')">more · 全部 ${k.n2026} 人 ›</div>
      </div>
      <div class="dpane${tabIdx===1?' on':''}">
        <div class="dyr"><span class="dy"></span>2026 年地域分布</div>
@@ -5219,10 +5273,10 @@ function renderDetail(i){
 /* 唯一命名的全局入口：仅暴露本页需要的两个交互，避免与其它业务页面同名函数冲突 */
 window.krToggle=toggle;
 window.krSetTab=setTab;
-renderList();renderExplain();
+renderList();
 window.addEventListener('resize',function(){Object.keys(_charts).forEach(function(id){try{_charts[id].resize()}catch(e){}})});
 
-var __N=["RANGES", "_charts", "ap", "cur", "disposeCharts", "getChart", "kits", "renderBar", "renderDetail", "renderExplain", "renderList", "renderPie", "setTab", "toggle"];var __B={};
+var __N=["RANGES", "_charts", "ap", "cur", "disposeCharts", "getChart", "kits", "renderBar", "renderDetail", "renderList", "renderPie", "setTab", "toggle"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
 window.__BMPAGE="kit-ranking";window.__BMFUNCS=__B;
 }
@@ -5301,13 +5355,6 @@ function renderList(){
    <button class="bm-btn" onclick="htView(${i})">查看</button>
  </div>`}).join('');
 }
-function renderExplain(){
- document.getElementById('htExplain').innerHTML=
-  '1. 本页为热销动态榜<b>演示原型</b>：三个榜单（爆款榜 / 热销榜 / 人气榜）<b>各自维护独立的演示商品数据</b>，切换 Tab 会整体替换列表与排名；<br>'+
-  '2. 商品图片为<b>内置 SVG 占位图</b>，不引用外部图片地址；<b>售价</b>（price）与<b>划线价</b>（originalPrice）为两个独立字段，分别展示；<br>'+
-  '3. 点击「查看」弹出的是<b>原型级演示弹层</b>，仅展示商品的图片、名称、售价与划线价，<b>不是</b>真实商城商品详情页；<br>'+
-  '4. 待接入真实榜单接口后，替换 TABS 中各榜单的 items 即可，渲染逻辑无需改动。';
-}
 function pick(i){curTab=i;renderTabs();renderList()}
 function view(i){
  const p=TABS[curTab].items[i];
@@ -5322,7 +5369,7 @@ function view(i){
 function close(){document.getElementById('htMask').classList.remove('on')}
 /* 唯一命名的全局入口，避免与其它业务页面同名函数冲突 */
 window.htPick=pick;window.htView=view;window.htClose=close;
-renderTabs();renderList();renderExplain();
+renderTabs();renderList();
 }
 /* ===== 直属管理首页（原人员结构提醒改造） ===== */
 function initPage_structure_remind(){
@@ -5425,9 +5472,6 @@ function initPage_structure_remind(){
   `).join('');
   const pStatList = document.getElementById('pStatList');
   if (pStatList) pStatList.innerHTML = statRows || '<div class="row"><div style="padding:10px 0;font-size:12px;color:#8A90A0">暂无业绩数据</div></div>';
-
-  const ex = document.getElementById('pExplain');
-  if (ex) ex.innerHTML = '原型演示数据 · ①「直系业绩统计」按体系维度做直系口径真实汇总：庭秘密直系与爆款直系取自各直属下级 monthlySales 当月直系字段求和；② 订单数、以及订单数 / 业绩的「已入账 · 未入账」拆分字段当前演示数据缺失，统一标记「待接入」，未虚构；③ 商城维度（庭秘密商城 / Ai美丽商城 / 完美纪元商城）当前原型无商城主数据，仅占位展示，待接口接入后填充数字。';
 }
 
 /* ===== 直属列表页（全部 / 非活跃卡 / 未激活卡 / 异常卡 共用容器） ===== */
@@ -5708,8 +5752,8 @@ window.__BMPAGE="fan-remind";window.__BMFUNCS=__B;
 }
 function initPage_team_performance_remind(){
 
-const ROLES=[['agent','代理视角'],['founder','创始人视角']];
-let role='agent';
+/* 「查看视角」（代理 / 创始人切换）已按产品决策移除：本页固定为「代理视角 · 直属下级」口径，
+   对应 UI、事件绑定与创始人演示数据已一并清理，不再保留死代码。 */
 /* 档位：E 最低 → A 最高；bg 由浅到深；nextGap = 距下一档门槛的人均业绩差额（元，示例数据） */
 const TIERS=[
  {k:'E',bg:'#FFEBDA',next:'D档',gap:120},
@@ -5717,45 +5761,75 @@ const TIERS=[
  {k:'C',bg:'#FFCE9B',next:'B档',gap:800},
  {k:'B',bg:'#FFB873',next:'A档',gap:1500},
  {k:'A',bg:'#FF6A00',next:null,gap:0}];
-/* teamPerf = 本月团队总业绩（元）。演示数值：agent 口径复用原型已有的「本月团队业绩 ¥26,500.01」；
-   founder 口径为全公司演示值。真实接口接入后由后端按月聚合返回，请勿视为真实业务数据。 */
-const DATA={
- agent:{counts:[152,104,62,34,11],totalL:'当月有业绩下级',upL:'本月临门升档（差 ≤ ¥500）',teamPerf:26500.01,
-  M:{
+/* teamPerf = 本月团队总业绩（元）。演示数值复用原型已有的「本月团队业绩 ¥26,500.01」；
+   真实接口接入后由后端按月聚合返回，请勿视为真实业务数据。 */
+const DATA={counts:[152,104,62,34,11],totalL:'当月有业绩下级',upL:'本月临门升档（差 ≤ ¥500）',teamPerf:26500.01,
+ M:{
   E:[['13200217','蒋星野','136****8890',86],['13200226','韩沐晴','158****1109',95],['13200234','曹子墨','189****5523',102],['13200241','糜语芙','133****9074',108]],
   D:[['13200195','郑楚然','139****6671',212],['13200203','冯乐瑶','151****3328',268],['13200209','秦子墨','137****5566',305]],
   C:[['13200152','赵蔓青','150****9902',615],['13200169','孙一诺','188****4415',702],['13200176','陆知遥','136****8843',760]],
   B:[['13200133','王梓涵','137****5540',980],['13200147','李嘉树','186****3217',1230]],
-  A:[['13200101','林晓雅','138****2261',12600],['13200240','谢雨桐','133****9074',9800]]}},
- founder:{counts:[5776,3952,2356,1292,418],totalL:'当月有业绩人数（全公司）',upL:'本月临门升档（差 ≤ ¥500）',teamPerf:986500,
-  M:{
-  E:[['88000217','纪风眠','151****5520',86],['88000226','宦晚晴','186****1147',95],['88000234','寇星阑','133****8825',102]],
-  D:[['88000195','柏静姝','158****3317',218],['88000203','彭奕昂','137****9968',272]],
-  C:[['88000152','姜暖冬','138****6629',640],['88000169','戚晏辞','176****2205',718]],
-  B:[['88000133','白书瑶','159****3356',1010],['88000147','傅泽楷','150****8841',1260]],
-  A:[['88000101','沈曼如','136****4410',13800],['88000118','顾言蹊','187****7723',10600]]}}};
+  A:[['13200101','林晓雅','138****2261',12600],['13200240','谢雨桐','133****9074',9800]]}};
 function fmt(n){return n.toLocaleString()}
 /* 金额格式化：统一两位小数，用于「本月团队总业绩」 */
 function fmtMoney(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-function renderRoleSeg(){
- /* 「查看视角」卡片已按需求移除；保留本函数以兼容可能的依赖，容器不存在时静默跳过 */
- const el=document.getElementById('roleSeg');
- if(!el) return;
- el.innerHTML=ROLES.map(r=>`<button class="${r[0]===role?'on':''}" onclick="pickRole('${r[0]}')">${r[1]}</button>`).join('');
-}
 let openTier=-1;
-function toggleTier(i){openTier=openTier===i?-1:i;renderTiers()}
+/* 分页状态：每个档位独立记录当前页码；展开某档时重置回第 1 页 */
+const tierPage=[1,1,1,1,1];
+const PAGE_SIZE=10;
+/* 档位行展开：暴露为全局（onclick 内联调用发生在全局作用域，局部函数声明不可见） */
+function toggleTier(i){openTier=openTier===i?-1:i;if(openTier>=0)tierPage[i]=1;renderTiers()}
+window.tprToggle=toggleTier;
+/* 分页成员数据：以 DATA.M 的种子记录为基础，按 DATA.counts 确定性补足模拟成员，
+   保证「档位人数展示值 = 成员记录条数」完全一致（E152/D104/C62/B34/A11，共 363 条）。
+   固定随机种子，每次进入页面生成结果一致；真实接口接入后整体替换为接口返回。 */
+function genMembers(){
+ const SURN=['林','陈','王','李','赵','孙','周','吴','郑','冯','蒋','沈','韩','杨','秦','许','何','吕','张','孔','曹','严','华','金','陶','姜','戚','谢','邹','苏','潘','葛','范','彭','鲁','马','苗','袁','柳','唐','罗','梁','宋','刘','徐','高','郭','程','叶','杜'];
+ const GIV=['晓雅','思远','梓涵','嘉树','蔓青','一诺','慕云','亦欢','楚然','乐瑶','星野','沐晴','子墨','语芙','知远','晴岚','晚舟','桐雨','南笙','雨桐','清越','若溪','景行','云舒','之恒','静姝','靖淮','明煦','安歌','乐成','疏影','竹西','南乔','北辰','温言','白苏','青临','时安','沐宸','书瑶','锦程','以宁','望舒','斯年','听兰','怀瑾','清和','允兮','柏舟','其琛'];
+ const PRE=['136','158','189','133','139','151','186','137','150','177','159','138','135','188','131'];
+ let seed=20261020;
+ function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+ const out={};
+ TIERS.forEach(function(t,ti){
+  const list=DATA.M[t.k].map(function(m){return m.slice()});
+  const used={};list.forEach(function(m){used[m[0]]=1});
+  const need=DATA.counts[ti]-list.length;
+  for(let j=0;j<need;j++){
+   let code;do{code='13200'+(300+Math.floor(rnd()*600))}while(used[code]);
+   used[code]=1;
+   const nm=SURN[Math.floor(rnd()*SURN.length)]+GIV[Math.floor(rnd()*GIV.length)];
+   const ph=PRE[Math.floor(rnd()*PRE.length)]+'****'+String(1000+Math.floor(rnd()*9000));
+   /* E/D/C/B 档展示「距下一档差额」：取 0.25~0.95 倍档位人均差额（与种子记录低于档位差额的口径一致）；
+      A 档展示「当月业绩」：1500 ~ 26000 元 */
+   const amt=t.next?Math.max(5,Math.round((0.25+0.7*rnd())*t.gap)):Math.round(1500+24500*rnd());
+   list.push([code,nm,ph,amt]);
+  }
+  out[t.k]=list;
+ });
+ return out;
+}
+const MEMBERS=genMembers();
 function renderTiers(){
- const d=DATA[role];
+ const d=DATA;
  document.getElementById('tierList').innerHTML=TIERS.map((t,i)=>{
-  const n=d.counts[i],list=d.M[t.k];
+  const n=d.counts[i],list=MEMBERS[t.k];
+  const total=Math.max(1,Math.ceil(n/PAGE_SIZE));
+  const pg=Math.min(Math.max(tierPage[i],1),total);
+  tierPage[i]=pg;
+  const rows=list.slice((pg-1)*PAGE_SIZE,pg*PAGE_SIZE).map(m=>`<tr><td class="code">${m[0]}</td><td>${m[1]}</td><td class="code">${m[2]}</td><td class="${t.next?'gp':'perf'}">¥${fmt(m[3])}</td></tr>`).join('');
   const right=t.next
    ?`<div class="tval"><div class="n">${fmt(n)} 人</div><div class="gap">距 ${t.next} 还差 ¥${fmt(t.gap)} 起</div></div>`
    :`<div class="tval"><div class="n">${fmt(n)} 人</div><div class="top">已达最高档</div></div>`;
   const gapHead=t.next?'距'+t.next+'差额':'当月业绩';
-  const rows=list.map(m=>`<tr><td class="code">${m[0]}</td><td>${m[1]}</td><td class="code">${m[2]}</td><td class="${t.next?'gp':'perf'}">¥${fmt(m[3])}</td></tr>`).join('');
+  /* 分页控件：上一页 / 页码下拉（选中页即当前页，可直接跳转）/ 下一页；首末页对应按钮置灰 */
+  const opts=Array.from({length:total},(_,p)=>`<option value="${p+1}"${p+1===pg?' selected':''}>${p+1} / ${total} 页</option>`).join('');
+  const pager=`<div class="pgbar">
+    <button class="pgb" onclick="event.stopPropagation();tprPage(${i},-1)"${pg<=1?' disabled':''}>上一页</button>
+    <select class="pgsel" onchange="tprJump(${i},this.value)" aria-label="跳转页码">${opts}</select>
+    <button class="pgb" onclick="event.stopPropagation();tprPage(${i},1)"${pg>=total?' disabled':''}>下一页</button>
+  </div>`;
   return `<div class="twrap${openTier===i?' open':''}" id="tw${i}">
-   <div class="trow" onclick="toggleTier(${i})">
+   <div class="trow" onclick="window.tprToggle(${i})">
     <div class="badge" style="background:${t.bg}">${t.k}档</div>
     <div class="tinfo"><div class="t1">${t.k} 档成员</div><div class="t2">${t.next?'当月业绩距 '+t.next+'门槛人均还差 ¥'+fmt(t.gap):'当前档位体系的最高档'}</div></div>
     ${right}
@@ -5763,40 +5837,30 @@ function renderTiers(){
    </div>
    <div class="mlist">
     <table class="minitable"><thead><tr><th>Code</th><th>昵称</th><th>手机号</th><th>${gapHead}</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="morebtn" onclick="event.stopPropagation();showToast('查看全部 ${fmt(n)} 人')">more · 全部 ${fmt(n)} 人 ›</div>
+    ${pager}
    </div>
   </div>`}).join('');
- renderExplain();
 }
-function pickRole(r){
- role=r;renderRoleSeg();
- const d=DATA[role];
+/* 分页翻页 / 跳转：仅作用于当前展开的档位，重渲染后档位保持展开 */
+window.tprPage=function(i,delta){if(openTier!==i)return;tierPage[i]+=delta;renderTiers()};
+window.tprJump=function(i,v){if(openTier!==i)return;tierPage[i]=Math.min(Math.max(parseInt(v,10)||1,1),Math.ceil(DATA.counts[i]/PAGE_SIZE));renderTiers()};
+function renderData(){
+ const d=DATA;
  openTier=-1;
- const rt=document.getElementById('roleTip'); if(rt) rt.textContent=r==='agent'?'代理视角 · 直属下级':'创始人视角 · 全公司（不含自己）';
  document.getElementById('sTotalL').textContent=d.totalL;
  document.getElementById('sUpL').textContent=d.upL;
  const total=d.counts.reduce((a,b)=>a+b,0);
  document.getElementById('sTotal').textContent=fmt(total);
- /* 本月团队总业绩（核心指标）+ 其口径说明人数，随视角联动 */
+ /* 本月团队总业绩（核心指标）+ 其口径说明人数 */
  const pe=document.getElementById('sPerf'); if(pe) pe.textContent=fmtMoney(d.teamPerf);
  const pn=document.getElementById('sPerfN'); if(pn) pn.textContent=fmt(total);
  const up=TIERS.reduce((s,t,i)=>s+((t.next&&t.gap<=500)?d.counts[i]:0),0);
  document.getElementById('sUp').textContent=fmt(up);
  renderTiers();
 }
-function renderExplain(){
- const r=role==='agent';
- document.getElementById('explain').innerHTML=
-  '1. 视角口径：代理看「直属下级」各档位人数；创始人看「整个公司全部人员」（不含自己）；实时（当月）数据，当月有业绩即计入；<br>'+
-  '2. 档位为 A–E 五档（E 最低、A 最高），按当月业绩归档；<br>'+
-  '3. 「距下一档还差 ¥X 起」= 该档成员当月业绩到下一档门槛的人均差额（按每人差距取最小值起算），用于锁定临门升档人群；<br>'+
-  '4. 「本月临门升档」= 距下一档门槛差 ≤ ¥500 的人数合计，建议优先触达；<br>'+
-  '5. 点按档位行可展开该档成员名单（Code + 昵称 + 手机号），E–D 档每人显示距下一档还差的业绩金额，A 档显示当月业绩；<br>'+
-  '6. A 档为最高档，无下一档，显示「已达最高档」；数据实时查询。';
-}
-renderRoleSeg();pickRole('agent');
+renderData();
 
-var __N=["DATA", "ROLES", "TIERS", "d", "fmt", "gapHead", "n", "openTier", "pickRole", "r", "renderExplain", "renderRoleSeg", "renderTiers", "right", "role", "rows", "toggleTier", "total", "up"];var __B={};
+var __N=["DATA","TIERS","MEMBERS","PAGE_SIZE","fmt","fmtMoney","genMembers","openTier","tierPage","renderData","renderTiers","toggleTier","total"];var __B={};
 __N.forEach(function(n){try{__B[n]=eval(n)}catch(e){}});
 window.__BMPAGE="team-performance-remind";window.__BMFUNCS=__B;
 }
@@ -5806,7 +5870,7 @@ function initPage_team_performance(){}
    供「本月重点套组销售」页与「总提醒 → 产品销售」复用同一口径，避免重复维护第二套数据 ===== */
 const KIT_MONTHLY_MONTH='2026-10';
 const KIT_MONTHLY_PLAN=[
- {kitId:'A001',kitName:'焕活多肽修护套组（30天装）'},
+ {kitId:'A001',kitName:'焕活多肽修护套组（30天装）·深层修护精华液组合优惠装'},
  {kitId:'A002',kitName:'胶原蛋白肽饮 · 礼盒装'},
  {kitId:'A005',kitName:'雪莲焕白面霜 + 精华组合'},
  {kitId:'A008',kitName:'多肽紧致眼膜 · 30对装'},
@@ -5858,14 +5922,6 @@ const KIT_PLAN=KIT_MONTHLY_PLAN;
 const ORDERS=KIT_MONTHLY_ORDERS;
 let openIdx=-1;
 function statOf(id){return ORDERS[id]||{monthlySales:0,buyerCount:0,buyers:[]}}
-function renderExplain(){
- document.getElementById('kmMonthTip').textContent=MONTH+' 自然月';
- document.getElementById('kmExplain').innerHTML=
-  '1. 本页为可交互演示原型：<b>运营指定清单</b>与<b>当月订单数据</b>均已按真实结构建模（分离存储、通过 kitId 关联），但数值为演示值；<br>'+
-  '2. 待接入接口后，仅需替换 KIT_PLAN（指定套组清单）与 ORDERS（当月订单聚合结果），页面渲染逻辑无需改动；<br>'+
-  '3. 本页统计范围聚焦当月重点套组的销量与下单人员，不含其它维度分析，也不提供历史销量排行；<br>'+
-  '4. <b>待确认</b>：取消订单 / 退款订单是否计入有效销量，需沿用现有业务系统定义，原型暂未处理。';
-}
 function renderList(){
  document.getElementById('kmTip').textContent='共 '+KIT_PLAN.length+' 个 · 运营指定顺序';
  document.getElementById('kmList').innerHTML=KIT_PLAN.map(function(k,i){
@@ -5895,7 +5951,7 @@ function renderList(){
 function toggle(i){openIdx=openIdx===i?-1:i;renderList()}
 /* 唯一命名的全局入口，避免与其它业务页面同名函数冲突 */
 window.kmToggle=toggle;
-renderList();renderExplain();
+renderList();
 }
 /* ===== 产品销售提醒：本月重点套组 · 直属下级未购买批量提醒 ===== */
 var PSR_REMINDED = {};   // { 套组ID: 'YYYY-MM-DD' } 同一套组同一自然日仅成功提醒一次，跨日自动重置
@@ -5992,14 +6048,6 @@ function psrRender(){
         '<button class="psrbtn ghost" onclick="psrView(\'' + k.kitId + '\')">查看购买人员</button>' + btn +
       '</div></div>';
   }).join('');
-  var ex = document.getElementById('psrExplain');
-  if (ex) ex.innerHTML =
-    '1. 统计范围：仅当前用户的<b>直属下级</b>（原型演示共 ' + subs.length + ' 人），不含间接下级；本月重点套组沿用「本月重点」运营指定清单（套组 ID），销量与已购买人数直接复用当月订单聚合结果（monthlySales / buyerCount），未重新定义口径；<br>' +
-    '2. 尚未购买人数 = 直属下级总数 − 本套组已购买去重人数；同一人对同一套组只计一种状态，不同套组分别计算（买了套组 A 不代表买了套组 B）；<br>' +
-    '3. 提醒消息为<b>固定模板</b>，仅替换「商品名称」「已售出件数」两个变量，均从当前套组实时读取，未写死示例值；第一期不做 AI 话术生成；<br>' +
-    '4. <b>批量提醒为原型模拟推送</b>：当前 HTML 无真实消息推送接口，点击后仅模拟生成消息与下发结果、显示 Toast 并切换按钮状态，<b>不会真实发送微信消息或系统通知</b>；<br>' +
-    '5. 同一套组同一自然日仅可成功提醒一次（跨自然日自动重置），不同套组状态相互独立；未购买人数为 0 时不执行推送并提示「暂无需要提醒的下级」；推送失败 / 部分失败不显示成功 Toast，也不标记按钮；<br>' +
-    '6. 「查看购买人员」跳转现有「本月重点」页面（page-kit-monthly），不新增购买人员列表页。';
 }
 /* 查看购买人员：复用现有「本月重点」页面（传递套组 ID，页面不支持定位时正常进入即可） */
 window.psrView = function(kitId){ navTo('page-kit-monthly', kitId); };
@@ -6084,13 +6132,6 @@ var PR_ASSETS = {
     });
   });
 })();
-var PR_EXPLAIN = '1. 权益范围：仅统计直属下级名下「未使用且未过期」的优惠券与礼包；已使用、已过期、已作废的权益不计入任何统计；<br>' +
- '2. 到期口径：以权益<b>真实到期时间字段</b>计算剩余小时数，0 &lt; 剩余小时 ≤ 72 记入「3 天内到期」，0 &lt; 剩余小时 ≤ 168 记入「7 天内到期」；「3 天内」是「7 天内」的子集，<b>不重复累加</b>；到期数量为优惠券与礼包的合计口径，未使用礼包另按单独项统计；<br>' +
- '3. 搜索：支持按代理姓名或 Code 模糊匹配，不区分英文大小写，仅影响列表展示，不修改原始业务数据；清空关键词后恢复完整列表；<br>' +
- '4. 一键提醒：仅当该下级存在 3 天或 7 天内到期权益时按钮可用；点击后提示「今日提醒下级成功」，按钮当日变为「今日已提醒」且不可重复点击；无待提醒权益的下级展示「暂无待提醒权益」；<br>' +
- '5. 提醒频次：同一自然日内同一位下级仅可提醒一次，跨自然日后自动恢复；各下级的提醒状态相互独立，搜索与列表重渲染不会丢失已成功的提醒状态；<br>' +
- '6. 原型数据说明：当前权益底表（券 / 礼包名称、数量、到期时间）为<b>原型模拟数据</b>，到期时间按「距当前时刻 N 小时」生成，仅用于验证统计口径与交互；真实到期时间需由后端权益接口返回后方可接入；<br>' +
- '7. 提醒为前端模拟：点击「一键提醒」不会真实触达下级，不调用消息推送接口，仅演示交互与状态流转。';
 function prDayKey(ts){
   var d = new Date(ts);
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -6189,9 +6230,6 @@ function prRender(){
     }).join('');
   }
   listEl.innerHTML = html;
-
-  var ex = document.getElementById('prExplain');
-  if (ex) ex.innerHTML = PR_EXPLAIN;
 }
 /* 搜索：实时筛选，只影响列表展示；提醒状态存放于 PR_REMINDED，重渲染不丢失 */
 window.prSearch = function(v){
