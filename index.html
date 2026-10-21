@@ -876,6 +876,27 @@ td.l{text-align:left;font-weight:600}
 .hero .hv{font-size:31px;font-weight:800;color:#FF5F00;line-height:1.12;margin-top:5px;letter-spacing:-.01em}
 .hero .hv .cur{font-size:19px;font-weight:800;margin-right:1px}
 .hero .hd{font-size:11px;color:#8A90A0;margin-top:5px}
+/* —— 定点修复（滚动）：本页内容不足一屏时，公共规则 .sub-page .bm-page{height:100%}
+   与上方 .bm-page{min-height:100vh} 会把内层内容容器钉在一屏高，
+   制造约 28px 的虚假滚动空间（滚一下即到底，体感为"无法向下滚动"）。
+   此处仅对本页解除内层容器的固定高度，让滚动容器感知内容真实高度；
+   外层滚动容器不受影响，公共 CSS 未改动。 */
+.bm-page > .bm-page{height:auto;min-height:0}
+/* —— 定点修复（滚动）2：底部导航栏遮挡。
+   实测根因（两段式结构）：
+   ① 公共规则 #tab-bar 为 absolute bottom:0 高 84px、z-index:50，恒盖在子页面（z-index:10）之上，
+      而内容末尾留白仅 28px，滚到底时最后约 56px 内容（档位卡片头部）被导航栏盖住；
+   ② 桌面演示视口高 950px 时 .bm-page{min-height:100vh} 使外层滚动容器比 844px 手机框高 106px，
+      多出部分被 app-container overflow:hidden 裁掉，表现为"滚了但内容没多露出来"。
+   结构说明：公共规则 .sub-page .bm-page{height:100%}（源码靠后）把内层容器钉在外层
+   content-box 高度上，子内容自内层溢出绘制、由外层滚动——因此在外层加 padding-bottom
+   不会进入滚动区（实测无效），必须在内容流末尾追加真实占位盒。
+   处置：外层仅解除 min-height（修复②）；内层 ::after 追加 100px 占位（≥导航栏 84px + 余量，
+   修复①；且收起态内容约 733px + 100px = 833px ≤ 844px 一屏，不产生收起态虚假滚动——
+   占位高度若取 112px 会使收起态多出 113px 滚动余量，实测回归后收敛为 100px）。
+   滚到底时全部真实内容位于导航栏之上。仅作用于本页，公共 CSS 与其他页面未改动。 */
+#page-team-performance-remind > .bm-page{min-height:0}
+#page-team-performance-remind .bm-page > .bm-page::after{content:'';display:block;height:100px}
 </style>
 <style data-pv="page-personal-performance" disabled>
 :root{--o:#FF6A00;--ink:#23283A;--gray:#8A90A0;--bg:#F5F6FA;--tint:#FFF6EE;--deep:#B23A15}
